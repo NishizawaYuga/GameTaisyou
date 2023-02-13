@@ -8,7 +8,7 @@
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
-#include "WorldTransform.h"
+#include "WorldTransform.h" 
 
 /// <summary>
 /// ゲームシーン
@@ -50,4 +50,13 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	 
+	//テスト用
+	int countFlame;
+	int countRhythm;
+	int BPM;
+	//倍率
+	//基準
+	const float baseBPM = 60.0f;
+	float change;
 };

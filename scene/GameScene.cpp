@@ -12,9 +12,31 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
+
+	countFlame = 0;
+	countRhythm = 0;
+	BPM = 140;
+
+	change = baseBPM / BPM;
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+	int changeCount = baseBPM * change;
+	if (countFlame >= changeCount) {
+		countRhythm++;
+		countFlame = 0;
+	}
+	countFlame++;
+
+	debugText_->SetPos(10, 10);
+	debugText_->Printf("BPM : %d", BPM);
+	debugText_->SetPos(10, 30);
+	debugText_->Printf("Rhythm : %d", countRhythm);
+	debugText_->SetPos(10, 50);
+	debugText_->Printf("countFlame : %d", countFlame);
+	debugText_->SetPos(10, 70);
+	debugText_->Printf("change : %f", change);
+}
 
 void GameScene::Draw() {
 
