@@ -10,6 +10,9 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h" 
 
+#include "Lane.h"
+#include "chartManager.h"
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -46,6 +49,7 @@ class GameScene {
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
+	ViewProjection viewProjection;
 
 	/// <summary>
 	/// ゲームシーン用
@@ -59,4 +63,11 @@ class GameScene {
 	//基準
 	const float baseBPM = 60.0f;
 	float change;
+
+	//レーン
+	Lane* lane = nullptr;
+
+	//レーン用モデル
+	Model* laneModel = nullptr;
+	Model* lineModel = nullptr;
 };

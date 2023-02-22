@@ -4,7 +4,10 @@
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+	delete laneModel;
+	delete lane;
+}
 
 void GameScene::Initialize() {
 
@@ -13,14 +16,32 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
+	//モデル
+
+	laneModel = Model::CreateFromOBJ("lane", true);
+	lineModel = Model::CreateFromOBJ("line", true);//テクスチャがないのでエラー吐きます
+
+	//レーン初期化
+	lane = new Lane();
+	//lane->Initialize(laneModel,lineModel);
+	lane->Initialize(laneModel, lineModel);
+
 	countFlame = 0;
 	countRhythm = 0;
-	BPM = 140;
+	BPM = 222;
 
 	change = baseBPM / BPM;
+
+	viewProjection.Initialize();
+	viewProjection.target.y = -30.0f;
+	viewProjection.eye.x += 0.025;
+	viewProjection.eye.y = 2.0f;
+	viewProjection.eye.z += 1.5f;
 }
 
 void GameScene::Update() {
+	
+
 	int changeCount = baseBPM * change;
 	if (countFlame >= changeCount) {
 		countRhythm++;
@@ -36,6 +57,10 @@ void GameScene::Update() {
 	debugText_->Printf("countFlame : %d", countFlame);
 	debugText_->SetPos(10, 70);
 	debugText_->Printf("change : %f", change);
+
+	lane->Update();
+
+	viewProjection.UpdateMatrix();
 }
 
 void GameScene::Draw() {
@@ -64,6 +89,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+	
+	lane->Draw(viewProjection);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
