@@ -26,6 +26,11 @@ void GameScene::Initialize() {
 	//lane->Initialize(laneModel,lineModel);
 	lane->Initialize(laneModel, lineModel);
 
+	//曲データ初期化&読み込み
+	chartManager = new ChartManager();
+	chartManager->Initialize();
+
+
 	countFlame = 0;
 	countRhythm = 0;
 	BPM = 222;
@@ -49,14 +54,7 @@ void GameScene::Update() {
 	}
 	countFlame++;
 
-	debugText_->SetPos(10, 10);
-	debugText_->Printf("BPM : %d", BPM);
-	debugText_->SetPos(10, 30);
-	debugText_->Printf("Rhythm : %d", countRhythm);
-	debugText_->SetPos(10, 50);
-	debugText_->Printf("countFlame : %d", countFlame);
-	debugText_->SetPos(10, 70);
-	debugText_->Printf("change : %f", change);
+	
 
 	lane->Update();
 

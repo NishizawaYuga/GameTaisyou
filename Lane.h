@@ -9,7 +9,7 @@
 
 //↑仮でGameSceneのヤツ全部持ってきた、必要ないincludeは後に削除
 
-//ノーツ
+//ノーツ（1列分)
 struct Note {
 	//ワールドトランスフォーム
 	WorldTransform worldTransform[20000];
@@ -30,6 +30,11 @@ struct Note {
 	int chart[20000] = {0};
 };
 
+//ノーツ（4列分)
+struct Notes {
+	Note note[4];
+};
+
 //曲の基本情報
 struct MusicData {
 	//BPM
@@ -41,8 +46,30 @@ struct MusicData {
 	int beatMolecule;
 	//譜面速度
 	int speed;
-	//譜面
-	Note layer[4];
+	//譜面（レイヤー4枚）
+	Notes layer[4];
+};
+
+//小節線
+struct Line {
+	//フレームカウント
+	int countFlame;
+	//拍カウント
+	int countRhythm;
+	//ベースとなるBPM(BPM60 = 1拍が1秒)
+	const float baseBPM = 60.0f;
+	//ループタイミングを調整させる倍率
+	float magnification;
+	//カウント倍率
+	float change;
+	//1拍をカウントするタイミング
+	int switching;
+	//小節線タイミング
+	int linePop[500];
+	//小節線番号
+	int lineNum;
+	//小節線
+	WorldTransform lineWorld[500];
 };
 
 class Lane {
@@ -67,43 +94,29 @@ public:
 
 private:
 	//譜面を読む
-	void ReadChart(int notes,int i);
+	void ReadChart(int notes,int i,int j);
 
 private:
 	//音楽データ
 	MusicData musicData;
-	//フレームカウント
-	int countFlame;
-	//拍カウント
-	int countRhythm;
 
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
 
 	//レーンそのもののワールド座標
 	WorldTransform lanePosition;
-	//ベースとなるBPM(BPM60 = 1拍が1秒)
-	const float baseBPM = 60.0f;
-	//ループタイミングを調整させる倍率
-	float magnification;
 	//レーンそのもののモデルデータ
 	Model* laneModel = nullptr;
 	//デフォルト用に別個で取っておく
 	Model* defaultModel = nullptr;
 	//小節線モデル
-	Model* line = nullptr;
-	//移す用データ
-	Note layer[4];
+	Model* lineModel = nullptr;
+	//小節線
+	Line line;
 	//ループさせるカウント
 	const int maxNotes = 20000;
 	//オートプレイフラグ
 	bool autoPlay;
-	//カウント倍率
-	float change;
-	//1拍をカウントするタイミング
-	int switching;
-	//小節線
-	WorldTransform lineWorld[500];
 	//曲開始までの時間
 	//初期値
 	const int resetStartTimer = 300;

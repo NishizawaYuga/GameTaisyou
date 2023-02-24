@@ -1,5 +1,6 @@
 #pragma once
 #include "Lane.h"
+#include <string>
 
 //音楽データ管理クラス
 class ChartManager {
@@ -10,12 +11,22 @@ public:
 	//音楽データ呼び出し
 	MusicData GetData(int idnum) { return musicData[idnum]; }
 private:
-	//譜面を各曲に入れる
-	void IncludeChart(int ID,int chart[4][20000]);
+	//ファイル読み込み
+	void LoadData(int ID, std::string filePass);
+
 	//曲データ初期化群
 	void ID000();	//テスト音源
 
 private:
 	//音楽データ
 	MusicData musicData[10];
+
+	//音楽数
+	const int musicNum = 10;
+	//レイヤー数
+	const int layerNum = 4;
+	//列数
+	const int columnNum = 4;
+	//置けるノーツ数
+	const int maxNotes = 20000;
 };

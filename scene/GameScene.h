@@ -70,4 +70,7 @@ class GameScene {
 	//レーン用モデル
 	Model* laneModel = nullptr;
 	Model* lineModel = nullptr;
+
+	//曲データ
+	ChartManager* chartManager = nullptr;
 };
