@@ -11,7 +11,6 @@
 #include "WorldTransform.h" 
 
 #include "Lane.h"
-#include "chartManager.h"
 
 /// <summary>
 /// ゲームシーン
@@ -70,7 +69,4 @@ class GameScene {
 	//レーン用モデル
 	Model* laneModel = nullptr;
 	Model* lineModel = nullptr;
-
-	//曲データ
-	ChartManager* chartManager = nullptr;
 };

@@ -26,9 +26,7 @@ void GameScene::Initialize() {
 	//lane->Initialize(laneModel,lineModel);
 	lane->Initialize(laneModel, lineModel);
 
-	//曲データ初期化&読み込み
-	chartManager = new ChartManager();
-	chartManager->Initialize();
+	lane->LoadMusic(0);
 
 
 	countFlame = 0;

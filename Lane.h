@@ -83,7 +83,7 @@ public:
 	//描画
 	void Draw(ViewProjection viewProjection);
 	//読み込み
-	void LoadMusic(MusicData musicData_);
+	void LoadMusic(int ID);
 	//リセット（曲終了後などに空っぽにする）
 	void ResetMusic();
 	//レーンの見た目変更

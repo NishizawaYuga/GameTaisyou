@@ -101,7 +101,6 @@
     <ClCompile Include="base\DirectXCommon.cpp" />
     <ClCompile Include="base\TextureManager.cpp" />
     <ClCompile Include="base\WinApp.cpp" />
-    <ClCompile Include="chartManager.cpp" />
     <ClCompile Include="Lane.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatSet.cpp" />
@@ -130,7 +129,6 @@
     <ClInclude Include="base\SafeDelete.h" />
     <ClInclude Include="base\TextureManager.h" />
     <ClInclude Include="base\WinApp.h" />
-    <ClInclude Include="chartManager.h" />
     <ClInclude Include="input\Input.h" />
     <ClInclude Include="Lane.h" />
     <ClInclude Include="math\MathUtility.h" />

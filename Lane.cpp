@@ -96,21 +96,21 @@ void Lane::Draw(ViewProjection viewProjection) {
 	lineModel->Draw(lanePosition, viewProjection);
 }
 
-void Lane::LoadMusic(MusicData playData_) {
+void Lane::LoadMusic(int ID) {
 	//音楽データをコピーする
-	this->playData.beatDenomonator = playData_.beatDenomonator;
-	this->playData.beatMolecule = playData_.beatMolecule;
-	this->playData.BPM = playData_.BPM;
-	this->playData.speed = playData_.speed;
+	playData.beatDenomonator = musicData[ID].beatDenomonator;
+	playData.beatMolecule = musicData[ID].beatMolecule;
+	playData.BPM = musicData[ID].BPM;
+	playData.speed = musicData[ID].speed;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < maxNotes; k++) {
-				this->playData.layer[i].note[j].chart[k] = playData_.layer[i].note[j].chart[k];
+				playData.layer[i].note[j].chart[k] = musicData[ID].layer[i].note[j].chart[k];
 			}
 		}
 	}
 	//取得データを素に読み込み
-	line.change = line.baseBPM / this->playData.BPM;
+	line.change = line.baseBPM / playData.BPM;
 }
 
 void Lane::ResetMusic() {
