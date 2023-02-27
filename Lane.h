@@ -3,11 +3,13 @@
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
-#include "Sprite.h"
 #include "ViewProjection.h"
-#include "WorldTransform.h" 
+#include "WorldTransform.h"
 
-//↑仮でGameSceneのヤツ全部持ってきた、必要ないincludeは後に削除
+#include <string>
+
+//chartManagerで読み込んだ譜面をLaneに移そうとすると容量が大きすぎてエラー吐くので
+//二つのソースに分けていた処理を一つに纏めます
 
 //ノーツ（1列分)
 struct Note {
@@ -96,9 +98,19 @@ private:
 	//譜面を読む
 	void ReadChart(int notes,int i,int j);
 
+	//譜面
+	void ChartInitialize();
+	//ファイル読み込み
+	void LoadData(int ID, std::string filePass);
+	//曲データ初期化群
+	void ID000();	//テスト音源
+
 private:
 	//音楽データ
-	MusicData musicData;
+	//プレイで実際に使うデータ
+	MusicData playData;
+	//裏で格納しておくデータ
+	MusicData musicData[10];
 
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
@@ -113,8 +125,7 @@ private:
 	Model* lineModel = nullptr;
 	//小節線
 	Line line;
-	//ループさせるカウント
-	const int maxNotes = 20000;
+
 	//オートプレイフラグ
 	bool autoPlay;
 	//曲開始までの時間
@@ -122,4 +133,14 @@ private:
 	const int resetStartTimer = 300;
 	//実際に変動させる値
 	int startTimer;
+
+	//譜面
+	//音楽数
+	const int musicNum = 10;
+	//レイヤー数
+	const int layerNum = 4;
+	//列数
+	const int columnNum = 4;
+	//置けるノーツ数
+	const int maxNotes = 20000;
 };

@@ -17,6 +17,7 @@ private:
 	//曲データ初期化群
 	void ID000();	//テスト音源
 
+
 private:
 	//音楽データ
 	MusicData musicData[10];
