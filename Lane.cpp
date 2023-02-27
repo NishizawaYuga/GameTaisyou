@@ -60,13 +60,13 @@ void Lane::Update() {
 	if (startTimer > 0) {
 		startTimer--;
 	}
-	else if (startTimer < 0) {
+	else if (startTimer <= 0) {
 		line.switching = line.baseBPM * line.change;
 		if (line.countFlame >= line.switching) {
 			line.countRhythm++;
 			line.countFlame = 0;
 			//曲の拍数（分子）に合わせて小節線タイミング始動
-			if (line.countRhythm >= playData.beatMolecule) {
+			if (line.countRhythm >= playData.beatMolecule + 1) {
 				line.countRhythm = 1;
 				line.linePop[line.lineNum] = true;
 				line.lineNum++;
@@ -85,6 +85,8 @@ void Lane::Update() {
 	debugText_->Printf("change : %f", line.change);
 	debugText_->SetPos(10, 90);
 	debugText_->Printf("lineNum : %d", line.lineNum);
+	debugText_->SetPos(10, 110);
+	debugText_->Printf("Timer : %d", startTimer);
 
 	//レーンの更新
 	matset.MatIdentity(lanePosition);

@@ -43,16 +43,6 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	
-
-	int changeCount = baseBPM * change;
-	if (countFlame >= changeCount) {
-		countRhythm++;
-		countFlame = 0;
-	}
-	countFlame++;
-
-	
 
 	lane->Update();
 
