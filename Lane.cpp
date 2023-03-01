@@ -242,7 +242,7 @@ void Lane::ID000() {
 	//分子
 	musicData[0].beatMolecule = 4;
 	//BPM
-	musicData[0].BPM = 280;
+	musicData[0].BPM = 120;
 	//譜面速度（倍率）
 	musicData[0].speed = 1;
 
