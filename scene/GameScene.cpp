@@ -17,14 +17,17 @@ void GameScene::Initialize() {
 	debugText_ = DebugText::GetInstance();
 
 	//モデル
-
+	for (int i = 0; i < 21; i++) {
+		notesModel[i] = nullptr;
+	}
 	laneModel = Model::CreateFromOBJ("lane", true);
 	lineModel = Model::CreateFromOBJ("line", true);//テクスチャがないのでエラー吐きます
+	notesModel[0] = Model::CreateFromOBJ("tap", true);
 
 	//レーン初期化
 	lane = new Lane();
 	//lane->Initialize(laneModel,lineModel);
-	lane->Initialize(laneModel, lineModel);
+	lane->Initialize(laneModel, lineModel,notesModel);
 
 	lane->LoadMusic(0);
 

@@ -14,22 +14,22 @@
 //ノーツ（1列分)
 struct Note {
 	//ワールドトランスフォーム
-	WorldTransform worldTransform[20000];
+	WorldTransform worldTransform[15000];
 	//移動速度
 	float speed;
 	//ヒット判定
-	bool hit[20000] = {false};
+	bool hit[15000] = {false};
 	//判定チェック
-	int judgement[20000] = {0};
+	int judgement[15000] = {0};
 	//判定タイマー
 	int hitTimer[2000] = {0};
 	//ノーツの種類
-	int type[20000] = {0};
+	int type[15000] = {0};
 	//開始判定
-	bool startMove[20000] = { false };
+	bool startMove[15000] = { false };
 
 	//譜面
-	int chart[20000] = {0};
+	int chart[15000] = {0};
 };
 
 //ノーツ（4列分)
@@ -77,7 +77,7 @@ struct Line {
 class Lane {
 public:
 	//初期化
-	void Initialize(Model* laneModel, Model*lineModel);
+	void Initialize(Model* laneModel, Model*lineModel,Model*noteModel[21]);
 	//更新
 	void Update();
 	//描画
@@ -103,7 +103,7 @@ private:
 	//ファイル読み込み
 	void LoadData(int ID, std::string filePass);
 	//曲データ初期化群
-	void ID000();	//テスト音源
+	void ID000(std::string filePass);	//テスト音源
 
 private:
 	//音楽データ
@@ -123,6 +123,10 @@ private:
 	Model* defaultModel = nullptr;
 	//小節線モデル
 	Model* lineModel = nullptr;
+	//ノーツモデル
+	Model* notesModel[21];
+	//ノーツモデル数
+	const int modelNum = 21;
 	//小節線
 	Line line;
 
@@ -142,7 +146,7 @@ private:
 	//列数
 	const int columnNum = 4;
 	//置けるノーツ数
-	const int maxNotes = 20000;
+	const int maxNotes = 15000;
 	//判定に使用するタイマー
 	const int startMoveTimer = 120;
 	//譜面速度（本来の）

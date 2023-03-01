@@ -8,15 +8,25 @@
 
 using namespace std;
 
-void Lane::Initialize(Model* laneModel, Model* lineModel) {
+void Lane::Initialize(Model* laneModel, Model* lineModel,Model*noteModel[21]) {
 	//nullチェックってやつ
 	assert(laneModel);
 	assert(lineModel);
+	//現在tapだけしか存在しないので0だけ
+	assert(noteModel[0]);
+
+	//ノーツモデルnullptr代入
+	for (int i = 0; i < modelNum; i++) {
+		notesModel[i] = nullptr;
+	}
+
 	//モデルデータを読み込む
 	this->laneModel = laneModel;
 	defaultModel = laneModel;
 
 	this->lineModel = lineModel;
+
+	notesModel[0] = noteModel[0];
 
 	//譜面データ初期化
 	playData.beatDenomonator = 0;
@@ -100,6 +110,8 @@ void Lane::Update() {
 				}
 			}
 		}
+
+		playData.layer[0].note[0].worldTransform[0].translation_.z -= speed;
 	}
 
 	debugText_->SetPos(10, 10);
@@ -115,12 +127,25 @@ void Lane::Update() {
 	debugText_->SetPos(10, 110);
 	debugText_->Printf("Timer : %d", startTimer);
 	debugText_->SetPos(10, 130);
-	debugText_->Printf("lineZ : %f", line.lineWorld[0].translation_.z);
+	debugText_->Printf("noteZ : %f", playData.layer[0].note[0].worldTransform[0].translation_.z);
 
 	//小節線更新
 	for (int i = 0; i < line.lineNum; i++) {
 		matset.MatIdentity(line.lineWorld[i]);
 		line.lineWorld[i].TransferMatrix();
+	}
+	playData.layer[0].note[0].startMove[0] = true;
+
+	//ノーツ更新
+	for (int i = 0; i < layerNum; i++) {
+		for (int j = 0; j < columnNum; j++) {
+			for (int k = 0; k < maxNotes; k++) {
+				if (playData.layer[i].note[j].startMove[k]) {
+					matset.MatIdentity(playData.layer[i].note[j].worldTransform[k]);
+					playData.layer[i].note[j].worldTransform[k].TransferMatrix();
+				}
+			}
+		}
 	}
 	//レーンの更新
 	matset.MatIdentity(lanePosition);
@@ -134,25 +159,28 @@ void Lane::Draw(ViewProjection viewProjection) {
 			lineModel->Draw(line.lineWorld[i], viewProjection);
 		}
 	}
+	notesModel[0]->Draw(playData.layer[0].note[0].worldTransform[0], viewProjection);
 }
 
 void Lane::LoadMusic(int ID) {
+	float distance = speed * 60.0f;//(60.0f->1秒)
+
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
 	playData.beatMolecule = musicData[ID].beatMolecule;
 	playData.BPM = musicData[ID].BPM;
 	playData.speed = musicData[ID].speed;
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
+	for (int i = 0; i < layerNum; i++) {
+		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = musicData[ID].layer[i].note[j].chart[k];
+				playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
 			}
 		}
 	}
 	//取得データを素に読み込み
 	line.change = line.baseBPM / playData.BPM;
 	//小節線の位置決め
-	float distance = speed * 60.0f;//(60.0f->1秒)
 	for (int i = 0; i < line.lineNum; i++) {
 		//判定ラインまでの距離を ジャスト座標 + (移動速度 * 1秒のフレーム数) * 曲ごとの速度倍率 で取る ※画面に出現から判定ラインまで1秒で来る想定(デフォ)
 		line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
@@ -232,10 +260,10 @@ void Lane::ChartInitialize() {
 	}
 
 	//全ての曲のデータ読み込み
-	ID000();
+	ID000("Resources/musicData/testmc.txt");
 }
 
-void Lane::ID000() {
+void Lane::ID000(string filePass) {
 	//test用データ
 	//分母
 	musicData[0].beatDenomonator = 4;
@@ -246,7 +274,7 @@ void Lane::ID000() {
 	//譜面速度（倍率）
 	musicData[0].speed = 1;
 
-	LoadData(0, "musicData/testmc.txt");
+	LoadData(0, filePass);
 }
 
 void Lane::LoadData(int ID, string filePass) {
