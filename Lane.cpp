@@ -41,6 +41,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel,Model*noteModel[21]) {
 				playData.layer[i].note[j].hitTimer[k] = 0;
 				playData.layer[i].note[j].judgement[k] = 0;
 				playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
+				playData.layer[i].note[j].worldTransform[k].Initialize();
 				playData.layer[i].note[j].startMove[k] = false;
 			}
 			playData.layer[i].note[j].speed = 0;

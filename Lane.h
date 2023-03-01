@@ -14,22 +14,22 @@
 //ノーツ（1列分)
 struct Note {
 	//ワールドトランスフォーム
-	WorldTransform worldTransform[15000];
+	WorldTransform worldTransform[12000];
 	//移動速度
 	float speed;
 	//ヒット判定
-	bool hit[15000] = {false};
+	bool hit[12000] = {false};
 	//判定チェック
-	int judgement[15000] = {0};
+	int judgement[12000] = {0};
 	//判定タイマー
 	int hitTimer[2000] = {0};
 	//ノーツの種類
-	int type[15000] = {0};
+	int type[12000] = {0};
 	//開始判定
-	bool startMove[15000] = { false };
+	bool startMove[12000] = { false };
 
 	//譜面
-	int chart[15000] = {0};
+	int chart[12000] = {0};
 };
 
 //ノーツ（4列分)
@@ -146,7 +146,7 @@ private:
 	//列数
 	const int columnNum = 4;
 	//置けるノーツ数
-	const int maxNotes = 15000;
+	const int maxNotes = 12000;
 	//判定に使用するタイマー
 	const int startMoveTimer = 120;
 	//譜面速度（本来の）
