@@ -69,7 +69,7 @@ struct Line {
 	//小節線タイミング
 	int linePop[500];
 	//小節線番号
-	int lineNum;
+	const int lineNum = 500;
 	//小節線
 	WorldTransform lineWorld[500];
 };
@@ -143,4 +143,8 @@ private:
 	const int columnNum = 4;
 	//置けるノーツ数
 	const int maxNotes = 20000;
+	//判定に使用するタイマー
+	const int startMoveTimer = 120;
+	//譜面速度（本来の）
+	float speed;
 };

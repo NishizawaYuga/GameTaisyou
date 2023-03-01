@@ -37,8 +37,10 @@ void Lane::Initialize(Model* laneModel, Model* lineModel) {
 		}
 	}
 
+	//譜面速度（デフォルト）
+	speed = 0.4f;
+
 	//小節線初期化
-	line.lineNum = 1;
 	line.countFlame = 0;
 	line.countRhythm = 1;
 
@@ -47,6 +49,14 @@ void Lane::Initialize(Model* laneModel, Model* lineModel) {
 
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
+	//小節線
+	for (int i = 0; i < line.lineNum; i++) {
+		line.linePop[i] = false;
+		line.lineWorld[i].translation_ = Vector3(0, 0, 0);
+		line.lineWorld[i].Initialize();
+	}
+
+	//レーン
 	lanePosition.translation_ = Vector3(0, -2.0f, -35.0f);
 	lanePosition.Initialize();
 
@@ -60,7 +70,7 @@ void Lane::Update() {
 	if (startTimer > 0) {
 		startTimer--;
 	}
-	else if (startTimer <= 0) {
+	else if (startTimer <= 60) {
 		line.switching = line.baseBPM * line.change;
 		if (line.countFlame >= line.switching) {
 			line.countRhythm++;
@@ -68,11 +78,28 @@ void Lane::Update() {
 			//曲の拍数（分子）に合わせて小節線タイミング始動
 			if (line.countRhythm >= playData.beatMolecule + 1) {
 				line.countRhythm = 1;
-				line.linePop[line.lineNum] = true;
-				line.lineNum++;
+				//使われていない小節線をオンにする
+				for (int i = 0; i < line.lineNum; i++) {
+					if (!line.linePop[i]) {
+						line.linePop[i] = true;
+						break;
+					}
+				}
 			}
 		}
 		line.countFlame++;
+		//小節線移動
+		for (int i = 0; i < line.lineNum; i++) {
+			if (line.linePop[i]) {
+				line.lineWorld[i].translation_.z -= speed;
+				if (line.lineWorld[i].translation_.z < -50.0f){
+					//判定ラインを通り過ぎて画面外まで行ったらfalseにして初期位置に戻してリサイクル
+					float distance = speed * 60.0f;//(60.0f->1秒)
+					line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
+					line.linePop[i] = false;
+				}
+			}
+		}
 	}
 
 	debugText_->SetPos(10, 10);
@@ -87,7 +114,14 @@ void Lane::Update() {
 	debugText_->Printf("lineNum : %d", line.lineNum);
 	debugText_->SetPos(10, 110);
 	debugText_->Printf("Timer : %d", startTimer);
+	debugText_->SetPos(10, 130);
+	debugText_->Printf("lineZ : %f", line.lineWorld[0].translation_.z);
 
+	//小節線更新
+	for (int i = 0; i < line.lineNum; i++) {
+		matset.MatIdentity(line.lineWorld[i]);
+		line.lineWorld[i].TransferMatrix();
+	}
 	//レーンの更新
 	matset.MatIdentity(lanePosition);
 	lanePosition.TransferMatrix();
@@ -95,7 +129,11 @@ void Lane::Update() {
 
 void Lane::Draw(ViewProjection viewProjection) {
 	laneModel->Draw(lanePosition, viewProjection);
-	lineModel->Draw(lanePosition, viewProjection);
+	for(int i = 0;i < line.lineNum;i++){
+		if (line.linePop[i]) {
+			lineModel->Draw(line.lineWorld[i], viewProjection);
+		}
+	}
 }
 
 void Lane::LoadMusic(int ID) {
@@ -113,6 +151,13 @@ void Lane::LoadMusic(int ID) {
 	}
 	//取得データを素に読み込み
 	line.change = line.baseBPM / playData.BPM;
+	//小節線の位置決め
+	float distance = speed * 60.0f;//(60.0f->1秒)
+	for (int i = 0; i < line.lineNum; i++) {
+		//判定ラインまでの距離を ジャスト座標 + (移動速度 * 1秒のフレーム数) * 曲ごとの速度倍率 で取る ※画面に出現から判定ラインまで1秒で来る想定(デフォ)
+		line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
+		line.lineWorld[i].TransferMatrix();
+	}
 }
 
 void Lane::ResetMusic() {
@@ -197,9 +242,9 @@ void Lane::ID000() {
 	//分子
 	musicData[0].beatMolecule = 4;
 	//BPM
-	musicData[0].BPM = 120;
+	musicData[0].BPM = 280;
 	//譜面速度（倍率）
-	musicData->speed = 1;
+	musicData[0].speed = 1;
 
 	LoadData(0, "musicData/testmc.txt");
 }
