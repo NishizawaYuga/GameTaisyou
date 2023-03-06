@@ -14,19 +14,19 @@
 //ノーツ（1列分)
 struct Note {
 	//ワールドトランスフォーム
-	WorldTransform worldTransform[12000];
+	WorldTransform worldTransform[90];
 	//移動速度
 	float speed;
 	//ヒット判定
-	bool hit[12000] = {false};
+	bool hit[90] = {false};
 	//判定チェック
-	int judgement[12000] = {0};
+	int judgement[90] = {0};
 	//判定タイマー
-	int hitTimer[2000] = {0};
+	int hitTimer[90] = {0};
 	//ノーツの種類
-	int type[12000] = {0};
+	int type[90] = {0};
 	//開始判定
-	bool startMove[12000] = { false };
+	bool startMove[90] = { false };
 
 	//譜面
 	int chart[12000] = {0};
@@ -96,14 +96,17 @@ public:
 
 private:
 	//譜面を読む
-	void ReadChart(int notes,int i,int j);
-
+	void ReadChart();
+	//スタート時の設定
+	void SetNote(int i, int j,int k, int typeNum);
 	//譜面
 	void ChartInitialize();
+	//小節線更新
+	void LineUpdate();
 	//ファイル読み込み
 	void LoadData(int ID, std::string filePass);
 	//曲データ初期化群
-	void ID000(std::string filePass);	//テスト音源
+	void ID000(std::string filePass,int musicID);	//テスト音源
 
 private:
 	//音楽データ
@@ -147,8 +150,19 @@ private:
 	const int columnNum = 4;
 	//置けるノーツ数
 	const int maxNotes = 12000;
+	//表示するノーツ
+	const int drawNotes = 90;
 	//判定に使用するタイマー
 	const int startMoveTimer = 120;
 	//譜面速度（本来の）
 	float speed;
+	//曲開始
+	bool startMusic;
+	//譜面の読み取り番号
+	int chartNum;
+	//判定ラインからスタート地点までの距離
+	float distance;
+
+	//デバッグ用
+	bool moveFlag = true;
 };

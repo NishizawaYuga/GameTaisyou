@@ -23,6 +23,8 @@ void GameScene::Initialize() {
 	laneModel = Model::CreateFromOBJ("lane", true);
 	lineModel = Model::CreateFromOBJ("line", true);//テクスチャがないのでエラー吐きます
 	notesModel[0] = Model::CreateFromOBJ("tap", true);
+	notesModel[1] = Model::CreateFromOBJ("hold", true);
+	notesModel[2] = Model::CreateFromOBJ("hold_while00", true);
 
 	//レーン初期化
 	lane = new Lane();

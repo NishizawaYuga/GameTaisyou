@@ -8,12 +8,13 @@
 
 using namespace std;
 
-void Lane::Initialize(Model* laneModel, Model* lineModel,Model*noteModel[21]) {
+void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[21]) {
 	//nullチェックってやつ
 	assert(laneModel);
 	assert(lineModel);
-	//現在tapだけしか存在しないので0だけ
-	assert(noteModel[0]);
+	for (int i = 0; i < modelNum; i++) {
+		assert(noteModel[i]);
+	}
 
 	//ノーツモデルnullptr代入
 	for (int i = 0; i < modelNum; i++) {
@@ -26,7 +27,9 @@ void Lane::Initialize(Model* laneModel, Model* lineModel,Model*noteModel[21]) {
 
 	this->lineModel = lineModel;
 
-	notesModel[0] = noteModel[0];
+	for (int i = 0; i < modelNum; i++) {
+		notesModel[i] = noteModel[i];
+	}
 
 	//譜面データ初期化
 	playData.beatDenomonator = 0;
@@ -37,19 +40,23 @@ void Lane::Initialize(Model* laneModel, Model* lineModel,Model*noteModel[21]) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = 0;
-				playData.layer[i].note[j].hit[k] = false;
-				playData.layer[i].note[j].hitTimer[k] = 0;
-				playData.layer[i].note[j].judgement[k] = 0;
-				playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
-				playData.layer[i].note[j].worldTransform[k].Initialize();
-				playData.layer[i].note[j].startMove[k] = false;
+				if (k < drawNotes) {
+					playData.layer[i].note[j].hit[k] = false;
+					playData.layer[i].note[j].hitTimer[k] = 0;
+					playData.layer[i].note[j].judgement[k] = 0;
+					playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
+					playData.layer[i].note[j].worldTransform[k].Initialize();
+					playData.layer[i].note[j].startMove[k] = false;
+				}
 			}
 			playData.layer[i].note[j].speed = 0;
 		}
 	}
 
 	//譜面速度（デフォルト）
-	speed = 0.4f;
+	speed = 0.3f;
+
+	distance = speed * 60.0f;//(60.0f->1秒)
 
 	//小節線初期化
 	line.countFlame = 0;
@@ -72,47 +79,35 @@ void Lane::Initialize(Model* laneModel, Model* lineModel,Model*noteModel[21]) {
 	lanePosition.Initialize();
 
 	startTimer = resetStartTimer;
+
+	startMusic = false;
+
+	chartNum = 0;
 }
 
 void Lane::Update() {
 	MatSet2 matset;
-
-	//タイマーが0になったらスタート
-	if (startTimer > 0) {
-		startTimer--;
+	//デバッグ用にスペースを押してる間だけ進むように
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (!moveFlag) {
+			moveFlag = true;
+		}
+		else if (moveFlag) {
+			moveFlag = false;
+		}
 	}
-	else if (startTimer <= 60) {
-		line.switching = line.baseBPM * line.change;
-		if (line.countFlame >= line.switching) {
-			line.countRhythm++;
-			line.countFlame = 0;
-			//曲の拍数（分子）に合わせて小節線タイミング始動
-			if (line.countRhythm >= playData.beatMolecule + 1) {
-				line.countRhythm = 1;
-				//使われていない小節線をオンにする
-				for (int i = 0; i < line.lineNum; i++) {
-					if (!line.linePop[i]) {
-						line.linePop[i] = true;
-						break;
-					}
-				}
-			}
+	//if (input_->PushKey(DIK_SPACE)) {
+		//タイマーが0になったらスタート
+	if (moveFlag) {
+		if (startTimer > 0) {
+			startTimer--;
 		}
-		line.countFlame++;
-		//小節線移動
-		for (int i = 0; i < line.lineNum; i++) {
-			if (line.linePop[i]) {
-				line.lineWorld[i].translation_.z -= speed;
-				if (line.lineWorld[i].translation_.z < -50.0f){
-					//判定ラインを通り過ぎて画面外まで行ったらfalseにして初期位置に戻してリサイクル
-					float distance = speed * 60.0f;//(60.0f->1秒)
-					line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
-					line.linePop[i] = false;
-				}
-			}
+		if (startTimer <= 60) {
+			LineUpdate();
 		}
-
-		playData.layer[0].note[0].worldTransform[0].translation_.z -= speed;
+		if (startMusic) {
+			ReadChart();
+		}
 	}
 
 	debugText_->SetPos(10, 10);
@@ -135,12 +130,11 @@ void Lane::Update() {
 		matset.MatIdentity(line.lineWorld[i]);
 		line.lineWorld[i].TransferMatrix();
 	}
-	playData.layer[0].note[0].startMove[0] = true;
 
 	//ノーツ更新
 	for (int i = 0; i < layerNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
-			for (int k = 0; k < maxNotes; k++) {
+			for (int k = 0; k < drawNotes; k++) {
 				if (playData.layer[i].note[j].startMove[k]) {
 					matset.MatIdentity(playData.layer[i].note[j].worldTransform[k]);
 					playData.layer[i].note[j].worldTransform[k].TransferMatrix();
@@ -151,20 +145,34 @@ void Lane::Update() {
 	//レーンの更新
 	matset.MatIdentity(lanePosition);
 	lanePosition.TransferMatrix();
+	//}
 }
 
 void Lane::Draw(ViewProjection viewProjection) {
 	laneModel->Draw(lanePosition, viewProjection);
-	for(int i = 0;i < line.lineNum;i++){
+	for (int i = 0; i < line.lineNum; i++) {
 		if (line.linePop[i]) {
 			lineModel->Draw(line.lineWorld[i], viewProjection);
 		}
 	}
-	notesModel[0]->Draw(playData.layer[0].note[0].worldTransform[0], viewProjection);
+	for (int i = 0; i < layerNum; i++) {
+		for (int j = 0; j < columnNum; j++) {
+			for (int k = 0; k < drawNotes; k++) {
+				if (playData.layer[i].note[j].type[k] == 1) {
+					notesModel[0]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
+				}
+				else if (playData.layer[i].note[j].type[k] == 2 || playData.layer[i].note[j].type[k] == 5 || playData.layer[i].note[j].type[k] == 6) {
+					notesModel[1]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
+				}
+				else if (playData.layer[i].note[j].type[k] == 3 || playData.layer[i].note[j].type[k] == 4) {
+					notesModel[2]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
+				}
+			}
+		}
+	}
 }
 
 void Lane::LoadMusic(int ID) {
-	float distance = speed * 60.0f;//(60.0f->1秒)
 
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
@@ -175,7 +183,9 @@ void Lane::LoadMusic(int ID) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = musicData[ID].layer[i].note[j].chart[k];
-				playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
+				if (k < drawNotes) {
+					playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i * 0.01f, -45.5f + distance * playData.speed);
+				}
 			}
 		}
 	}
@@ -199,15 +209,21 @@ void Lane::ResetMusic() {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = 0;
-				playData.layer[i].note[j].hit[k] = false;
-				playData.layer[i].note[j].hitTimer[k] = 0;
-				playData.layer[i].note[j].judgement[k] = 0;
-				playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
-				playData.layer[i].note[j].startMove[k] = false;
+				if (k < drawNotes) {
+					playData.layer[i].note[j].hit[k] = false;
+					playData.layer[i].note[j].hitTimer[k] = 0;
+					playData.layer[i].note[j].judgement[k] = 0;
+					playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
+					playData.layer[i].note[j].startMove[k] = false;
+				}
 			}
 			playData.layer[i].note[j].speed = 0;
 		}
 	}
+
+	startMusic = 0;
+	startTimer = resetStartTimer;
+	chartNum = 0;
 }
 
 void Lane::ChangeLane(Model* model) {
@@ -235,13 +251,94 @@ void Lane::Auto(bool select) {
 	}
 }
 
-void Lane::ReadChart(int notes, int i, int j) {
-	//ノーツの種類に合わせて設定する
-	//ノーツの動きだし開始判定
-	playData.layer[i].note[j].startMove[notes] = true;
-	if (playData.layer[i].note[j].chart[notes] == 1) {
-
+void Lane::LineUpdate() {
+	line.switching = line.baseBPM * line.change;
+	if (line.countFlame >= line.switching) {
+		line.countRhythm++;
+		line.countFlame = 0;
+		//曲の拍数（分子）に合わせて小節線タイミング始動
+		if (line.countRhythm >= playData.beatMolecule + 1) {
+			line.countRhythm = 1;
+			//使われていない小節線をオンにする
+			for (int i = 0; i < line.lineNum; i++) {
+				if (!line.linePop[i]) {
+					line.linePop[i] = true;
+					break;
+				}
+			}
+			if (!startMusic) {
+				startMusic = true;
+			}
+		}
 	}
+	line.countFlame++;
+	//小節線移動
+	for (int i = 0; i < line.lineNum; i++) {
+		if (line.linePop[i]) {
+			line.lineWorld[i].translation_.z -= speed;
+			if (line.lineWorld[i].translation_.z < -50.0f) {
+				//判定ラインを通り過ぎて画面外まで行ったらfalseにして初期位置に戻してリサイクル
+				float distance = speed * 60.0f;//(60.0f->1秒)
+				line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
+				line.linePop[i] = false;
+			}
+		}
+	}
+}
+
+void Lane::ReadChart() {
+	//1フレームごとに譜面を読む
+	for (int i = 0; i < layerNum; i++) {	//レイヤー数
+		for (int j = 0; j < columnNum; j++) {	//列数
+			if (playData.layer[i].note[j].chart[chartNum] == 1) {	//ノーツの有無チェック
+				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
+					if (!playData.layer[i].note[j].startMove[k]) {
+						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
+						break;											//空きが見つかったら即脱出
+					}
+				}
+			}
+			else if (playData.layer[i].note[j].chart[chartNum] == 2 || playData.layer[i].note[j].chart[chartNum] == 5 || playData.layer[i].note[j].chart[chartNum] == 6) {	//ノーツの有無チェック
+				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
+					if (!playData.layer[i].note[j].startMove[k]) {
+						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
+						break;											//空きが見つかったら即脱出
+					}
+				}
+			}
+			else if (playData.layer[i].note[j].chart[chartNum] == 3 || playData.layer[i].note[j].chart[chartNum] == 4) {	//ノーツの有無チェック
+				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
+					if (!playData.layer[i].note[j].startMove[k]) {
+						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
+						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - i * 0.01f, -45.5f + distance * playData.speed);
+						break;											//空きが見つかったら即脱出
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < layerNum; i++) {	//レイヤー数
+		for (int j = 0; j < columnNum; j++) {	//列数
+			for (int k = 0; k < drawNotes; k++) {	//表示可能ノーツ数
+				if (playData.layer[i].note[j].startMove[k]) {	//スタートフラグオンなら
+					playData.layer[i].note[j].worldTransform[k].translation_.z -= speed;	//譜面速度に合わせて移動
+					//ノーツが一定ラインを通り過ぎるかヒット判定がオンでリセット
+					if (playData.layer[i].note[j].worldTransform[k].translation_.z < -50.0f || playData.layer[i].note[j].hit[k]) {
+						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i * 0.01f, -45.5f + distance * playData.speed);
+						playData.layer[i].note[j].hit[k] = false;
+						playData.layer[i].note[j].hitTimer[k] = 0;
+						playData.layer[i].note[j].type[k] = 0;
+						playData.layer[i].note[j].startMove[k] = false;
+						playData.layer[i].note[j].judgement[k] = 0;
+					}
+				}
+			}
+		}
+	}
+
+	//カウントを進める
+	chartNum++;
 }
 
 void Lane::ChartInitialize() {
@@ -261,21 +358,22 @@ void Lane::ChartInitialize() {
 	}
 
 	//全ての曲のデータ読み込み
-	ID000("Resources/musicData/testmc.txt");
+	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
+	ID000("Resources/musicData/testmc.txt",0);
 }
 
-void Lane::ID000(string filePass) {
+void Lane::ID000(string filePass,int musicID) {
 	//test用データ
 	//分母
-	musicData[0].beatDenomonator = 4;
+	musicData[musicID].beatDenomonator = 4;
 	//分子
-	musicData[0].beatMolecule = 4;
+	musicData[musicID].beatMolecule = 4;
 	//BPM
-	musicData[0].BPM = 120;
+	musicData[musicID].BPM = 175;
 	//譜面速度（倍率）
-	musicData[0].speed = 1;
+	musicData[musicID].speed = 1;
 
-	LoadData(0, filePass);
+	LoadData(musicID, filePass);
 }
 
 void Lane::LoadData(int ID, string filePass) {
@@ -318,4 +416,10 @@ void Lane::LoadData(int ID, string filePass) {
 			i++;
 		}
 	}
+}
+
+void Lane::SetNote(int i, int j,int k, int typeNum) {
+	playData.layer[i].note[j].startMove[k] = true;	//開始フラグオン
+	playData.layer[i].note[j].type[k] = typeNum;			//ノーツの種類設定
+	playData.layer[i].note[j].hitTimer[k] = 60;		//判定カウントの設定
 }
