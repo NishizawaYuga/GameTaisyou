@@ -99,6 +99,10 @@ private:
 	void ReadChart();
 	//スタート時の設定
 	void SetNote(int i, int j,int k, int typeNum);
+	//判定
+	void Judgement();
+	//列一つ分の判定
+	void ColumnHit(int layer,int columnNum,int notes,bool trigger,bool push);
 	//譜面
 	void ChartInitialize();
 	//小節線更新
@@ -162,6 +166,21 @@ private:
 	int chartNum;
 	//判定ラインからスタート地点までの距離
 	float distance;
+
+	//コンボ数
+	int combo;
+	//最大コンボ数
+	int maxCombo;
+	//PERFECT数
+	int perfect;
+	//GREAT数
+	int great;
+	//MISS数
+	int miss;
+
+	//判定調整用
+	int fastJudge;
+	int lateJudge;
 
 	//デバッグ用
 	bool moveFlag = true;
