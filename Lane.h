@@ -5,6 +5,7 @@
 #include "SafeDelete.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "Audio.h"
 
 #include <string>
 
@@ -118,8 +119,11 @@ private:
 	MusicData playData;
 	//裏で格納しておくデータ
 	MusicData musicData[10];
-
+	//オーディオ
+	Audio* audio_ = nullptr;
+	//キー入力
 	Input* input_ = nullptr;
+	//デバッグテキスト
 	DebugText* debugText_ = nullptr;
 
 	//レーンそのもののワールド座標
@@ -184,4 +188,8 @@ private:
 
 	//デバッグ用
 	bool moveFlag = true;
+
+	//サウンドデータハンドル
+	uint32_t music[10] = {0};
+	uint32_t SE[3] = { 0,0,0 };
 };

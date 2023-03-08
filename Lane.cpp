@@ -67,6 +67,17 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[21]) 
 
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
+	audio_ = Audio::GetInstance();
+	audio_->Initialize();
+
+
+	
+
+	//効果音
+
+	SE[0] = audio_->LoadWave("se/perfect.wav");
+	SE[1] = audio_->LoadWave("se/great.wav");
+
 	//小節線
 	for (int i = 0; i < line.lineNum; i++) {
 		line.linePop[i] = false;
@@ -283,10 +294,16 @@ void Lane::Judgement() {
 					//PERFECT判定（6フレーム)
 					if (playData.layer[i].note[j].hitTimer[k] >= lateJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge) {
 						playData.layer[i].note[j].judgement[k] = 1;
+						if (playData.layer[i].note[j].type[k] != 3) {
+							audio_->PlayWave(SE[0]);
+						}
 					}
 					//GREAT判定(FAST)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
 						playData.layer[i].note[j].judgement[k] = 2;
+						if (playData.layer[i].note[j].type[k] != 3) {
+							audio_->PlayWave(SE[1]);
+						}
 						if (playData.layer[i].note[j].type[k] == 6) {
 							//HOLD終点のみFAST判定無し
 							playData.layer[i].note[j].judgement[k] = 1;
@@ -295,6 +312,9 @@ void Lane::Judgement() {
 					//GREAT判定(LATE)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] < lateJudge && playData.layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
 						playData.layer[i].note[j].judgement[k] = 2;
+						if (playData.layer[i].note[j].type[k] != 3) {
+							audio_->PlayWave(SE[1]);
+						}
 					}
 					//MISS判定(FAST)（1フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
@@ -316,20 +336,27 @@ void Lane::Judgement() {
 					if (playData.layer[i].note[j].judgement[k] == 1) {
 						combo++;
 						perfect++;
+						//MAXコンボ確認
+						if (maxCombo < combo) {
+							maxCombo = combo;
+						}
+						break;
 					}
 					else if (playData.layer[i].note[j].judgement[k] == 2) {
 						combo++;
 						great++;
+						//MAXコンボ確認
+						if (maxCombo < combo) {
+							maxCombo = combo;
+						}
+						break;
 					}
 					else if (playData.layer[i].note[j].judgement[k] == 3) {
 						//MISSしたらコンボカウントを0にする
 						combo = 0;
 						miss++;
+						break;
 					}
-				}
-				//MAXコンボ確認
-				if (maxCombo < combo) {
-					maxCombo = combo;
 				}
 			}
 		}
