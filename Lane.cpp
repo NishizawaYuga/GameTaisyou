@@ -74,7 +74,6 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[21]) 
 	
 
 	//Œø‰Ê‰¹
-
 	SE[0] = audio_->LoadWave("se/perfect.wav");
 	SE[1] = audio_->LoadWave("se/great.wav");
 
