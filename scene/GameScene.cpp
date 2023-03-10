@@ -20,11 +20,13 @@ void GameScene::Initialize() {
 	for (int i = 0; i < 21; i++) {
 		notesModel[i] = nullptr;
 	}
-	laneModel = Model::CreateFromOBJ("lane", true);
-	lineModel = Model::CreateFromOBJ("line", true);//テクスチャがないのでエラー吐きます
-	notesModel[0] = Model::CreateFromOBJ("tap", true);
-	notesModel[1] = Model::CreateFromOBJ("hold", true);
-	notesModel[2] = Model::CreateFromOBJ("hold_while00", true);
+	laneModel = Model::CreateFromOBJ("lane", true);					//レーン
+	lineModel = Model::CreateFromOBJ("line", true);					//小節線
+	notesModel[0] = Model::CreateFromOBJ("tap", true);				//TAP
+	notesModel[1] = Model::CreateFromOBJ("hold", true);				//HOLD（始点）
+	notesModel[2] = Model::CreateFromOBJ("hold_while00", true);		//HOLD（間）
+	notesModel[3] = Model::CreateFromOBJ("tap_wide01", true);	//TAP（2分の1サイズ）
+	notesModel[4] = Model::CreateFromOBJ("hold_wide01", true);	//HOLD（始点/2分の1サイズ）
 
 	//レーン初期化
 	lane = new Lane();

@@ -19,18 +19,18 @@ struct Note {
 	//移動速度
 	float speed;
 	//ヒット判定
-	bool hit[90] = {false};
+	bool hit[90] = { false };
 	//判定チェック
-	int judgement[90] = {0};
+	int judgement[90] = { 0 };
 	//判定タイマー
-	int hitTimer[90] = {0};
+	int hitTimer[90] = { 0 };
 	//ノーツの種類
-	int type[90] = {0};
+	int type[90] = { 0 };
 	//開始判定
 	bool startMove[90] = { false };
 
 	//譜面
-	int chart[12000] = {0};
+	int chart[12000] = { 0 };
 };
 
 //ノーツ（4列分)
@@ -78,7 +78,7 @@ struct Line {
 class Lane {
 public:
 	//初期化
-	void Initialize(Model* laneModel, Model*lineModel,Model*noteModel[21]);
+	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[21]);
 	//更新
 	void Update();
 	//描画
@@ -99,11 +99,13 @@ private:
 	//譜面を読む
 	void ReadChart();
 	//スタート時の設定
-	void SetNote(int i, int j,int k, int typeNum);
+	void SetNote(int i, int j, int k, int typeNum);
 	//判定
 	void Judgement();
 	//列一つ分の判定
-	void ColumnHit(int layer,int columnNum,int notes,bool trigger,bool push);
+	void ColumnHit(int layer, int columnNum, int notes, bool trigger, bool push);
+	//太いノーツの押された判定を返す
+	bool ThickColumn(bool key1=false, bool key2=false, bool key3=false, bool key4=false);
 	//譜面
 	void ChartInitialize();
 	//小節線更新
@@ -111,7 +113,7 @@ private:
 	//ファイル読み込み
 	void LoadData(int ID, std::string filePass);
 	//曲データ初期化群
-	void ID000(std::string filePass,int musicID);	//テスト音源
+	void ID000(std::string filePass, int musicID);	//テスト音源
 
 private:
 	//音楽データ
@@ -120,7 +122,9 @@ private:
 	//裏で格納しておくデータ
 	MusicData musicData[10];
 	//オーディオ
-	Audio* audio_ = nullptr;
+	Audio* audioSE = nullptr;
+	Audio* audioMusic = nullptr;
+
 	//キー入力
 	Input* input_ = nullptr;
 	//デバッグテキスト
@@ -190,6 +194,6 @@ private:
 	bool moveFlag = true;
 
 	//サウンドデータハンドル
-	uint32_t music[10] = {0};
+	uint32_t music[10] = { 0 };
 	uint32_t SE[3] = { 0,0,0 };
 };
