@@ -78,7 +78,7 @@ struct Line {
 class Lane {
 public:
 	//初期化
-	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[21]);
+	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]);
 	//更新
 	void Update();
 	//描画
@@ -139,9 +139,9 @@ private:
 	//小節線モデル
 	Model* lineModel = nullptr;
 	//ノーツモデル
-	Model* notesModel[21];
+	Model* notesModel[12];
 	//ノーツモデル数
-	const int modelNum = 21;
+	const int modelNum = 12;
 	//小節線
 	Line line;
 

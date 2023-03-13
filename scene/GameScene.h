@@ -69,5 +69,5 @@ private: // メンバ変数
 	//レーン用モデル
 	Model* laneModel = nullptr;
 	Model* lineModel = nullptr;
-	Model* notesModel[21];
+	Model* notesModel[12];
 };

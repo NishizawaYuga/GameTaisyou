@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[21]) {
+void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) {
 	//nullチェックってやつ
 	assert(laneModel);
 	assert(lineModel);
@@ -197,22 +197,16 @@ void Lane::Draw(ViewProjection viewProjection) {
 	for (int i = 0; i < layerNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
-				if (playData.layer[i].note[j].type[k] == 1) {
-					notesModel[0]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
+				int drawNum = playData.layer[i].note[j].type[k];
+				if (drawNum > 20) { drawNum -= 12;}
+				else if (drawNum > 16) { drawNum -= 8; }
+				else if (drawNum > 12) { drawNum -= 8; }
+				else if (drawNum > 8) { drawNum -= 4; }
+
+				if (playData.layer[i].note[j].type[k] != 0) {
+					notesModel[drawNum - 1]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
 				}
-				else if (playData.layer[i].note[j].type[k] == 2 || playData.layer[i].note[j].type[k] == 5 || playData.layer[i].note[j].type[k] == 6) {
-					notesModel[1]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
-				}
-				else if (playData.layer[i].note[j].type[k] == 3 || playData.layer[i].note[j].type[k] == 4) {
-					notesModel[2]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
-				}
-				//2分の1サイズ
-				else if (playData.layer[i].note[j].type[k] == 7) {
-					notesModel[3]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
-				}
-				else if (playData.layer[i].note[j].type[k] == 8 || playData.layer[i].note[j].type[k] == 10 || playData.layer[i].note[j].type[k] == 11) {
-					notesModel[4]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
-				}
+				
 			}
 		}
 	}
@@ -294,19 +288,30 @@ void Lane::Judgement() {
 		for (int k = 0; k < drawNotes; k++) {
 			//列ごとにhit判定を取る
 			//ノーツの種類によって処理の仕方を変える
-			if (playData.layer[i].note[0].type[k] < 7) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
-			if (playData.layer[i].note[1].type[k] < 7) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
-			if (playData.layer[i].note[2].type[k] < 7) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_H), input_->PushKey(DIK_H)); }
-			if (playData.layer[i].note[3].type[k] < 7) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
+			if (playData.layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
+			if (playData.layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
+			if (playData.layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_H), input_->PushKey(DIK_H)); }
+			if (playData.layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
 			//1/2ノーツ
-			if (playData.layer[i].note[0].type[k] > 6 || playData.layer[i].note[0].type[k] < 13) {
+			if (playData.layer[i].note[0].type[k] % 4 == 2) {
 				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G)));
 			}
-			if (playData.layer[i].note[1].type[k] > 6 || playData.layer[i].note[1].type[k] < 13) {
+			if (playData.layer[i].note[1].type[k] % 4 == 2) {
 				ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
 			}
-			if (playData.layer[i].note[2].type[k] > 6 || playData.layer[i].note[2].type[k] < 13) {
+			if (playData.layer[i].note[2].type[k] % 4 == 2) {
 				ColumnHit(i, 2, k, ThickColumn(input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
+			}
+			//3/4ノーツ
+			if (playData.layer[i].note[0].type[k] % 4 == 3) {
+				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
+			}
+			if (playData.layer[i].note[1].type[k] % 4 == 3) {
+				ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
+			}
+			//1/1ノーツ
+			if (playData.layer[i].note[0].type[k] % 4 == 0 && playData.layer[i].note[0].type[k] != 0) {
+				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
 			}
 		}
 	}
@@ -318,17 +323,17 @@ void Lane::Judgement() {
 					//PERFECT判定（6フレーム)
 					if (playData.layer[i].note[j].hitTimer[k] >= lateJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge) {
 						playData.layer[i].note[j].judgement[k] = 1;
-						if (playData.layer[i].note[j].type[k] != 3) {
+						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[0]);
 						}
 					}
 					//GREAT判定(FAST)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
 						playData.layer[i].note[j].judgement[k] = 2;
-						if (playData.layer[i].note[j].type[k] != 3) {
+						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[1]);
 						}
-						if (playData.layer[i].note[j].type[k] == 6) {
+						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
 							//HOLD終点のみFAST判定無し
 							playData.layer[i].note[j].judgement[k] = 1;
 						}
@@ -336,14 +341,14 @@ void Lane::Judgement() {
 					//GREAT判定(LATE)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] < lateJudge && playData.layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
 						playData.layer[i].note[j].judgement[k] = 2;
-						if (playData.layer[i].note[j].type[k] != 3) {
+						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[1]);
 						}
 					}
 					//MISS判定(FAST)（1フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
 						playData.layer[i].note[j].judgement[k] = 3;
-						if (playData.layer[i].note[j].type[k] == 6) {
+						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
 							//HOLD終点のみFAST判定無し
 							playData.layer[i].note[j].judgement[k] = 1;
 						}
@@ -395,8 +400,7 @@ void Lane::ColumnHit(int layer, int columnNum, int notes, bool trigger, bool pus
 			if (trigger) {
 				//TAP系列のみ（HOLD始点はTAP判定
 				if (playData.layer[layer].note[columnNum].hitTimer[notes] <= fastJudge + 5) {
-					if (playData.layer[layer].note[columnNum].type[notes] == 1 || playData.layer[layer].note[columnNum].type[notes] == 2 ||
-						playData.layer[layer].note[columnNum].type[notes] == 7 || playData.layer[layer].note[columnNum].type[notes] == 8) {
+					if (playData.layer[layer].note[columnNum].type[notes] < 9) {
 						playData.layer[layer].note[columnNum].hit[notes] = true;
 					}
 				}
@@ -406,8 +410,7 @@ void Lane::ColumnHit(int layer, int columnNum, int notes, bool trigger, bool pus
 				//長押し状態のHOLDのFAST判定をなくす
 				if (playData.layer[layer].note[columnNum].hitTimer[notes] <= 0) {
 					//HOLD系列
-					if (playData.layer[layer].note[columnNum].type[notes] == 3 || playData.layer[layer].note[columnNum].type[notes] == 4 ||
-						playData.layer[layer].note[columnNum].type[notes] == 5 || playData.layer[layer].note[columnNum].type[notes] == 6) {
+					if (playData.layer[layer].note[columnNum].type[notes] > 8) {
 						playData.layer[layer].note[columnNum].hit[notes] = true;
 					}
 				}
@@ -469,9 +472,7 @@ void Lane::ReadChart() {
 	//1フレームごとに譜面を読む
 	for (int i = 0; i < layerNum; i++) {	//レイヤー数
 		for (int j = 0; j < columnNum; j++) {	//列数
-			if (playData.layer[i].note[j].chart[chartNum] == 1 || playData.layer[i].note[j].chart[chartNum] == 2 ||
-				playData.layer[i].note[j].chart[chartNum] == 5 || playData.layer[i].note[j].chart[chartNum] == 6 ||
-				playData.layer[i].note[j].chart[chartNum] == 7 || playData.layer[i].note[j].chart[chartNum] == 8) {	//ノーツの有無チェック
+			if (playData.layer[i].note[j].chart[chartNum] > 0 && playData.layer[i].note[j].chart[chartNum] < 17) {	//ノーツの有無チェック
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
 					if (!playData.layer[i].note[j].startMove[k]) {
 						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
@@ -487,7 +488,7 @@ void Lane::ReadChart() {
 			//		}
 			//	}
 			//}
-			else if (playData.layer[i].note[j].chart[chartNum] == 3 || playData.layer[i].note[j].chart[chartNum] == 4) {	//ノーツの有無チェック
+			else if (playData.layer[i].note[j].chart[chartNum] > 16) {	//ノーツの有無チェック
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
 					if (!playData.layer[i].note[j].startMove[k]) {
 						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
