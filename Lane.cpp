@@ -561,6 +561,21 @@ void Lane::ID000(string filePass, int musicID) {
 	LoadData(musicID, filePass);
 }
 
+void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass,int BPM, int beatDenomonator, int beatMolecule, int speed) {
+	//分母
+	musicData[musicID].beatDenomonator = beatDenomonator;
+	//分子
+	musicData[musicID].beatMolecule = beatMolecule;
+	//BPM
+	musicData[musicID].BPM = BPM;
+	//譜面速度（倍率）
+	musicData[musicID].speed = speed;
+
+	LoadData(musicID, filePass);
+
+	music[musicID] = audioMusic->LoadWave(musicPass);
+}
+
 void Lane::LoadData(int ID, string filePass) {
 
 	//入力されたファイルパスからファイルオブジェクト作成

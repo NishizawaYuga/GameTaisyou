@@ -114,6 +114,8 @@ private:
 	void LoadData(int ID, std::string filePass);
 	//曲データ初期化群
 	void ID000(std::string filePass, int musicID);	//テスト音源
+	//IDと譜面データのパスと曲のパス、BPMさえ指定すればOK、デフォルトで4/4拍子の譜面速度倍率1
+	void IDEntry(int musicID, std::string filePass, std::string musicPass, int BPM,int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
 
 private:
 	//音楽データ
