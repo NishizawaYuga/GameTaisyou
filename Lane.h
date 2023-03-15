@@ -30,7 +30,7 @@ struct Note {
 	bool startMove[90] = { false };
 
 	//譜面
-	int chart[12000] = { 0 };
+	int chart[15000] = { 0 };
 };
 
 //ノーツ（4列分)
@@ -115,7 +115,7 @@ private:
 	//曲データ初期化群
 	void ID000(std::string filePass, int musicID);	//テスト音源
 	//IDと譜面データのパスと曲のパス、BPMさえ指定すればOK、デフォルトで4/4拍子の譜面速度倍率1
-	void IDEntry(int musicID, std::string filePass, std::string musicPass, int BPM,int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
+	void IDEntry(int musicID, std::string filePass, const std::string musicPass, int BPM,int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
 
 private:
 	//音楽データ
@@ -163,7 +163,7 @@ private:
 	//列数
 	const int columnNum = 4;
 	//置けるノーツ数
-	const int maxNotes = 12000;
+	const int maxNotes = 15000;
 	//表示するノーツ
 	const int drawNotes = 90;
 	//判定に使用するタイマー

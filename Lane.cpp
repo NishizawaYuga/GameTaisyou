@@ -74,6 +74,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	//音楽
 	music[0] = audioMusic->LoadWave("musicData/000/test.wav");
+	music[1] = audioMusic->LoadWave("musicData/001/banbado.wav");
 
 	//効果音
 	SE[0] = audioSE->LoadWave("se/perfect.wav");
@@ -105,7 +106,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	fastJudge = 4;
 	lateJudge = -4;
 
-	autoPlay = false;
+	autoPlay = true;
 }
 
 void Lane::Update() {
@@ -131,9 +132,10 @@ void Lane::Update() {
 		if (startMusic) {
 			ReadChart();
 			Judgement();
-			if (startTimer == -120) {
+			if (startTimer == -100) {
+				//testmcは開始120
 				//if (!audioMusic->IsPlaying(music[0])) {
-				audioMusic->PlayWave(music[0]);
+				audioMusic->PlayWave(music[1]);
 			}
 			//}
 		}
@@ -545,6 +547,7 @@ void Lane::ChartInitialize() {
 	//全ての曲のデータ読み込み
 	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
 	ID000("Resources/musicData/000/testmc.txt", 0);
+	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav",144);
 }
 
 void Lane::ID000(string filePass, int musicID) {
@@ -573,7 +576,7 @@ void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass,int 
 
 	LoadData(musicID, filePass);
 
-	music[musicID] = audioMusic->LoadWave(musicPass);
+	//music[musicID] = audioMusic->LoadWave(musicPass);
 }
 
 void Lane::LoadData(int ID, string filePass) {
