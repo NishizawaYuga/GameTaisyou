@@ -36,7 +36,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	playData.beatMolecule = 0;
 	playData.BPM = 0;
 	playData.speed = 0;
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = 0;
@@ -106,6 +106,11 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	fastJudge = 4;
 	lateJudge = -4;
 
+	averageRate = 0;
+	rate = 0;
+	accuracyCounter = 0;
+	rank = "D";
+
 	autoPlay = true;
 }
 
@@ -165,6 +170,10 @@ void Lane::Update() {
 	debugText_->Printf("GREAT : %d", great);
 	debugText_->SetPos(10, 230);
 	debugText_->Printf("MISS : %d", miss);
+	debugText_->SetPos(10, 250);
+	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate,rank);
+	debugText_->SetPos(10, 270);
+	debugText_->Printf("shift : %d", shift);
 
 	//小節線更新
 	for (int i = 0; i < line.lineNum; i++) {
@@ -173,7 +182,7 @@ void Lane::Update() {
 	}
 
 	//ノーツ更新
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
 				if (playData.layer[i].note[j].startMove[k]) {
@@ -196,7 +205,7 @@ void Lane::Draw(ViewProjection viewProjection) {
 			lineModel->Draw(line.lineWorld[i], viewProjection);
 		}
 	}
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
 				int drawNum = playData.layer[i].note[j].type[k];
@@ -221,12 +230,12 @@ void Lane::LoadMusic(int ID) {
 	playData.beatMolecule = musicData[ID].beatMolecule;
 	playData.BPM = musicData[ID].BPM;
 	playData.speed = musicData[ID].speed;
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = musicData[ID].layer[i].note[j].chart[k];
 				if (k < drawNotes) {
-					playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i * 0.01f, -45.5f + distance * playData.speed);
+					playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
 				}
 			}
 		}
@@ -247,7 +256,7 @@ void Lane::ResetMusic() {
 	playData.beatMolecule = 0;
 	playData.BPM = 0;
 	playData.speed = 0;
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.layer[i].note[j].chart[k] = 0;
@@ -286,7 +295,7 @@ void Lane::DefaultLane() {
 
 void Lane::Judgement() {
 	//各ノーツのhit判定
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum + shift; i++) {
 		for (int k = 0; k < drawNotes; k++) {
 			//列ごとにhit判定を取る
 			//ノーツの種類によって処理の仕方を変える
@@ -318,7 +327,7 @@ void Lane::Judgement() {
 		}
 	}
 	//hitTimerを基に評価決め
-	for (int i = 0; i < layerNum; i++) {
+	for (int i = 0; i < layerNum + shift; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
 				if (playData.layer[i].note[j].hit[k]) {
@@ -328,6 +337,7 @@ void Lane::Judgement() {
 						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[0]);
 						}
+						UpdateRate(100);
 					}
 					//GREAT判定(FAST)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
@@ -338,7 +348,9 @@ void Lane::Judgement() {
 						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
 							//HOLD終点のみFAST判定無し
 							playData.layer[i].note[j].judgement[k] = 1;
+							UpdateRate(100);
 						}
+						else { UpdateRate(50); }
 					}
 					//GREAT判定(LATE)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] < lateJudge && playData.layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
@@ -346,6 +358,7 @@ void Lane::Judgement() {
 						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[1]);
 						}
+						UpdateRate(50);
 					}
 					//MISS判定(FAST)（1フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
@@ -353,13 +366,16 @@ void Lane::Judgement() {
 						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
 							//HOLD終点のみFAST判定無し
 							playData.layer[i].note[j].judgement[k] = 1;
+							UpdateRate(100);
 						}
+						else { UpdateRate(0); }
 					}
 				}
 				//MISS判定（スルー判定）
 				if (playData.layer[i].note[j].hitTimer[k] < lateJudge - 2) {
 					playData.layer[i].note[j].judgement[k] = 3;
 					playData.layer[i].note[j].hit[k] = true;
+					UpdateRate(0);
 				}
 				//評価に応じてカウントする値を変動させる
 				//HOLDの中間だけはスルーさせる
@@ -472,7 +488,7 @@ void Lane::LineUpdate() {
 
 void Lane::ReadChart() {
 	//1フレームごとに譜面を読む
-	for (int i = 0; i < layerNum; i++) {	//レイヤー数
+	for (int i = 0 + shift; i < layerNum + shift; i++) {	//レイヤー数
 		for (int j = 0; j < columnNum; j++) {	//列数
 			if (playData.layer[i].note[j].chart[chartNum] > 0 && playData.layer[i].note[j].chart[chartNum] < 17) {	//ノーツの有無チェック
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
@@ -494,7 +510,7 @@ void Lane::ReadChart() {
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
 					if (!playData.layer[i].note[j].startMove[k]) {
 						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
-						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - i * 0.01f, -45.5f + distance * playData.speed);
+						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
 						break;											//空きが見つかったら即脱出
 					}
 				}
@@ -502,14 +518,14 @@ void Lane::ReadChart() {
 		}
 	}
 
-	for (int i = 0; i < layerNum; i++) {	//レイヤー数
+	for (int i = 0; i < layerNum + shift; i++) {	//レイヤー数
 		for (int j = 0; j < columnNum; j++) {	//列数
 			for (int k = 0; k < drawNotes; k++) {	//表示可能ノーツ数
 				if (playData.layer[i].note[j].startMove[k]) {	//スタートフラグオンなら
 					playData.layer[i].note[j].worldTransform[k].translation_.z -= speed;	//譜面速度に合わせて移動
 					//ノーツが一定ラインを通り過ぎるかヒット判定がオンでリセット
 					if (playData.layer[i].note[j].worldTransform[k].translation_.z < -50.0f || playData.layer[i].note[j].hit[k]) {
-						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i * 0.01f, -45.5f + distance * playData.speed);
+						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
 						playData.layer[i].note[j].hit[k] = false;
 						playData.layer[i].note[j].hitTimer[k] = 60;
 						playData.layer[i].note[j].type[k] = 0;
@@ -526,12 +542,17 @@ void Lane::ReadChart() {
 
 	//カウントを進める
 	chartNum++;
+	//maxまで行ったらリセットして次の全体の行へ
+	if (chartNum >= maxNotes) {
+		chartNum = 0;
+		shift += 4;
+	}
 }
 
 void Lane::ChartInitialize() {
 	//全ての曲データ初期化（四重for文…）
 	for (int M = 0; M < musicNum; M++) {								//曲数
-		for (int i = 0; i < layerNum; i++) {						//レイヤー数
+		for (int i = 0; i < layerNum * shiftMaxNum; i++) {						//レイヤー数
 			for (int j = 0; j < columnNum; j++) {					//列数
 				for (int k = 0; k < maxNotes; k++) {				//置けるノーツ数
 					musicData[M].layer[i].note[j].chart[k] = 0;
@@ -598,6 +619,8 @@ void Lane::LoadData(int ID, string filePass) {
 	int j = 0;
 	//置けるノーツ数
 	int k = 0;
+	//この関数専用のずらし
+	int shift_ = 0;
 
 	//ファイルの中身を一行ずつ読み込む
 	while (getline(ifs, str)) {
@@ -606,7 +629,7 @@ void Lane::LoadData(int ID, string filePass) {
 
 		//区切り文字がなくなるまで文字を区切る
 		while (getline(stream, tmp, ',')) {
-			musicData[ID].layer[i].note[j].chart[k] = atoi(tmp.c_str());
+			musicData[ID].layer[i + shift_].note[j].chart[k] = atoi(tmp.c_str());
 			k++;
 		}
 		//ノーツ読み込みを最初からに
@@ -617,6 +640,11 @@ void Lane::LoadData(int ID, string filePass) {
 		if (j > 3) {
 			j = 0;
 			i++;
+		}
+		//一個分全て読み込んだらずらして別の列に移動
+		if (i > 3) {
+			shift_ += 4;
+			i = 0;
 		}
 	}
 }
@@ -632,4 +660,39 @@ bool Lane::ThickColumn(bool key1, bool key2, bool key3, bool key4) {
 		return true;
 	}
 	return false;
+}
+
+void Lane::UpdateRate(int RateScore) {
+	//評価ごとに応じたスコアを足す
+	rate += RateScore;
+	//これまでのノーツ全てのカウント
+	accuracyCounter++;
+	//平均計算
+	averageRate = rate / accuracyCounter;
+	//平均値に応じてランク変動
+	if (averageRate > 95.00) {
+		rank = "S";
+	}
+	else if (averageRate > 90.00) {
+		rank = "AAA";
+	}
+	else if (averageRate > 85.00) {
+		rank = "AA";
+	}
+	else if (averageRate > 80.00) {
+		rank = "A";
+	}
+	else if (averageRate > 75.00) {
+		rank = "BBB";
+	}
+	else if (averageRate > 70.00) {
+		rank = "BB";
+	}
+	else if (averageRate > 65.00) {
+		rank = "B";
+	}
+	else if (averageRate > 40.00) {
+		rank = "C";
+	}
+	else { rank = "D"; }
 }

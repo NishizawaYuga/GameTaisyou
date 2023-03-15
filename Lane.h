@@ -30,7 +30,7 @@ struct Note {
 	bool startMove[90] = { false };
 
 	//譜面
-	int chart[15000] = { 0 };
+	int chart[2500] = { 0 };
 };
 
 //ノーツ（4列分)
@@ -50,7 +50,8 @@ struct MusicData {
 	//譜面速度
 	int speed;
 	//譜面（レイヤー4枚）
-	Notes layer[4];
+	//（横一列分の長さを短くするため縦方向に4つ分伸ばす)
+	Notes layer[32];
 };
 
 //小節線
@@ -106,6 +107,8 @@ private:
 	void ColumnHit(int layer, int columnNum, int notes, bool trigger, bool push);
 	//太いノーツの押された判定を返す
 	bool ThickColumn(bool key1=false, bool key2=false, bool key3=false, bool key4=false);
+	//レート計算
+	void UpdateRate(int RateScore);
 	//譜面
 	void ChartInitialize();
 	//小節線更新
@@ -163,7 +166,11 @@ private:
 	//列数
 	const int columnNum = 4;
 	//置けるノーツ数
-	const int maxNotes = 15000;
+	const int maxNotes = 2500;
+	//全体の列変更のずらし数値
+	int shift = 0;
+	//全体の行数
+	const int shiftMaxNum = 8;
 	//表示するノーツ
 	const int drawNotes = 90;
 	//判定に使用するタイマー
@@ -187,6 +194,15 @@ private:
 	int great;
 	//MISS数
 	int miss;
+
+	//ランク決めとかに使いそうな平均レート
+	float averageRate;
+	//割合を出すためのレート
+	float rate;
+	//平均を割り出すためのカウンター
+	int accuracyCounter;
+	//ランク
+	std::string rank;
 
 	//判定調整用
 	int fastJudge;
