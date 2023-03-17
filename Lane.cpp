@@ -79,6 +79,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	//効果音
 	SE[0] = audioSE->LoadWave("se/perfect.wav");
 	SE[1] = audioSE->LoadWave("se/great.wav");
+	SE[2] = audioSE->LoadWave("se/miss.wav");
 
 	//小節線
 	for (int i = 0; i < line.lineNum; i++) {
@@ -111,7 +112,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	accuracyCounter = 0;
 	rank = "D";
 
-	autoPlay = true;
+	autoPlay = false;
 }
 
 void Lane::Update() {
@@ -337,7 +338,9 @@ void Lane::Judgement() {
 						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[0]);
 						}
-						UpdateRate(100);
+						if (playData.layer[i].note[j].type[k] < 21) {
+							UpdateRate(100);
+						}
 					}
 					//GREAT判定(FAST)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
@@ -350,7 +353,7 @@ void Lane::Judgement() {
 							playData.layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
 						}
-						else { UpdateRate(50); }
+						else if (playData.layer[i].note[j].type[k] < 21) { UpdateRate(50); }
 					}
 					//GREAT判定(LATE)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] < lateJudge && playData.layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
@@ -358,28 +361,33 @@ void Lane::Judgement() {
 						if (playData.layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[1]);
 						}
-						UpdateRate(50);
+						if (playData.layer[i].note[j].type[k] < 21) {
+							UpdateRate(50);
+						}
 					}
 					//MISS判定(FAST)（1フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
 						playData.layer[i].note[j].judgement[k] = 3;
 						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
+							audioSE->PlayWave(SE[2]);
 							//HOLD終点のみFAST判定無し
 							playData.layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
 						}
-						else { UpdateRate(0); }
+						else if (playData.layer[i].note[j].type[k] < 21) { UpdateRate(0); }
 					}
 				}
 				//MISS判定（スルー判定）
 				if (playData.layer[i].note[j].hitTimer[k] < lateJudge - 2) {
 					playData.layer[i].note[j].judgement[k] = 3;
 					playData.layer[i].note[j].hit[k] = true;
-					UpdateRate(0);
+					if (playData.layer[i].note[j].type[k] < 21) {
+						UpdateRate(0);
+					}
 				}
 				//評価に応じてカウントする値を変動させる
 				//HOLDの中間だけはスルーさせる
-				if (playData.layer[i].note[j].type[k] != 3) {
+				if (playData.layer[i].note[j].type[k] < 21) {
 					if (playData.layer[i].note[j].judgement[k] == 1) {
 						combo++;
 						perfect++;
@@ -387,7 +395,7 @@ void Lane::Judgement() {
 						if (maxCombo < combo) {
 							maxCombo = combo;
 						}
-						break;
+						//break;
 					}
 					else if (playData.layer[i].note[j].judgement[k] == 2) {
 						combo++;
@@ -396,13 +404,13 @@ void Lane::Judgement() {
 						if (maxCombo < combo) {
 							maxCombo = combo;
 						}
-						break;
+						//break;
 					}
 					else if (playData.layer[i].note[j].judgement[k] == 3) {
 						//MISSしたらコンボカウントを0にする
 						combo = 0;
 						miss++;
-						break;
+						//break;
 					}
 				}
 			}
@@ -414,10 +422,10 @@ void Lane::ColumnHit(int layer, int columnNum, int notes, bool trigger, bool pus
 	//短押し
 	if (!autoPlay) {
 		//幅の違うノーツが多重でhit判定を出さないようにhitがfalseじゃないと処理されないように変更
-		if (!playData.layer[layer].note[columnNum].hit[notes]) {
+		if (!playData.layer[layer].note[columnNum].hit[notes] && playData.layer[layer].note[columnNum].type[notes] > 0) {
 			if (trigger) {
 				//TAP系列のみ（HOLD始点はTAP判定
-				if (playData.layer[layer].note[columnNum].hitTimer[notes] <= fastJudge + 5) {
+				if (playData.layer[layer].note[columnNum].hitTimer[notes] <= fastJudge + 3) {
 					if (playData.layer[layer].note[columnNum].type[notes] < 9) {
 						playData.layer[layer].note[columnNum].hit[notes] = true;
 					}
