@@ -112,7 +112,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	accuracyCounter = 0;
 	rank = "D";
 
-	autoPlay = false;
+	autoPlay = true;
 }
 
 void Lane::Update() {
@@ -345,13 +345,16 @@ void Lane::Judgement() {
 					//GREAT判定(FAST)（2フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
 						playData.layer[i].note[j].judgement[k] = 2;
-						if (playData.layer[i].note[j].type[k] < 17) {
+						if (playData.layer[i].note[j].type[k] < 9) {
 							audioSE->PlayWave(SE[1]);
 						}
-						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
-							//HOLD終点のみFAST判定無し
+						if (playData.layer[i].note[j].type[k] > 8 && playData.layer[i].note[j].type[k] < 21) {
+							//HOLDのみFAST判定無し（始点除く）
 							playData.layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
+							if (playData.layer[i].note[j].type[k] < 17) {
+								audioSE->PlayWave(SE[0]);
+							}
 						}
 						else if (playData.layer[i].note[j].type[k] < 21) { UpdateRate(50); }
 					}
@@ -368,13 +371,18 @@ void Lane::Judgement() {
 					//MISS判定(FAST)（1フレーム）
 					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
 						playData.layer[i].note[j].judgement[k] = 3;
-						if (playData.layer[i].note[j].type[k] > 12 && playData.layer[i].note[j].type[k] < 17) {
-							audioSE->PlayWave(SE[2]);
-							//HOLD終点のみFAST判定無し
+						if (playData.layer[i].note[j].type[k] > 8 && playData.layer[i].note[j].type[k] < 21) {
+							if (playData.layer[i].note[j].type[k] < 17) {
+								audioSE->PlayWave(SE[0]);
+							}
+							//HOLDのみFAST判定無し（始点除く）
 							playData.layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
 						}
-						else if (playData.layer[i].note[j].type[k] < 21) { UpdateRate(0); }
+						else if (playData.layer[i].note[j].type[k] < 21) { 
+							UpdateRate(0); 
+							audioSE->PlayWave(SE[2]);
+						}
 					}
 				}
 				//MISS判定（スルー判定）
@@ -518,7 +526,7 @@ void Lane::ReadChart() {
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
 					if (!playData.layer[i].note[j].startMove[k]) {
 						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
-						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
+						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - 4 * 0.01f, -45.5f + distance * playData.speed);
 						break;											//空きが見つかったら即脱出
 					}
 				}
