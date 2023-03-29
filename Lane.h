@@ -52,6 +52,12 @@ struct MusicData {
 	//譜面（レイヤー4枚）
 	//（横一列分の長さを短くするため縦方向に4つ分伸ばす)
 	Notes layer[32];
+	//難易度番号　0 : Easy, 1 : Normal, 2 : Master, 3 : Prank
+	int difficulty;
+	//難易度のレベル
+	int level;
+	//所属番号（曲ごとに種類別させる）
+	int affiliationNum;
 };
 
 //小節線
@@ -117,8 +123,9 @@ private:
 	void LoadData(int ID, std::string filePass);
 	//曲データ初期化群
 	void ID000(std::string filePass, int musicID);	//テスト音源
-	//IDと譜面データのパスと曲のパス、BPMさえ指定すればOK、デフォルトで4/4拍子の譜面速度倍率1
-	void IDEntry(int musicID, std::string filePass, const std::string musicPass, int BPM,int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
+	//IDと譜面データのパスと曲のパス、BPMと難易度、所属番号さえ指定すればOK、デフォルトでレベル0の4/4拍子の譜面速度倍率1
+	void IDEntry(int musicID, std::string filePass, const std::string musicPass, int BPM, int difficultyNum,int affiliationNum,int level = 0,
+		int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
 
 private:
 	//音楽データ

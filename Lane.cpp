@@ -112,7 +112,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	accuracyCounter = 0;
 	rank = "D";
 
-	autoPlay = true;
+	autoPlay = false;
 }
 
 void Lane::Update() {
@@ -579,12 +579,15 @@ void Lane::ChartInitialize() {
 		musicData[M].beatDenomonator = 0;
 		musicData[M].beatMolecule = 0;
 		musicData[M].speed = 0;
+		musicData[M].affiliationNum = 0;
+		musicData[M].difficulty = 0;
+		musicData[M].level = 0;
 	}
 
 	//全ての曲のデータ読み込み
 	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
 	ID000("Resources/musicData/000/testmc.txt", 0);
-	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav",144);
+	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav",144,3,1);
 }
 
 void Lane::ID000(string filePass, int musicID) {
@@ -601,7 +604,7 @@ void Lane::ID000(string filePass, int musicID) {
 	LoadData(musicID, filePass);
 }
 
-void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass,int BPM, int beatDenomonator, int beatMolecule, int speed) {
+void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass,int BPM, int difficultyNum,int level, int affiliationNum,int beatDenomonator, int beatMolecule, int speed) {
 	//分母
 	musicData[musicID].beatDenomonator = beatDenomonator;
 	//分子
@@ -610,6 +613,12 @@ void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass,int 
 	musicData[musicID].BPM = BPM;
 	//譜面速度（倍率）
 	musicData[musicID].speed = speed;
+	//難易度番号
+	musicData[musicID].difficulty = difficultyNum;
+	//レベル
+	musicData[musicID].level = level;
+	//所属番号
+	musicData[musicID].affiliationNum = affiliationNum;
 
 	LoadData(musicID, filePass);
 
@@ -686,7 +695,10 @@ void Lane::UpdateRate(int RateScore) {
 	//平均計算
 	averageRate = rate / accuracyCounter;
 	//平均値に応じてランク変動
-	if (averageRate > 95.00) {
+	if (averageRate > 98.50) {
+		rank = "S+";
+	}
+	else if (averageRate > 95.00) {
 		rank = "S";
 	}
 	else if (averageRate > 90.00) {
