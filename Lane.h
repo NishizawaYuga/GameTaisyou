@@ -38,6 +38,13 @@ struct Notes {
 	Note note[4];
 };
 
+//難易度（一つ分）
+struct Difficulty {
+	//譜面（レイヤー4枚）
+	//（横一列分の長さを短くするため縦方向に4つ分伸ばす)
+	Notes layer[32];
+};
+
 //曲の基本情報
 struct MusicData {
 	//BPM
@@ -49,15 +56,10 @@ struct MusicData {
 	int beatMolecule;
 	//譜面速度
 	int speed;
-	//譜面（レイヤー4枚）
-	//（横一列分の長さを短くするため縦方向に4つ分伸ばす)
-	Notes layer[32];
-	//難易度番号　0 : Easy, 1 : Normal, 2 : Master, 3 : Prank
-	int difficulty;
-	//難易度のレベル
-	int level;
-	//所属番号（曲ごとに種類別させる）
-	int affiliationNum;
+	//各難易度ごとの譜面
+	Difficulty difficulty[4];
+	//難易度のレベル（難易度別）
+	int level[4];
 };
 
 //小節線
@@ -91,7 +93,7 @@ public:
 	//描画
 	void Draw(ViewProjection viewProjection);
 	//読み込み
-	void LoadMusic(int ID);
+	void LoadMusic(int ID,int difficulty);
 	//リセット（曲終了後などに空っぽにする）
 	void ResetMusic();
 	//レーンの見た目変更
@@ -120,11 +122,11 @@ private:
 	//小節線更新
 	void LineUpdate();
 	//ファイル読み込み
-	void LoadData(int ID, std::string filePass);
+	void LoadData(int ID,int difficulty, std::string filePass);
 	//曲データ初期化群
 	void ID000(std::string filePass, int musicID);	//テスト音源
-	//IDと譜面データのパスと曲のパス、BPMと難易度、所属番号さえ指定すればOK、デフォルトでレベル0の4/4拍子の譜面速度倍率1
-	void IDEntry(int musicID, std::string filePass, const std::string musicPass, int BPM, int difficultyNum,int affiliationNum,int level = 0,
+	//IDと譜面データのパスと曲のパス、BPMと難易度さえ指定すればOK、デフォルトでレベル0の4/4拍子の譜面速度倍率1
+	void IDEntry(int musicID, std::string filePass, const std::string musicPass, int BPM, int difficultyNum,int level = 0,
 		int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
 
 private:
@@ -190,6 +192,9 @@ private:
 	int chartNum;
 	//判定ラインからスタート地点までの距離
 	float distance;
+
+	//難易度番号　0 : Easy, 1 : Normal, 2 : Master, 3 : Prank
+	int difficulty = 2;
 
 	//コンボ数
 	int combo;

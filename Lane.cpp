@@ -36,20 +36,22 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	playData.beatMolecule = 0;
 	playData.BPM = 0;
 	playData.speed = 0;
-	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
-		for (int j = 0; j < columnNum; j++) {
-			for (int k = 0; k < maxNotes; k++) {
-				playData.layer[i].note[j].chart[k] = 0;
-				if (k < drawNotes) {
-					playData.layer[i].note[j].hit[k] = false;
-					playData.layer[i].note[j].hitTimer[k] = 60;
-					playData.layer[i].note[j].judgement[k] = 0;
-					playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
-					playData.layer[i].note[j].worldTransform[k].Initialize();
-					playData.layer[i].note[j].startMove[k] = false;
+	for (int m = 0; m < 4; m++) {
+		for (int i = 0; i < layerNum * shiftMaxNum; i++) {
+			for (int j = 0; j < columnNum; j++) {
+				for (int k = 0; k < maxNotes; k++) {
+					playData.difficulty[m].layer[i].note[j].chart[k] = 0;
+					if (k < drawNotes) {
+						playData.difficulty[m].layer[i].note[j].hit[k] = false;
+						playData.difficulty[m].layer[i].note[j].hitTimer[k] = 60;
+						playData.difficulty[m].layer[i].note[j].judgement[k] = 0;
+						playData.difficulty[m].layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
+						playData.difficulty[m].layer[i].note[j].worldTransform[k].Initialize();
+						playData.difficulty[m].layer[i].note[j].startMove[k] = false;
+					}
 				}
+				playData.difficulty[m].layer[i].note[j].speed = 0;
 			}
-			playData.layer[i].note[j].speed = 0;
 		}
 	}
 
@@ -126,6 +128,15 @@ void Lane::Update() {
 			if (autoPlay) { autoPlay = false; }
 			else if (!autoPlay) { autoPlay = true; }
 		}
+
+		if (input_->TriggerKey(DIK_UP)) { 
+			difficulty = 3; 
+			LoadMusic(1, difficulty);
+		}
+		if (input_->TriggerKey(DIK_DOWN)) { 
+			difficulty = 2; 
+			LoadMusic(1, difficulty);
+		}
 	}
 	//if (input_->PushKey(DIK_SPACE)) {
 		//タイマーが0になったらスタート
@@ -151,22 +162,26 @@ void Lane::Update() {
 	debugText_->SetPos(10, 130);
 	debugText_->Printf("BPM : %d", playData.BPM);
 	debugText_->SetPos(10, 150);
-	debugText_->Printf("Combo : %d", combo);
+	debugText_->Printf("Difficulty : %d", difficulty);
 	debugText_->SetPos(10, 170);
-	debugText_->Printf("MAXCombo : %d", maxCombo);
+	debugText_->Printf("Level : %d", playData.level[0]);
 	debugText_->SetPos(10, 190);
-	debugText_->Printf("PERFECT : %d", perfect);
+	debugText_->Printf("Combo : %d", combo);
 	debugText_->SetPos(10, 210);
-	debugText_->Printf("GREAT : %d", great);
+	debugText_->Printf("MAXCombo : %d", maxCombo);
 	debugText_->SetPos(10, 230);
-	debugText_->Printf("MISS : %d", miss);
+	debugText_->Printf("PERFECT : %d", perfect);
 	debugText_->SetPos(10, 250);
-	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
+	debugText_->Printf("GREAT : %d", great);
 	debugText_->SetPos(10, 270);
-	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->Printf("MISS : %d", miss);
 	debugText_->SetPos(10, 290);
-	debugText_->Printf("Control : FGHJ");
+	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
 	debugText_->SetPos(10, 310);
+	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->SetPos(10, 330);
+	debugText_->Printf("Control : FGHJ");
+	debugText_->SetPos(10, 350);
 	if (autoPlay) {
 		debugText_->Printf("Press Q to auto : true");
 	}
@@ -185,9 +200,9 @@ void Lane::Update() {
 	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
-				if (playData.layer[i].note[j].startMove[k]) {
-					matset.MatIdentity(playData.layer[i].note[j].worldTransform[k]);
-					playData.layer[i].note[j].worldTransform[k].TransferMatrix();
+				if (playData.difficulty[0].layer[i].note[j].startMove[k]) {
+					matset.MatIdentity(playData.difficulty[0].layer[i].note[j].worldTransform[k]);
+					playData.difficulty[0].layer[i].note[j].worldTransform[k].TransferMatrix();
 				}
 			}
 		}
@@ -208,14 +223,14 @@ void Lane::Draw(ViewProjection viewProjection) {
 	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
-				int drawNum = playData.layer[i].note[j].type[k];
+				int drawNum = playData.difficulty[0].layer[i].note[j].type[k];
 				if (drawNum > 20) { drawNum -= 12; }
 				else if (drawNum > 16) { drawNum -= 8; }
 				else if (drawNum > 12) { drawNum -= 8; }
 				else if (drawNum > 8) { drawNum -= 4; }
 
-				if (playData.layer[i].note[j].type[k] != 0) {
-					notesModel[drawNum - 1]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
+				if (playData.difficulty[0].layer[i].note[j].type[k] != 0) {
+					notesModel[drawNum - 1]->Draw(playData.difficulty[0].layer[i].note[j].worldTransform[k], viewProjection);
 				}
 
 			}
@@ -223,19 +238,20 @@ void Lane::Draw(ViewProjection viewProjection) {
 	}
 }
 
-void Lane::LoadMusic(int ID) {
+void Lane::LoadMusic(int ID, int difficulty) {
 
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
 	playData.beatMolecule = musicData[ID].beatMolecule;
 	playData.BPM = musicData[ID].BPM;
 	playData.speed = musicData[ID].speed;
+	playData.level[0] = musicData[ID].level[difficulty];
 	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
-				playData.layer[i].note[j].chart[k] = musicData[ID].layer[i].note[j].chart[k];
+				playData.difficulty[0].layer[i].note[j].chart[k] = musicData[ID].difficulty[difficulty].layer[i].note[j].chart[k];
 				if (k < drawNotes) {
-					playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
+					playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
 				}
 			}
 		}
@@ -259,16 +275,16 @@ void Lane::ResetMusic() {
 	for (int i = 0; i < layerNum * shiftMaxNum; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
-				playData.layer[i].note[j].chart[k] = 0;
+				playData.difficulty[0].layer[i].note[j].chart[k] = 0;
 				if (k < drawNotes) {
-					playData.layer[i].note[j].hit[k] = false;
-					playData.layer[i].note[j].hitTimer[k] = 60;
-					playData.layer[i].note[j].judgement[k] = 0;
-					playData.layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
-					playData.layer[i].note[j].startMove[k] = false;
+					playData.difficulty[0].layer[i].note[j].hit[k] = false;
+					playData.difficulty[0].layer[i].note[j].hitTimer[k] = 60;
+					playData.difficulty[0].layer[i].note[j].judgement[k] = 0;
+					playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
+					playData.difficulty[0].layer[i].note[j].startMove[k] = false;
 				}
 			}
-			playData.layer[i].note[j].speed = 0;
+			playData.difficulty[0].layer[i].note[j].speed = 0;
 		}
 	}
 
@@ -299,29 +315,29 @@ void Lane::Judgement() {
 		for (int k = 0; k < drawNotes; k++) {
 			//列ごとにhit判定を取る
 			//ノーツの種類によって処理の仕方を変える
-			if (playData.layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
-			if (playData.layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
-			if (playData.layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_H), input_->PushKey(DIK_H)); }
-			if (playData.layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
+			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
+			if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
+			if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_H), input_->PushKey(DIK_H)); }
+			if (playData.difficulty[0].layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
 			//1/2ノーツ
-			if (playData.layer[i].note[0].type[k] % 4 == 2) {
+			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 2) {
 				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G)));
 			}
-			if (playData.layer[i].note[1].type[k] % 4 == 2) {
+			if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 2) {
 				ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
 			}
-			if (playData.layer[i].note[2].type[k] % 4 == 2) {
+			if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 2) {
 				ColumnHit(i, 2, k, ThickColumn(input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
 			}
 			//3/4ノーツ
-			if (playData.layer[i].note[0].type[k] % 4 == 3) {
+			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 3) {
 				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
 			}
-			if (playData.layer[i].note[1].type[k] % 4 == 3) {
+			if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 3) {
 				ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
 			}
 			//1/1ノーツ
-			if (playData.layer[i].note[0].type[k] % 4 == 0 && playData.layer[i].note[0].type[k] != 0) {
+			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 0 && playData.difficulty[0].layer[i].note[0].type[k] != 0) {
 				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
 			}
 		}
@@ -330,72 +346,72 @@ void Lane::Judgement() {
 	for (int i = 0; i < layerNum + shift; i++) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
-				if (playData.layer[i].note[j].hit[k]) {
+				if (playData.difficulty[0].layer[i].note[j].hit[k]) {
 					//PERFECT判定（6フレーム)
-					if (playData.layer[i].note[j].hitTimer[k] >= lateJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge) {
-						playData.layer[i].note[j].judgement[k] = 1;
-						if (playData.layer[i].note[j].type[k] < 17) {
+					if (playData.difficulty[0].layer[i].note[j].hitTimer[k] >= lateJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] <= fastJudge) {
+						playData.difficulty[0].layer[i].note[j].judgement[k] = 1;
+						if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[0]);
 						}
-						if (playData.layer[i].note[j].type[k] < 21) {
+						if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							UpdateRate(100);
 						}
 					}
 					//GREAT判定(FAST)（2フレーム）
-					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
-						playData.layer[i].note[j].judgement[k] = 2;
-						if (playData.layer[i].note[j].type[k] < 9) {
+					else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] > fastJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
+						playData.difficulty[0].layer[i].note[j].judgement[k] = 2;
+						if (playData.difficulty[0].layer[i].note[j].type[k] < 9) {
 							audioSE->PlayWave(SE[1]);
 						}
-						if (playData.layer[i].note[j].type[k] > 8 && playData.layer[i].note[j].type[k] < 21) {
+						if (playData.difficulty[0].layer[i].note[j].type[k] > 8 && playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							//HOLDのみFAST判定無し（始点除く）
-							playData.layer[i].note[j].judgement[k] = 1;
+							playData.difficulty[0].layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
-							if (playData.layer[i].note[j].type[k] < 17) {
+							if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 								audioSE->PlayWave(SE[0]);
 							}
 						}
-						else if (playData.layer[i].note[j].type[k] < 21) { UpdateRate(50); }
+						else if (playData.difficulty[0].layer[i].note[j].type[k] < 21) { UpdateRate(50); }
 					}
 					//GREAT判定(LATE)（2フレーム）
-					else if (playData.layer[i].note[j].hitTimer[k] < lateJudge && playData.layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
-						playData.layer[i].note[j].judgement[k] = 2;
-						if (playData.layer[i].note[j].type[k] < 17) {
+					else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] < lateJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
+						playData.difficulty[0].layer[i].note[j].judgement[k] = 2;
+						if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[1]);
 						}
-						if (playData.layer[i].note[j].type[k] < 21) {
+						if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							UpdateRate(50);
 						}
 					}
 					//MISS判定(FAST)（1フレーム）
-					else if (playData.layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
-						playData.layer[i].note[j].judgement[k] = 3;
-						if (playData.layer[i].note[j].type[k] > 8 && playData.layer[i].note[j].type[k] < 21) {
-							if (playData.layer[i].note[j].type[k] < 17) {
+					else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] > fastJudge + 2 && playData.difficulty[0].layer[i].note[j].hitTimer[k] <= fastJudge + 3) {
+						playData.difficulty[0].layer[i].note[j].judgement[k] = 3;
+						if (playData.difficulty[0].layer[i].note[j].type[k] > 8 && playData.difficulty[0].layer[i].note[j].type[k] < 21) {
+							if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 								audioSE->PlayWave(SE[0]);
 							}
 							//HOLDのみFAST判定無し（始点除く）
-							playData.layer[i].note[j].judgement[k] = 1;
+							playData.difficulty[0].layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
 						}
-						else if (playData.layer[i].note[j].type[k] < 21) {
+						else if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							UpdateRate(0);
 							audioSE->PlayWave(SE[2]);
 						}
 					}
 				}
 				//MISS判定（スルー判定）
-				if (playData.layer[i].note[j].hitTimer[k] < lateJudge - 2) {
-					playData.layer[i].note[j].judgement[k] = 3;
-					playData.layer[i].note[j].hit[k] = true;
-					if (playData.layer[i].note[j].type[k] < 21) {
+				if (playData.difficulty[0].layer[i].note[j].hitTimer[k] < lateJudge - 2) {
+					playData.difficulty[0].layer[i].note[j].judgement[k] = 3;
+					playData.difficulty[0].layer[i].note[j].hit[k] = true;
+					if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 						UpdateRate(0);
 					}
 				}
 				//評価に応じてカウントする値を変動させる
 				//HOLDの中間だけはスルーさせる
-				if (playData.layer[i].note[j].type[k] < 21) {
-					if (playData.layer[i].note[j].judgement[k] == 1) {
+				if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
+					if (playData.difficulty[0].layer[i].note[j].judgement[k] == 1) {
 						combo++;
 						perfect++;
 						//MAXコンボ確認
@@ -404,7 +420,7 @@ void Lane::Judgement() {
 						}
 						//break;
 					}
-					else if (playData.layer[i].note[j].judgement[k] == 2) {
+					else if (playData.difficulty[0].layer[i].note[j].judgement[k] == 2) {
 						combo++;
 						great++;
 						//MAXコンボ確認
@@ -413,7 +429,7 @@ void Lane::Judgement() {
 						}
 						//break;
 					}
-					else if (playData.layer[i].note[j].judgement[k] == 3) {
+					else if (playData.difficulty[0].layer[i].note[j].judgement[k] == 3) {
 						//MISSしたらコンボカウントを0にする
 						combo = 0;
 						miss++;
@@ -429,30 +445,30 @@ void Lane::ColumnHit(int layer, int columnNum, int notes, bool trigger, bool pus
 	//短押し
 	if (!autoPlay) {
 		//幅の違うノーツが多重でhit判定を出さないようにhitがfalseじゃないと処理されないように変更
-		if (!playData.layer[layer].note[columnNum].hit[notes] && playData.layer[layer].note[columnNum].type[notes] > 0) {
+		if (!playData.difficulty[0].layer[layer].note[columnNum].hit[notes] && playData.difficulty[0].layer[layer].note[columnNum].type[notes] > 0) {
 			if (trigger) {
 				//TAP系列のみ（HOLD始点はTAP判定
-				if (playData.layer[layer].note[columnNum].hitTimer[notes] <= fastJudge + 3) {
-					if (playData.layer[layer].note[columnNum].type[notes] < 9) {
-						playData.layer[layer].note[columnNum].hit[notes] = true;
+				if (playData.difficulty[0].layer[layer].note[columnNum].hitTimer[notes] <= fastJudge + 3) {
+					if (playData.difficulty[0].layer[layer].note[columnNum].type[notes] < 9) {
+						playData.difficulty[0].layer[layer].note[columnNum].hit[notes] = true;
 					}
 				}
 			}
 			//長押し
 			if (push) {
 				//長押し状態のHOLDのFAST判定をなくす
-				if (playData.layer[layer].note[columnNum].hitTimer[notes] <= 0) {
+				if (playData.difficulty[0].layer[layer].note[columnNum].hitTimer[notes] <= 0) {
 					//HOLD系列
-					if (playData.layer[layer].note[columnNum].type[notes] > 8) {
-						playData.layer[layer].note[columnNum].hit[notes] = true;
+					if (playData.difficulty[0].layer[layer].note[columnNum].type[notes] > 8) {
+						playData.difficulty[0].layer[layer].note[columnNum].hit[notes] = true;
 					}
 				}
 			}
 		}
 	}
 	else if (autoPlay) {
-		if (playData.layer[layer].note[columnNum].hitTimer[notes] == 0) {
-			playData.layer[layer].note[columnNum].hit[notes] = true;
+		if (playData.difficulty[0].layer[layer].note[columnNum].hitTimer[notes] == 0) {
+			playData.difficulty[0].layer[layer].note[columnNum].hit[notes] = true;
 		}
 	}
 }
@@ -505,27 +521,27 @@ void Lane::ReadChart() {
 	//1フレームごとに譜面を読む
 	for (int i = 0 + shift; i < layerNum + shift; i++) {	//レイヤー数
 		for (int j = 0; j < columnNum; j++) {	//列数
-			if (playData.layer[i].note[j].chart[chartNum] > 0 && playData.layer[i].note[j].chart[chartNum] < 17) {	//ノーツの有無チェック
+			if (playData.difficulty[0].layer[i].note[j].chart[chartNum] > 0 && playData.difficulty[0].layer[i].note[j].chart[chartNum] < 17) {	//ノーツの有無チェック
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
-					if (!playData.layer[i].note[j].startMove[k]) {
-						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
+					if (!playData.difficulty[0].layer[i].note[j].startMove[k]) {
+						SetNote(i, j, k, playData.difficulty[0].layer[i].note[j].chart[chartNum]);
 						break;											//空きが見つかったら即脱出
 					}
 				}
 			}
-			//else if (playData.layer[i].note[j].chart[chartNum] == 2 || playData.layer[i].note[j].chart[chartNum] == 5 || playData.layer[i].note[j].chart[chartNum] == 6) {	//ノーツの有無チェック
+			//else if (playData.difficulty[0].layer[i].note[j].chart[chartNum] == 2 || playData.difficulty[0].layer[i].note[j].chart[chartNum] == 5 || playData.difficulty[0].layer[i].note[j].chart[chartNum] == 6) {	//ノーツの有無チェック
 			//	for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
-			//		if (!playData.layer[i].note[j].startMove[k]) {
-			//			SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
+			//		if (!playData.difficulty[0].layer[i].note[j].startMove[k]) {
+			//			SetNote(i, j, k, playData.difficulty[0].layer[i].note[j].chart[chartNum]);
 			//			break;											//空きが見つかったら即脱出
 			//		}
 			//	}
 			//}
-			else if (playData.layer[i].note[j].chart[chartNum] > 16) {	//ノーツの有無チェック
+			else if (playData.difficulty[0].layer[i].note[j].chart[chartNum] > 16) {	//ノーツの有無チェック
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
-					if (!playData.layer[i].note[j].startMove[k]) {
-						SetNote(i, j, k, playData.layer[i].note[j].chart[chartNum]);
-						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - 4 * 0.01f, -45.5f + distance * playData.speed);
+					if (!playData.difficulty[0].layer[i].note[j].startMove[k]) {
+						SetNote(i, j, k, playData.difficulty[0].layer[i].note[j].chart[chartNum]);
+						playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - 4 * 0.01f, -45.5f + distance * playData.speed);
 						break;											//空きが見つかったら即脱出
 					}
 				}
@@ -536,19 +552,19 @@ void Lane::ReadChart() {
 	for (int i = 0; i < layerNum + shift; i++) {	//レイヤー数
 		for (int j = 0; j < columnNum; j++) {	//列数
 			for (int k = 0; k < drawNotes; k++) {	//表示可能ノーツ数
-				if (playData.layer[i].note[j].startMove[k]) {	//スタートフラグオンなら
-					playData.layer[i].note[j].worldTransform[k].translation_.z -= speed;	//譜面速度に合わせて移動
+				if (playData.difficulty[0].layer[i].note[j].startMove[k]) {	//スタートフラグオンなら
+					playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_.z -= speed;	//譜面速度に合わせて移動
 					//ノーツが一定ラインを通り過ぎるかヒット判定がオンでリセット
-					if (playData.layer[i].note[j].worldTransform[k].translation_.z < -50.0f || playData.layer[i].note[j].hit[k]) {
-						playData.layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
-						playData.layer[i].note[j].hit[k] = false;
-						playData.layer[i].note[j].hitTimer[k] = 60;
-						playData.layer[i].note[j].type[k] = 0;
-						playData.layer[i].note[j].startMove[k] = false;
-						playData.layer[i].note[j].judgement[k] = 0;
+					if (playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_.z < -50.0f || playData.difficulty[0].layer[i].note[j].hit[k]) {
+						playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
+						playData.difficulty[0].layer[i].note[j].hit[k] = false;
+						playData.difficulty[0].layer[i].note[j].hitTimer[k] = 60;
+						playData.difficulty[0].layer[i].note[j].type[k] = 0;
+						playData.difficulty[0].layer[i].note[j].startMove[k] = false;
+						playData.difficulty[0].layer[i].note[j].judgement[k] = 0;
 					}
-					if (!playData.layer[i].note[j].hit[k]) {
-						playData.layer[i].note[j].hitTimer[k]--;	//タイマーを減らす
+					if (!playData.difficulty[0].layer[i].note[j].hit[k]) {
+						playData.difficulty[0].layer[i].note[j].hitTimer[k]--;	//タイマーを減らす
 					}
 				}
 			}
@@ -567,26 +583,27 @@ void Lane::ReadChart() {
 void Lane::ChartInitialize() {
 	//全ての曲データ初期化（四重for文…）
 	for (int M = 0; M < musicNum; M++) {								//曲数
-		for (int i = 0; i < layerNum * shiftMaxNum; i++) {						//レイヤー数
-			for (int j = 0; j < columnNum; j++) {					//列数
-				for (int k = 0; k < maxNotes; k++) {				//置けるノーツ数
-					musicData[M].layer[i].note[j].chart[k] = 0;
+		for (int D = 0; D < 4; D++) {									//難易度
+			for (int i = 0; i < layerNum * shiftMaxNum; i++) {			//レイヤー数
+				for (int j = 0; j < columnNum; j++) {					//列数
+					for (int k = 0; k < maxNotes; k++) {				//置けるノーツ数
+						musicData[M].difficulty[D].layer[i].note[j].chart[k] = 0;
+					}
 				}
 			}
+			musicData[M].BPM = 0;
+			musicData[M].beatDenomonator = 0;
+			musicData[M].beatMolecule = 0;
+			musicData[M].speed = 0;
+			musicData[M].level[D] = 0;
 		}
-		musicData[M].BPM = 0;
-		musicData[M].beatDenomonator = 0;
-		musicData[M].beatMolecule = 0;
-		musicData[M].speed = 0;
-		musicData[M].affiliationNum = 0;
-		musicData[M].difficulty = 0;
-		musicData[M].level = 0;
 	}
 
 	//全ての曲のデータ読み込み
 	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
 	ID000("Resources/musicData/000/testmc.txt", 0);
-	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", 144, 3, 1);
+	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav", 144, 3, 0);
+	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", 144, 2, 7);
 }
 
 void Lane::ID000(string filePass, int musicID) {
@@ -600,10 +617,10 @@ void Lane::ID000(string filePass, int musicID) {
 	//譜面速度（倍率）
 	musicData[musicID].speed = 1;
 
-	LoadData(musicID, filePass);
+	LoadData(musicID, 0,filePass);
 }
 
-void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, int BPM, int difficultyNum, int level, int affiliationNum, int beatDenomonator, int beatMolecule, int speed) {
+void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, int BPM, int difficultyNum, int level, int beatDenomonator, int beatMolecule, int speed) {
 	//分母
 	musicData[musicID].beatDenomonator = beatDenomonator;
 	//分子
@@ -612,19 +629,15 @@ void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, int
 	musicData[musicID].BPM = BPM;
 	//譜面速度（倍率）
 	musicData[musicID].speed = speed;
-	//難易度番号
-	musicData[musicID].difficulty = difficultyNum;
 	//レベル
-	musicData[musicID].level = level;
-	//所属番号
-	musicData[musicID].affiliationNum = affiliationNum;
+	musicData[musicID].level[difficultyNum] = level;
 
-	LoadData(musicID, filePass);
+	LoadData(musicID,difficultyNum,filePass);
 
 	//music[musicID] = audioMusic->LoadWave(musicPass);
 }
 
-void Lane::LoadData(int ID, string filePass) {
+void Lane::LoadData(int ID, int difficulty,string filePass) {
 
 	//入力されたファイルパスからファイルオブジェクト作成
 	ifstream ifs(filePass);
@@ -653,7 +666,7 @@ void Lane::LoadData(int ID, string filePass) {
 
 		//区切り文字がなくなるまで文字を区切る
 		while (getline(stream, tmp, ',')) {
-			musicData[ID].layer[i + shift_].note[j].chart[k] = atoi(tmp.c_str());
+			musicData[ID].difficulty[difficulty].layer[i + shift_].note[j].chart[k] = atoi(tmp.c_str());
 			k++;
 		}
 		//ノーツ読み込みを最初からに
@@ -674,9 +687,9 @@ void Lane::LoadData(int ID, string filePass) {
 }
 
 void Lane::SetNote(int i, int j, int k, int typeNum) {
-	playData.layer[i].note[j].startMove[k] = true;	//開始フラグオン
-	playData.layer[i].note[j].type[k] = typeNum;			//ノーツの種類設定
-	//playData.layer[i].note[j].hitTimer[k] = 60;		//判定カウントの設定
+	playData.difficulty[0].layer[i].note[j].startMove[k] = true;	//開始フラグオン
+	playData.difficulty[0].layer[i].note[j].type[k] = typeNum;			//ノーツの種類設定
+	//playData.difficulty[0].layer[i].note[j].hitTimer[k] = 60;		//判定カウントの設定
 }
 
 bool Lane::ThickColumn(bool key1, bool key2, bool key3, bool key4) {
