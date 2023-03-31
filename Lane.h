@@ -216,7 +216,7 @@ private:
 	int lateJudge;
 
 	//デバッグ用
-	bool moveFlag = true;
+	bool moveFlag = false;
 
 	//サウンドデータハンドル
 	uint32_t music[10] = { 0 };

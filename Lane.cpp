@@ -118,17 +118,18 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 void Lane::Update() {
 	MatSet2 matset;
 	//デバッグ用にスペースを押してる間だけ進むように
-	if (input_->TriggerKey(DIK_SPACE)) {
-		if (!moveFlag) {
+	if (!moveFlag) {
+		if (input_->TriggerKey(DIK_SPACE)) {
 			moveFlag = true;
 		}
-		else if (moveFlag) {
-			moveFlag = false;
+		if (input_->TriggerKey(DIK_Q)) {
+			if (autoPlay) { autoPlay = false; }
+			else if (!autoPlay) { autoPlay = true; }
 		}
 	}
 	//if (input_->PushKey(DIK_SPACE)) {
 		//タイマーが0になったらスタート
-	if (moveFlag) {
+	else if (moveFlag) {
 		if (startTimer > -121) {
 			startTimer--;
 		}
@@ -147,20 +148,8 @@ void Lane::Update() {
 		}
 	}
 
-	debugText_->SetPos(10, 10);
-	debugText_->Printf("BPM : %d", playData.BPM);
-	debugText_->SetPos(10, 30);
-	debugText_->Printf("Rhythm : %d", line.countRhythm);
-	debugText_->SetPos(10, 50);
-	debugText_->Printf("countFlame : %d", line.countFlame);
-	debugText_->SetPos(10, 70);
-	debugText_->Printf("change : %f", line.change);
-	debugText_->SetPos(10, 90);
-	debugText_->Printf("lineNum : %d", line.lineNum);
-	debugText_->SetPos(10, 110);
-	debugText_->Printf("Timer : %d", startTimer);
 	debugText_->SetPos(10, 130);
-	debugText_->Printf("noteZ : %f", playData.layer[0].note[0].worldTransform[0].translation_.z);
+	debugText_->Printf("BPM : %d", playData.BPM);
 	debugText_->SetPos(10, 150);
 	debugText_->Printf("Combo : %d", combo);
 	debugText_->SetPos(10, 170);
@@ -172,9 +161,19 @@ void Lane::Update() {
 	debugText_->SetPos(10, 230);
 	debugText_->Printf("MISS : %d", miss);
 	debugText_->SetPos(10, 250);
-	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate,rank);
+	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
 	debugText_->SetPos(10, 270);
-	debugText_->Printf("shift : %d", shift);
+	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->SetPos(10, 290);
+	debugText_->Printf("Control : FGHJ");
+	debugText_->SetPos(10, 310);
+	if (autoPlay) {
+		debugText_->Printf("Press Q to auto : true");
+	}
+	else if (!autoPlay) {
+		debugText_->Printf("Press Q to auto : false");
+	}
+
 
 	//小節線更新
 	for (int i = 0; i < line.lineNum; i++) {
@@ -210,7 +209,7 @@ void Lane::Draw(ViewProjection viewProjection) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < drawNotes; k++) {
 				int drawNum = playData.layer[i].note[j].type[k];
-				if (drawNum > 20) { drawNum -= 12;}
+				if (drawNum > 20) { drawNum -= 12; }
 				else if (drawNum > 16) { drawNum -= 8; }
 				else if (drawNum > 12) { drawNum -= 8; }
 				else if (drawNum > 8) { drawNum -= 4; }
@@ -218,7 +217,7 @@ void Lane::Draw(ViewProjection viewProjection) {
 				if (playData.layer[i].note[j].type[k] != 0) {
 					notesModel[drawNum - 1]->Draw(playData.layer[i].note[j].worldTransform[k], viewProjection);
 				}
-				
+
 			}
 		}
 	}
@@ -379,8 +378,8 @@ void Lane::Judgement() {
 							playData.layer[i].note[j].judgement[k] = 1;
 							UpdateRate(100);
 						}
-						else if (playData.layer[i].note[j].type[k] < 21) { 
-							UpdateRate(0); 
+						else if (playData.layer[i].note[j].type[k] < 21) {
+							UpdateRate(0);
 							audioSE->PlayWave(SE[2]);
 						}
 					}
@@ -587,7 +586,7 @@ void Lane::ChartInitialize() {
 	//全ての曲のデータ読み込み
 	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
 	ID000("Resources/musicData/000/testmc.txt", 0);
-	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav",144,3,1);
+	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", 144, 3, 1);
 }
 
 void Lane::ID000(string filePass, int musicID) {
@@ -604,7 +603,7 @@ void Lane::ID000(string filePass, int musicID) {
 	LoadData(musicID, filePass);
 }
 
-void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass,int BPM, int difficultyNum,int level, int affiliationNum,int beatDenomonator, int beatMolecule, int speed) {
+void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, int BPM, int difficultyNum, int level, int affiliationNum, int beatDenomonator, int beatMolecule, int speed) {
 	//分母
 	musicData[musicID].beatDenomonator = beatDenomonator;
 	//分子
