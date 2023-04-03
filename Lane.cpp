@@ -115,6 +115,8 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	rank = "D";
 
 	autoPlay = false;
+
+	LoadMusic(1, difficulty);
 }
 
 void Lane::Update() {
@@ -239,7 +241,9 @@ void Lane::Draw(ViewProjection viewProjection) {
 }
 
 void Lane::LoadMusic(int ID, int difficulty) {
-
+	//一度リセット
+	accuracyCounter = 0;
+	rate = 0;
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
 	playData.beatMolecule = musicData[ID].beatMolecule;
@@ -250,6 +254,11 @@ void Lane::LoadMusic(int ID, int difficulty) {
 		for (int j = 0; j < columnNum; j++) {
 			for (int k = 0; k < maxNotes; k++) {
 				playData.difficulty[0].layer[i].note[j].chart[k] = musicData[ID].difficulty[difficulty].layer[i].note[j].chart[k];
+				//許容の決定
+				if (playData.difficulty[0].layer[i].note[j].chart[k] > 0 && playData.difficulty[0].layer[i].note[j].chart[k] < 21) {
+					accuracyCounter += 10;
+					//rate += 10;
+				}
 				if (k < drawNotes) {
 					playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
 				}
@@ -354,7 +363,7 @@ void Lane::Judgement() {
 							audioSE->PlayWave(SE[0]);
 						}
 						if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
-							UpdateRate(100);
+							UpdateRate(10);
 						}
 					}
 					//GREAT判定(FAST)（2フレーム）
@@ -366,12 +375,12 @@ void Lane::Judgement() {
 						if (playData.difficulty[0].layer[i].note[j].type[k] > 8 && playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							//HOLDのみFAST判定無し（始点除く）
 							playData.difficulty[0].layer[i].note[j].judgement[k] = 1;
-							UpdateRate(100);
+							UpdateRate(10);
 							if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 								audioSE->PlayWave(SE[0]);
 							}
 						}
-						else if (playData.difficulty[0].layer[i].note[j].type[k] < 21) { UpdateRate(50); }
+						else if (playData.difficulty[0].layer[i].note[j].type[k] < 21) { UpdateRate(5); }
 					}
 					//GREAT判定(LATE)（2フレーム）
 					else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] < lateJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
@@ -380,7 +389,7 @@ void Lane::Judgement() {
 							audioSE->PlayWave(SE[1]);
 						}
 						if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
-							UpdateRate(50);
+							UpdateRate(5);
 						}
 					}
 					//MISS判定(FAST)（1フレーム）
@@ -392,7 +401,7 @@ void Lane::Judgement() {
 							}
 							//HOLDのみFAST判定無し（始点除く）
 							playData.difficulty[0].layer[i].note[j].judgement[k] = 1;
-							UpdateRate(100);
+							UpdateRate(10);
 						}
 						else if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							UpdateRate(0);
@@ -701,37 +710,36 @@ bool Lane::ThickColumn(bool key1, bool key2, bool key3, bool key4) {
 
 void Lane::UpdateRate(int RateScore) {
 	//評価ごとに応じたスコアを足す
+	//rate += RateScore - 10;
 	rate += RateScore;
-	//これまでのノーツ全てのカウント
-	accuracyCounter++;
-	//平均計算
-	averageRate = rate / accuracyCounter;
+	//割合計算
+	averageRate = rate / accuracyCounter * 100;
 	//平均値に応じてランク変動
-	if (averageRate > 98.50) {
+	if (averageRate >= 99.80) {
 		rank = "S+";
 	}
-	else if (averageRate > 95.00) {
+	else if (averageRate >= 99.60) {
 		rank = "S";
 	}
-	else if (averageRate > 90.00) {
+	else if (averageRate >= 99.30) {
 		rank = "AAA";
 	}
-	else if (averageRate > 85.00) {
+	else if (averageRate >= 99.00) {
 		rank = "AA";
 	}
-	else if (averageRate > 80.00) {
+	else if (averageRate >= 98.00) {
 		rank = "A";
 	}
-	else if (averageRate > 75.00) {
+	else if (averageRate >= 95.00) {
 		rank = "BBB";
 	}
-	else if (averageRate > 70.00) {
+	else if (averageRate >= 90.00) {
 		rank = "BB";
 	}
-	else if (averageRate > 65.00) {
+	else if (averageRate >= 70.00) {
 		rank = "B";
 	}
-	else if (averageRate > 40.00) {
+	else if (averageRate >= 45.00) {
 		rank = "C";
 	}
 	else { rank = "D"; }
