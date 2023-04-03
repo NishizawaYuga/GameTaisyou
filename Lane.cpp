@@ -109,6 +109,8 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	fastJudge = 4;
 	lateJudge = -4;
 
+	score = 0;
+
 	averageRate = 0;
 	rate = 0;
 	accuracyCounter = 0;
@@ -178,12 +180,14 @@ void Lane::Update() {
 	debugText_->SetPos(10, 270);
 	debugText_->Printf("MISS : %d", miss);
 	debugText_->SetPos(10, 290);
-	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
+	debugText_->Printf("SCORE : %d", score);
 	debugText_->SetPos(10, 310);
-	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
 	debugText_->SetPos(10, 330);
-	debugText_->Printf("Control : FGHJ");
+	debugText_->Printf("Press SPACE to start : %d",moveFlag);
 	debugText_->SetPos(10, 350);
+	debugText_->Printf("Control : FGHJ");
+	debugText_->SetPos(10, 370);
 	if (autoPlay) {
 		debugText_->Printf("Press Q to auto : true");
 	}
@@ -244,6 +248,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 	//一度リセット
 	accuracyCounter = 0;
 	rate = 0;
+	score = 0;
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
 	playData.beatMolecule = musicData[ID].beatMolecule;
@@ -714,6 +719,7 @@ void Lane::UpdateRate(int RateScore) {
 	rate += RateScore;
 	//割合計算
 	averageRate = rate / accuracyCounter * 100;
+	score = averageRate * 10000;
 	//平均値に応じてランク変動
 	if (averageRate >= 99.80) {
 		rank = "S+";

@@ -207,6 +207,8 @@ private:
 	//MISS数
 	int miss;
 
+	//スコア
+	int score;
 	//ランク決めとかに使いそうな平均レート
 	float averageRate;
 	//割合を出すためのレート
