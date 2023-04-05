@@ -829,7 +829,7 @@ void Lane::FinishMusic() {
 		ofstream ofs(musicData[musicID].dataPass);
 		for (int i = 0; i < 4; i++) {
 			ofs << musicData[musicID].difficulty[i].maxScore << ",";
-			ofs << musicData[musicID].difficulty[i].maxRank << ",";
+			ofs << musicData[musicID].difficulty[i].maxRankNum << ",";
 			ofs << musicData[musicID].difficulty[i].isFCAP << endl;
 		}
 	}
