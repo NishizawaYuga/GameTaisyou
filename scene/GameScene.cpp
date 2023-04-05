@@ -40,8 +40,6 @@ void GameScene::Initialize() {
 	//lane->Initialize(laneModel,lineModel);
 	lane->Initialize(laneModel, lineModel,notesModel);
 
-	//lane->LoadMusic(1);
-
 
 	countFlame = 0;
 	countRhythm = 0;
