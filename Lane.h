@@ -180,6 +180,11 @@ private:
 	//実際に変動させる値
 	int startTimer;
 
+	//曲終了までの時間
+	const int resetEndTimer = 300;
+	//実際に変動させる値
+	int endTimer;
+
 	//譜面
 	//音楽数
 	const int musicNum = 10;
@@ -201,6 +206,8 @@ private:
 	float speed;
 	//曲開始
 	bool startMusic;
+	//ノーツカウンター
+	int notesCounter = 0;
 	//譜面の読み取り番号
 	int chartNum;
 	//判定ラインからスタート地点までの距離

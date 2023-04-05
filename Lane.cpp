@@ -95,6 +95,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	lanePosition.Initialize();
 
 	startTimer = resetStartTimer;
+	endTimer = resetEndTimer;
 
 	startMusic = false;
 
@@ -161,11 +162,18 @@ void Lane::Update() {
 			}
 			//}
 		}
-		if (startTimer < -musicData[musicID].playMusicCount && !audioMusic->IsPlaying(music[musicID])) {
-			FinishMusic();
+		if (notesCounter < 1) {
+			endTimer--;
+			if (endTimer < 0) {
+				FinishMusic();
+			}
 		}
 	}
 
+	debugText_->SetPos(10, 90);
+	debugText_->Printf("all + Counter : %d", perfect + great + miss + notesCounter);
+	debugText_->SetPos(10, 110);
+	debugText_->Printf("Counter : %d", notesCounter);
 	debugText_->SetPos(10, 130);
 	debugText_->Printf("BPM : %d", playData.BPM);
 	debugText_->SetPos(10, 150);
@@ -258,6 +266,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 	accuracyCounter = 0;
 	rate = 0;
 	score = 0;
+	notesCounter = 0;
 	//曲IDを別で格納する（データ保存の際に使用）
 	musicID = ID;
 	//音楽データをコピーする
@@ -273,6 +282,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 				//許容の決定
 				if (playData.difficulty[0].layer[i].note[j].chart[k] > 0 && playData.difficulty[0].layer[i].note[j].chart[k] < 21) {
 					accuracyCounter += 10;
+					notesCounter++;
 					//rate += 10;
 				}
 				if (k < drawNotes) {
@@ -321,6 +331,12 @@ void Lane::ResetMusic() {
 	startTimer = resetStartTimer;
 	chartNum = 0;
 	shift = 0;
+
+	//小節線
+	for (int i = 0; i < line.lineNum; i++) {
+		line.linePop[i] = false;
+		line.lineWorld[i].translation_ = Vector3(0, 0, 0);
+	}
 }
 
 void Lane::ChangeLane(Model* model) {
@@ -444,6 +460,7 @@ void Lane::Judgement() {
 					if (playData.difficulty[0].layer[i].note[j].judgement[k] == 1) {
 						combo++;
 						perfect++;
+						notesCounter--;
 						//MAXコンボ確認
 						if (maxCombo < combo) {
 							maxCombo = combo;
@@ -453,6 +470,7 @@ void Lane::Judgement() {
 					else if (playData.difficulty[0].layer[i].note[j].judgement[k] == 2) {
 						combo++;
 						great++;
+						notesCounter--;
 						//MAXコンボ確認
 						if (maxCombo < combo) {
 							maxCombo = combo;
@@ -463,6 +481,7 @@ void Lane::Judgement() {
 						//MISSしたらコンボカウントを0にする
 						combo = 0;
 						miss++;
+						notesCounter--;
 						//break;
 					}
 				}
@@ -520,9 +539,9 @@ void Lane::LineUpdate() {
 		//曲の拍数（分子）に合わせて小節線タイミング始動
 		if (line.countRhythm >= playData.beatMolecule + 1) {
 			line.countRhythm = 1;
-			//使われていない小節線をオンにする
+			//使われていない小節線をオンにする（全てのノーツが通過し終えた場合生成しない）
 			for (int i = 0; i < line.lineNum; i++) {
-				if (!line.linePop[i]) {
+				if (!line.linePop[i] && notesCounter > 0) {
 					line.linePop[i] = true;
 					break;
 				}
@@ -835,5 +854,12 @@ void Lane::FinishMusic() {
 	}
 
 	ResetMusic();
+	miss = 0;
+	great = 0;
+	perfect = 0;
+	endTimer = resetEndTimer;
+	combo = 0;
+	maxCombo = 0;
+	averageRate = 0;
 	LoadMusic(musicID, difficulty);
 }
