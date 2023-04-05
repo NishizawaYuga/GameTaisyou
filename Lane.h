@@ -43,6 +43,13 @@ struct Difficulty {
 	//譜面（レイヤー4枚）
 	//（横一列分の長さを短くするため縦方向に4つ分伸ばす)
 	Notes layer[32];
+	//最高スコア
+	int maxScore = 0;
+	//最高ランク
+	int maxRankNum = 0;
+	std::string maxRank = "D";
+	//FC、APの情報
+	int isFCAP = 0;
 };
 
 //曲の基本情報
@@ -60,6 +67,10 @@ struct MusicData {
 	Difficulty difficulty[4];
 	//難易度のレベル（難易度別）
 	int level[4];
+	//曲の開始タイミング
+	int playMusicCount;
+	//スコアデータのファイルパス
+	std::string dataPass = "a";
 };
 
 //小節線
@@ -125,9 +136,11 @@ private:
 	void LoadData(int ID,int difficulty, std::string filePass);
 	//曲データ初期化群
 	void ID000(std::string filePass, int musicID);	//テスト音源
-	//IDと譜面データのパスと曲のパス、BPMと難易度さえ指定すればOK、デフォルトでレベル0の4/4拍子の譜面速度倍率1
-	void IDEntry(int musicID, std::string filePass, const std::string musicPass, int BPM, int difficultyNum,int level = 0,
-		int beatDenomonator = 4,int beatMolecule = 4,int speed = 1);	//汎用ID登録関数
+	//IDと譜面データのパスと曲のパスとスコアデータのパス、BPMと難易度さえ指定すればOK、デフォルトでレベル0の曲開始0秒の4/4拍子の譜面速度倍率1
+	void IDEntry(int musicID, std::string filePass, const std::string musicPass,const std::string scoreDataPass, int BPM, int difficultyNum, int level = 0,
+		int startMusicCount = 0, int beatDenomonator = 4, int beatMolecule = 4, int speed = 1);	//汎用ID登録関数
+	//曲の終了関数
+	void FinishMusic();
 
 private:
 	//音楽データ
@@ -193,6 +206,8 @@ private:
 	//判定ラインからスタート地点までの距離
 	float distance;
 
+	//曲ID
+	int musicID = 0;
 	//難易度番号　0 : Easy, 1 : Normal, 2 : Master, 3 : Prank
 	int difficulty = 2;
 
@@ -217,6 +232,7 @@ private:
 	int accuracyCounter;
 	//ランク
 	std::string rank;
+	int rankNum = 0;
 
 	//判定調整用
 	int fastJudge;

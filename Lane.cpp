@@ -154,12 +154,15 @@ void Lane::Update() {
 		if (startMusic) {
 			ReadChart();
 			Judgement();
-			if (startTimer == -100) {
+			if (startTimer == -musicData[musicID].playMusicCount) {
 				//testmcは開始120
 				//if (!audioMusic->IsPlaying(music[0])) {
-				audioMusic->PlayWave(music[1]);
+				audioMusic->PlayWave(music[musicID]);
 			}
 			//}
+		}
+		if (startTimer < -musicData[musicID].playMusicCount && !audioMusic->IsPlaying(music[musicID])) {
+			FinishMusic();
 		}
 	}
 
@@ -180,14 +183,20 @@ void Lane::Update() {
 	debugText_->SetPos(10, 270);
 	debugText_->Printf("MISS : %d", miss);
 	debugText_->SetPos(10, 290);
-	debugText_->Printf("SCORE : %d", score);
+	debugText_->Printf("HIGHSCORE : %d", musicData[musicID].difficulty[difficulty].maxScore);
 	debugText_->SetPos(10, 310);
-	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
+	debugText_->Printf("HIGHRANK : %d", musicData[musicID].difficulty[difficulty].maxRankNum);
 	debugText_->SetPos(10, 330);
-	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->Printf("FCAP : %d", musicData[musicID].difficulty[difficulty].isFCAP);
 	debugText_->SetPos(10, 350);
-	debugText_->Printf("Control : FGHJ");
+	debugText_->Printf("SCORE : %d", score);
 	debugText_->SetPos(10, 370);
+	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
+	debugText_->SetPos(10, 390);
+	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->SetPos(10, 410);
+	debugText_->Printf("Control : FGHJ");
+	debugText_->SetPos(10, 430);
 	if (autoPlay) {
 		debugText_->Printf("Press Q to auto : true");
 	}
@@ -249,6 +258,8 @@ void Lane::LoadMusic(int ID, int difficulty) {
 	accuracyCounter = 0;
 	rate = 0;
 	score = 0;
+	//曲IDを別で格納する（データ保存の際に使用）
+	musicID = ID;
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
 	playData.beatMolecule = musicData[ID].beatMolecule;
@@ -302,9 +313,14 @@ void Lane::ResetMusic() {
 		}
 	}
 
+	//小節線初期化
+	line.countFlame = 0;
+	line.countRhythm = 1;
+
 	startMusic = 0;
 	startTimer = resetStartTimer;
 	chartNum = 0;
+	shift = 0;
 }
 
 void Lane::ChangeLane(Model* model) {
@@ -543,15 +559,7 @@ void Lane::ReadChart() {
 					}
 				}
 			}
-			//else if (playData.difficulty[0].layer[i].note[j].chart[chartNum] == 2 || playData.difficulty[0].layer[i].note[j].chart[chartNum] == 5 || playData.difficulty[0].layer[i].note[j].chart[chartNum] == 6) {	//ノーツの有無チェック
-			//	for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
-			//		if (!playData.difficulty[0].layer[i].note[j].startMove[k]) {
-			//			SetNote(i, j, k, playData.difficulty[0].layer[i].note[j].chart[chartNum]);
-			//			break;											//空きが見つかったら即脱出
-			//		}
-			//	}
-			//}
-			else if (playData.difficulty[0].layer[i].note[j].chart[chartNum] > 16) {	//ノーツの有無チェック
+			else if (playData.difficulty[0].layer[i].note[j].chart[chartNum] > 16 && playData.difficulty[0].layer[i].note[j].chart[chartNum] != 99) {	//ノーツの有無チェック
 				for (int k = 0; k < drawNotes; k++) {	//空いてる順からフラグをオンにする
 					if (!playData.difficulty[0].layer[i].note[j].startMove[k]) {
 						SetNote(i, j, k, playData.difficulty[0].layer[i].note[j].chart[chartNum]);
@@ -610,14 +618,15 @@ void Lane::ChartInitialize() {
 			musicData[M].beatMolecule = 0;
 			musicData[M].speed = 0;
 			musicData[M].level[D] = 0;
+			musicData[M].playMusicCount = 0;
 		}
 	}
 
 	//全ての曲のデータ読み込み
 	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
 	ID000("Resources/musicData/000/testmc.txt", 0);
-	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav", 144, 3, 0);
-	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", 144, 2, 7);
+	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav","Resources/musicData/001/scoredata.txt", 144, 3, 0, 100);
+	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav","Resources/musicData/001/scoredata.txt", 144, 2, 7, 100);
 }
 
 void Lane::ID000(string filePass, int musicID) {
@@ -634,7 +643,7 @@ void Lane::ID000(string filePass, int musicID) {
 	LoadData(musicID, 0,filePass);
 }
 
-void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, int BPM, int difficultyNum, int level, int beatDenomonator, int beatMolecule, int speed) {
+void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, std::string scoreDataPass, int BPM, int difficultyNum, int level, int startMusicCount, int beatDenomonator, int beatMolecule, int speed) {
 	//分母
 	musicData[musicID].beatDenomonator = beatDenomonator;
 	//分子
@@ -645,6 +654,10 @@ void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, int
 	musicData[musicID].speed = speed;
 	//レベル
 	musicData[musicID].level[difficultyNum] = level;
+	//開始タイミング
+	musicData[musicID].playMusicCount = startMusicCount;
+	//スコアデータパス
+	musicData[musicID].dataPass = scoreDataPass;
 
 	LoadData(musicID,difficultyNum,filePass);
 
@@ -661,6 +674,10 @@ void Lane::LoadData(int ID, int difficulty,string filePass) {
 		cout << "ファイルを開けませんでした" << endl;
 		return;
 	}
+	/*if (!ifs2) {
+		cout << "ファイルを開けませんでした" << endl;
+		return;
+	}*/
 
 	string str = "";
 
@@ -698,6 +715,25 @@ void Lane::LoadData(int ID, int difficulty,string filePass) {
 			i = 0;
 		}
 	}
+	ifstream ifs2(musicData[ID].dataPass);
+	//格納先の変数
+	int saveNum = 0;
+
+	string str2 = "";
+
+	while (getline(ifs2,str2)) {
+		string tmp = "";
+		istringstream stream(str2);
+		int i = 0;
+
+		while (getline(stream, tmp, ',')) {
+			if (i == 0) { musicData[ID].difficulty[saveNum].maxScore = atoi(tmp.c_str()); }
+			else if (i == 1){musicData[ID].difficulty[saveNum].maxRankNum = atoi(tmp.c_str());}
+			else if (i == 2) { musicData[ID].difficulty[saveNum].isFCAP = atoi(tmp.c_str()); }
+			i++;
+		}
+		saveNum++;
+	}
 }
 
 void Lane::SetNote(int i, int j, int k, int typeNum) {
@@ -723,30 +759,81 @@ void Lane::UpdateRate(int RateScore) {
 	//平均値に応じてランク変動
 	if (averageRate >= 99.80) {
 		rank = "S+";
+		rankNum = 9;
 	}
 	else if (averageRate >= 99.60) {
 		rank = "S";
+		rankNum = 8;
 	}
 	else if (averageRate >= 99.30) {
 		rank = "AAA";
+		rankNum = 7;
 	}
 	else if (averageRate >= 99.00) {
 		rank = "AA";
+		rankNum = 6;
 	}
 	else if (averageRate >= 98.00) {
 		rank = "A";
+		rankNum = 5;
 	}
 	else if (averageRate >= 95.00) {
 		rank = "BBB";
+		rankNum = 4;
 	}
 	else if (averageRate >= 90.00) {
 		rank = "BB";
+		rankNum = 3;
 	}
 	else if (averageRate >= 70.00) {
 		rank = "B";
+		rankNum = 2;
 	}
 	else if (averageRate >= 45.00) {
 		rank = "C";
+		rankNum = 1;
 	}
-	else { rank = "D"; }
+	else { 
+		rank = "D"; 
+		rankNum = 0;
+	}
+}
+
+void Lane::FinishMusic() {
+	//小節線がこれ以上生成されないようにする
+	moveFlag = false;
+	if (!autoPlay) {
+		//スコア更新の確認
+		if (musicData[musicID].difficulty[difficulty].maxScore < score) {
+			musicData[musicID].difficulty[difficulty].maxScore = score;
+		}
+		//ランク更新の確認
+		if (musicData[musicID].difficulty[difficulty].maxRankNum < rankNum) {
+			musicData[musicID].difficulty[difficulty].maxRankNum = rankNum;
+		}
+		//FCAPチェック
+		if (miss == 0) {
+			if (musicData[musicID].difficulty[difficulty].isFCAP < 1) {
+				if (great == 0) {
+					if (musicData[musicID].difficulty[difficulty].isFCAP < 2) {
+						musicData[musicID].difficulty[difficulty].isFCAP = 2;
+					}
+				}
+				else {
+					musicData[musicID].difficulty[difficulty].isFCAP = 1;
+				}
+			}
+		}
+
+
+		ofstream ofs(musicData[musicID].dataPass);
+		for (int i = 0; i < 4; i++) {
+			ofs << musicData[musicID].difficulty[i].maxScore << ",";
+			ofs << musicData[musicID].difficulty[i].maxRank << ",";
+			ofs << musicData[musicID].difficulty[i].isFCAP << endl;
+		}
+	}
+
+	ResetMusic();
+	LoadMusic(musicID, difficulty);
 }
