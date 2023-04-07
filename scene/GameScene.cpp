@@ -40,12 +40,13 @@ void GameScene::Initialize() {
 	//lane->Initialize(laneModel,lineModel);
 	lane->Initialize(laneModel, lineModel,notesModel);
 
+	//select画面初期化
+	select = new Select();
+	select->Initialize();
 
-	countFlame = 0;
-	countRhythm = 0;
-	BPM = 222;
-
-	change = baseBPM / BPM;
+	//シーン番号
+	//(0 : タイトル、1 : 選曲画面、2 : プレイ画面、ととりあえず仮定)
+	sceneNum = 1;
 
 	viewProjection.Initialize();
 	viewProjection.target.y = -30.0f;
@@ -55,8 +56,12 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-
-	lane->Update();
+	if (sceneNum == 1) {
+		select->Update();
+	}
+	else if (sceneNum == 2) {
+		lane->Update();
+	}
 
 	viewProjection.UpdateMatrix();
 }
@@ -87,8 +92,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	
-	lane->Draw(viewProjection);
+	if (sceneNum == 2) {
+		lane->Draw(viewProjection);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -101,6 +107,10 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	if (sceneNum == 1) {
+		select->Draw();
+	}
+
 
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);

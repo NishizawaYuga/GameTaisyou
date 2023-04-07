@@ -11,6 +11,7 @@
 #include "WorldTransform.h" 
 
 #include "Lane.h"
+#include "Select.h"
 
 /// <summary>
 /// ゲームシーン
@@ -54,17 +55,12 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 
-	//テスト用
-	int countFlame;
-	int countRhythm;
-	int BPM;
-	//倍率
-	//基準
-	const float baseBPM = 60.0f;
-	float change;
-
+	//シーン管理番号
+	int sceneNum;
 	//レーン
 	Lane* lane = nullptr;
+	//曲選択画面
+	Select* select = nullptr;
 
 	//レーン用モデル
 	Model* laneModel = nullptr;

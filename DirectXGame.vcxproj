@@ -105,6 +105,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatSet.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
+    <ClCompile Include="Select.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2d\DebugText.h" />
@@ -138,6 +139,7 @@
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="MatSet.h" />
     <ClInclude Include="scene\GameScene.h" />
+    <ClInclude Include="Select.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">

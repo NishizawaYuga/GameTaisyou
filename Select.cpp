@@ -1,0 +1,407 @@
+#include "Select.h"
+#include "TextureManager.h"
+#include <cassert>
+
+Select::Select() {}
+
+Select::~Select()
+{
+	for (size_t i = 0; i < _countof(spritesong_); i++)
+	{
+		delete spritesong_[i];
+	}
+	delete spriteframe_;
+	delete spriteBG_;
+
+}
+
+void Select::Initialize() {
+
+	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
+	debugText_ = DebugText::GetInstance();
+
+
+	{//曲の選択中の上下運動のタイマー
+		JumpTimer_ = 30;
+		JumpTimer2_ = 30;
+		JumpTimer3_ = 30;
+		JumpTimer4_ = 30;
+		JumpTimer5_ = 30;
+	}
+
+	//2
+	textureHandleSong2_ = TextureManager::Load("sprite/0002.png");
+	//3
+	textureHandleSong3_ = TextureManager::Load("sprite/0003.png");
+	//4
+	textureHandleSong4_ = TextureManager::Load("sprite/0004.png");
+	//5
+	textureHandleSong5_ = TextureManager::Load("sprite/0005.png");
+	//6
+	textureHandleSong6_ = TextureManager::Load("sprite/0006.png");
+	//7
+	textureHandleSong7_ = TextureManager::Load("sprite/0007.png");
+
+	//BG
+	textureHandleBG_ = TextureManager::Load("sprite/moyou01.png");
+	spriteBG_ = Sprite::Create(textureHandleBG_, { 0,0 });
+	//タイトル
+	texturehandlTi_ = TextureManager::Load("sprite/titol.png");
+	spriteTi_ = Sprite::Create(texturehandlTi_, { 0,0 });
+	//シーン切り替え用リソース
+	//1
+	textureHandleSongPl1_ = TextureManager::Load("sprite/play0001.png");
+	spriteSongPl1_ = Sprite::Create(textureHandleSongPl1_, { 0,0 });
+	//2
+	textureHandleSongPl2_ = TextureManager::Load("sprite/play0002.png");
+	spriteSongPl2_ = Sprite::Create(textureHandleSongPl2_, { 0,0 });
+	//3
+	textureHandleSongPl3_ = TextureManager::Load("sprite/play0003.png");
+	spriteSongPl3_ = Sprite::Create(textureHandleSongPl3_, { 0,0 });
+	//4
+	textureHandleSongPl4_ = TextureManager::Load("sprite/play0004.png");
+	spriteSongPl4_ = Sprite::Create(textureHandleSongPl4_, { 0,0 });
+	//5
+	textureHandleSongPl5_ = TextureManager::Load("sprite/play0005.png");
+	spriteSongPl5_ = Sprite::Create(textureHandleSongPl5_, { 0,0 });
+
+	textureHandleSong_ = TextureManager::Load("sprite/0001.png");
+	for (size_t i = 0; i < _countof(spritesong_); i++)
+	{
+		spritesong_[0] = Sprite::Create(textureHandleSong_, { 860,360 });//1
+		spritesong_[1] = Sprite::Create(textureHandleSong2_, { 1160,360 });//2
+		spritesong_[2] = Sprite::Create(textureHandleSong3_, { 1460,360 });//3
+		spritesong_[3] = Sprite::Create(textureHandleSong4_, { 260,360 });//4
+		spritesong_[4] = Sprite::Create(textureHandleSong5_, { 560,360 });//5
+		//spritesong_[5] = Sprite::Create(textureHandleSong6_, { -60,360 });//6
+		//spritesong_[6] = Sprite::Create(textureHandleSong7_, { 1760,360 });//7
+	}
+	worldTransform_.Initialize();
+}
+
+void Select::Update()
+{
+	switch (scene)
+	{
+	case 0:
+		if (input_->TriggerKey(DIK_SPACE))
+		{
+			scene = 1;
+		}
+		break;
+	case 1:
+		// ステージセレクト　入力処理
+		if (input_->TriggerKey(DIK_F))
+		{
+
+			// ステージの番号を300ずらす
+			for (size_t i = 0; i < _countof(spritesong_); i++)
+			{
+				position = spritesong_[i]->GetPosition();
+				position.x += 300;
+				position.y = 360;
+				JumpTimer_ = 30;
+				JumpTimer2_ = 30;
+				JumpTimer3_ = 30;
+				JumpTimer4_ = 30;
+				JumpTimer5_ = 30;
+				// 1460が右端なのでこれより大きかったら最小値の260の位置にする
+				if (position.x > 1460)
+				{
+					position.x = 260;
+
+				}
+
+
+				spritesong_[i]->SetPosition(position);
+			}
+		}
+
+		if (input_->TriggerKey(DIK_J))
+		{
+
+			// ステージの番号を-300ずらす
+			for (size_t i = 0; i < _countof(spritesong_); i++)
+			{
+				position = spritesong_[i]->GetPosition();
+				position.x -= 300;
+				position.y = 360;
+				JumpTimer_ = 30;
+				JumpTimer2_ = 30;
+				JumpTimer3_ = 30;
+				JumpTimer4_ = 30;
+				JumpTimer5_ = 30;
+				// 260が左端なのでこれより小さかったら最大値の1460の位置にする
+				if (position.x <= 250)
+				{
+					position.x = 1460;
+				}
+
+
+				spritesong_[i]->SetPosition(position);
+
+
+			}
+		}
+		if (input_->TriggerKey(DIK_ESCAPE))
+		{
+			scene = 0;
+		}
+
+		if (spritesong_[0]->GetPosition().x == 860)
+		{
+
+			position = spritesong_[0]->GetPosition();
+
+			if (JumpFlagPlus_)
+			{
+				JumpTimer_--;
+				position.y += 1.0f;
+			}
+			else if (JumpFlagNegative_)
+			{
+				JumpTimer_--;
+				position.y -= 1.0f;
+			}
+			if (JumpTimer_ <= 0 && JumpFlagPlus_)
+			{
+				JumpFlagPlus_ = false;
+				JumpFlagNegative_ = true;
+				JumpTimer_ = 60;
+			}
+			else if (JumpTimer_ <= 0 && JumpFlagNegative_)
+			{
+				JumpFlagPlus_ = true;
+				JumpFlagNegative_ = false;
+				JumpTimer_ = 60;
+			}
+			spritesong_[0]->SetPosition(position);
+
+
+			if (input_->TriggerKey(DIK_SPACE))
+			{
+				scene = 2;
+			}
+
+
+		}
+		if (spritesong_[1]->GetPosition().x == 860)
+		{
+			position = spritesong_[1]->GetPosition();
+
+			if (JumpFlagPlus_)
+			{
+				JumpTimer2_--;
+				position.y += 1.0f;
+			}
+			else if (JumpFlagNegative_)
+			{
+				JumpTimer2_--;
+				position.y -= 1.0f;
+			}
+			if (JumpTimer2_ <= 0 && JumpFlagPlus_)
+			{
+				JumpFlagPlus_ = false;
+				JumpFlagNegative_ = true;
+				JumpTimer2_ = 60;
+			}
+			else if (JumpTimer2_ <= 0 && JumpFlagNegative_)
+			{
+				JumpFlagPlus_ = true;
+				JumpFlagNegative_ = false;
+				JumpTimer2_ = 60;
+			}
+			spritesong_[1]->SetPosition(position);
+
+			if (input_->TriggerKey(DIK_2))
+			{
+				scene = 3;
+			}
+		}
+		if (spritesong_[2]->GetPosition().x == 860)
+		{
+			position = spritesong_[2]->GetPosition();
+
+			if (JumpFlagPlus_)
+			{
+				JumpTimer3_--;
+				position.y += 1.0f;
+			}
+			else if (JumpFlagNegative_)
+			{
+				JumpTimer3_--;
+				position.y -= 1.0f;
+			}
+			if (JumpTimer3_ <= 0 && JumpFlagPlus_)
+			{
+				JumpFlagPlus_ = false;
+				JumpFlagNegative_ = true;
+				JumpTimer3_ = 60;
+			}
+			else if (JumpTimer3_ <= 0 && JumpFlagNegative_)
+			{
+				JumpFlagPlus_ = true;
+				JumpFlagNegative_ = false;
+				JumpTimer3_ = 60;
+			}
+			spritesong_[2]->SetPosition(position);
+			if (input_->TriggerKey(DIK_2))
+			{
+				scene = 4;
+			}
+		}
+		if (spritesong_[3]->GetPosition().x == 860)
+		{
+			position = spritesong_[3]->GetPosition();
+
+			if (JumpFlagPlus_)
+			{
+				JumpTimer4_--;
+				position.y += 1.0f;
+			}
+			else if (JumpFlagNegative_)
+			{
+				JumpTimer4_--;
+				position.y -= 1.0f;
+			}
+			if (JumpTimer4_ <= 0 && JumpFlagPlus_)
+			{
+				JumpFlagPlus_ = false;
+				JumpFlagNegative_ = true;
+				JumpTimer4_ = 60;
+			}
+			else if (JumpTimer4_ <= 0 && JumpFlagNegative_)
+			{
+				JumpFlagPlus_ = true;
+				JumpFlagNegative_ = false;
+				JumpTimer4_ = 60;
+			}
+			spritesong_[3]->SetPosition(position);
+			if (input_->TriggerKey(DIK_2))
+			{
+				scene = 5;
+			}
+		}
+		if (spritesong_[4]->GetPosition().x == 860)
+		{
+			position = spritesong_[4]->GetPosition();
+
+			if (JumpFlagPlus_)
+			{
+				JumpTimer5_--;
+				position.y += 1.0f;
+			}
+			else if (JumpFlagNegative_)
+			{
+				JumpTimer5_--;
+				position.y -= 1.0f;
+			}
+			if (JumpTimer5_ <= 0 && JumpFlagPlus_)
+			{
+				JumpFlagPlus_ = false;
+				JumpFlagNegative_ = true;
+				JumpTimer5_ = 60;
+			}
+			else if (JumpTimer5_ <= 0 && JumpFlagNegative_)
+			{
+				JumpFlagPlus_ = true;
+				JumpFlagNegative_ = false;
+				JumpTimer5_ = 60;
+			}
+			spritesong_[4]->SetPosition(position);
+			if (input_->TriggerKey(DIK_2))
+			{
+				scene = 6;
+			}
+		}
+
+
+
+		debugText_->Printf("%f", position.x);
+		debugText_->SetPos(0, 15);
+		debugText_->Printf("%f", position.y);
+		debugText_->SetPos(0, 30);
+		break;
+
+	case 2:
+		if (input_->TriggerKey(DIK_1))
+		{
+			scene = 1;
+		}
+		break;
+	case 3:
+		if (input_->TriggerKey(DIK_1))
+		{
+			scene = 1;
+		}
+		break;
+
+	case 4:
+		if (input_->TriggerKey(DIK_1))
+		{
+			scene = 1;
+		}
+		break;
+
+	case 5:
+		if (input_->TriggerKey(DIK_1))
+		{
+			scene = 1;
+		}
+		break;
+
+	case 6:
+		if (input_->TriggerKey(DIK_1))
+		{
+			scene = 1;
+		}
+		break;
+	}
+
+
+}
+
+void Select::Draw() {
+
+	//Sprite::PreDraw(commandList);
+
+	switch (scene)
+	{
+	case 0:
+		spriteTi_->Draw();
+		break;
+	case 1:
+		spriteBG_->Draw();
+		//spriteframe_->Draw();
+		for (size_t i = 0; i < _countof(spritesong_); i++)
+		{
+			spritesong_[i]->Draw();
+		}
+		break;
+	case 2:
+		spriteSongPl1_->Draw();
+		break;
+	case 3:
+		spriteSongPl2_->Draw();
+		break;
+
+	case 4:
+		spriteSongPl3_->Draw();
+		break;
+
+	case 5:
+		spriteSongPl4_->Draw();
+		break;
+
+	case 6:
+		spriteSongPl5_->Draw();
+		break;
+	}
+
+	//
+	// スプライト描画後処理
+	//Sprite::PostDraw();
+
+#pragma endregion
+}

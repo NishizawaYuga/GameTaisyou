@@ -20,7 +20,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
-	win->CreateGameWindow();
+	win->CreateGameWindow("FFFFunnyTempo");//13565952U,1920,1080);
 
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();
