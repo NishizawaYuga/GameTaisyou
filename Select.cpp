@@ -44,8 +44,14 @@ void Select::Initialize() {
 	textureHandleSong7_ = TextureManager::Load("sprite/0007.png");
 
 	//BG
-	textureHandleBG_ = TextureManager::Load("sprite/moyou01.png");
-	spriteBG_ = Sprite::Create(textureHandleBG_, { 0,0 });
+	textureHandleBG_[0] = TextureManager::Load("sprite/moyou000.png");
+	textureHandleBG_[1] = TextureManager::Load("sprite/moyou001.png");
+	textureHandleBG_[2] = TextureManager::Load("sprite/moyou002.png");
+	textureHandleBG_[3] = TextureManager::Load("sprite/moyou003.png");
+	spriteBG_[0] = Sprite::Create(textureHandleBG_[0], {0,0});
+	spriteBG_[1] = Sprite::Create(textureHandleBG_[1], { 0,0 });
+	spriteBG_[2] = Sprite::Create(textureHandleBG_[2], { 0,0 });
+	spriteBG_[3] = Sprite::Create(textureHandleBG_[3], { 0,0 });
 	//タイトル
 	texturehandlTi_ = TextureManager::Load("sprite/titol.png");
 	spriteTi_ = Sprite::Create(texturehandlTi_, { 0,0 });
@@ -80,7 +86,7 @@ void Select::Initialize() {
 	worldTransform_.Initialize();
 }
 
-void Select::Update()
+void Select::Update(int &sceneNum,int &musicID,int &difficulty)
 {
 	switch (scene)
 	{
@@ -112,7 +118,10 @@ void Select::Update()
 					position.x = 260;
 
 				}
-
+				musicID++;
+				if (musicID > 5) {
+					musicID = 1;
+				}
 
 				spritesong_[i]->SetPosition(position);
 			}
@@ -137,14 +146,32 @@ void Select::Update()
 				{
 					position.x = 1460;
 				}
-
+				musicID--;
+				if (musicID < 1) {
+					musicID = 5;
+				}
 
 				spritesong_[i]->SetPosition(position);
 
 
 			}
 		}
-		if (input_->TriggerKey(DIK_ESCAPE))
+		//難易度変更
+		if (input_->TriggerKey(DIK_G)) {
+			if (difficulty < 3) {
+				difficulty++;
+				difficultyColor = difficulty;
+			}
+		}
+		else if (input_->TriggerKey(DIK_H)) {
+			if (difficulty > 0) {
+				difficulty--;
+				difficultyColor = difficulty;
+			}
+		}
+
+
+		if (input_->TriggerKey(DIK_BACKSPACE))
 		{
 			scene = 0;
 		}
@@ -181,7 +208,7 @@ void Select::Update()
 
 			if (input_->TriggerKey(DIK_SPACE))
 			{
-				scene = 2;
+				sceneNum = 2;
 			}
 
 
@@ -358,8 +385,6 @@ void Select::Update()
 		}
 		break;
 	}
-
-
 }
 
 void Select::Draw() {
@@ -372,7 +397,10 @@ void Select::Draw() {
 		spriteTi_->Draw();
 		break;
 	case 1:
-		spriteBG_->Draw();
+		if(difficultyColor == 0){ spriteBG_[0]->Draw(); }
+		else if (difficultyColor == 1) { spriteBG_[1]->Draw(); }
+		else if (difficultyColor == 2) { spriteBG_[2]->Draw(); }
+		else if (difficultyColor == 3) { spriteBG_[3]->Draw(); }
 		//spriteframe_->Draw();
 		for (size_t i = 0; i < _countof(spritesong_); i++)
 		{

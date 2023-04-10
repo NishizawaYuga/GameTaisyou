@@ -62,6 +62,14 @@ private: // メンバ変数
 	//曲選択画面
 	Select* select = nullptr;
 
+	//曲IDと難易度
+	int difficulty;
+	int musicID;
+
+	//直前の選択してたIDと難易度を保存する変数
+	int oldDiff;
+	int oldID;
+
 	//レーン用モデル
 	Model* laneModel = nullptr;
 	Model* lineModel = nullptr;

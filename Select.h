@@ -37,7 +37,7 @@ public: // メンバ関数
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	void Update();
+	void Update(int &sceneNum,int &musicID,int &difficulty);
 
 	/// <summary>
 	/// 描画
@@ -73,8 +73,8 @@ private: // メンバ変数
 	//7
 	uint32_t textureHandleSong7_ = 0;
 	//BG
-	uint32_t textureHandleBG_ = 0;
-	Sprite* spriteBG_ = nullptr;
+	uint32_t textureHandleBG_[4] = { 0,0,0,0 };
+	Sprite* spriteBG_[4] = {nullptr,nullptr,nullptr,nullptr};
 	//タイトル
 	uint32_t texturehandlTi_ = 0;
 	Sprite* spriteTi_ = nullptr;
@@ -91,6 +91,8 @@ private: // メンバ変数
 	int JumpTimer4_ = 60;
 	int JumpTimer5_ = 60;
 
+	//背景変更用変数
+	int difficultyColor;
 
 	//シーン切り替え用リソース
 	//1

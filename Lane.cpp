@@ -119,10 +119,10 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	autoPlay = false;
 
-	LoadMusic(1, difficulty);
+	//LoadMusic(1, difficulty);
 }
 
-void Lane::Update() {
+void Lane::Update(int& scene) {
 	MatSet2 matset;
 	//デバッグ用にスペースを押してる間だけ進むように
 	if (!moveFlag) {
@@ -165,7 +165,7 @@ void Lane::Update() {
 		if (notesCounter < 1) {
 			endTimer--;
 			if (endTimer < 0) {
-				FinishMusic();
+				FinishMusic(scene);
 			}
 		}
 	}
@@ -269,6 +269,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 	notesCounter = 0;
 	//曲IDを別で格納する（データ保存の際に使用）
 	musicID = ID;
+	this->difficulty = difficulty;
 	//音楽データをコピーする
 	playData.beatDenomonator = musicData[ID].beatDenomonator;
 	playData.beatMolecule = musicData[ID].beatMolecule;
@@ -299,6 +300,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 		line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
 		line.lineWorld[i].TransferMatrix();
 	}
+	moveFlag = true;
 }
 
 void Lane::ResetMusic() {
@@ -777,7 +779,7 @@ void Lane::UpdateRate(int RateScore) {
 	score = averageRate * 10000;
 	//平均値に応じてランク変動
 	if (averageRate >= 99.80) {
-		rank = "S+";
+		rank = "V";
 		rankNum = 9;
 	}
 	else if (averageRate >= 99.60) {
@@ -818,7 +820,7 @@ void Lane::UpdateRate(int RateScore) {
 	}
 }
 
-void Lane::FinishMusic() {
+void Lane::FinishMusic(int& scene) {
 	//小節線がこれ以上生成されないようにする
 	moveFlag = false;
 	if (!autoPlay) {
@@ -861,5 +863,7 @@ void Lane::FinishMusic() {
 	combo = 0;
 	maxCombo = 0;
 	averageRate = 0;
+	audioMusic->StopWave(music[musicID]);
 	LoadMusic(musicID, difficulty);
+	scene = 1;
 }

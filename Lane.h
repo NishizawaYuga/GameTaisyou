@@ -100,7 +100,7 @@ public:
 	//初期化
 	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]);
 	//更新
-	void Update();
+	void Update(int &scene);
 	//描画
 	void Draw(ViewProjection viewProjection);
 	//読み込み
@@ -140,7 +140,7 @@ private:
 	void IDEntry(int musicID, std::string filePass, const std::string musicPass,const std::string scoreDataPass, int BPM, int difficultyNum, int level = 0,
 		int startMusicCount = 0, int beatDenomonator = 4, int beatMolecule = 4, int speed = 1);	//汎用ID登録関数
 	//曲の終了関数
-	void FinishMusic();
+	void FinishMusic(int& scene);
 
 private:
 	//音楽データ
@@ -246,7 +246,7 @@ private:
 	int lateJudge;
 
 	//デバッグ用
-	bool moveFlag = false;
+	bool moveFlag = true;
 
 	//サウンドデータハンドル
 	uint32_t music[10] = { 0 };

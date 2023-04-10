@@ -48,6 +48,13 @@ void GameScene::Initialize() {
 	//(0 : タイトル、1 : 選曲画面、2 : プレイ画面、ととりあえず仮定)
 	sceneNum = 1;
 
+	//曲IDと難易度
+	difficulty = 0;
+	musicID = 1;
+	oldDiff = difficulty;
+	oldID = musicID;
+
+
 	viewProjection.Initialize();
 	viewProjection.target.y = -30.0f;
 	viewProjection.eye.x += 0.025;
@@ -57,10 +64,17 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	if (sceneNum == 1) {
-		select->Update();
+		//変更前のID番号と難易度番号を格納
+		oldID = musicID;
+		oldDiff = difficulty;
+		select->Update(sceneNum,musicID,difficulty);
+		//どちらか一致していなかったら譜面更新
+		if (oldID != musicID || oldDiff != difficulty) {
+			lane->LoadMusic(musicID, difficulty);
+		}
 	}
 	else if (sceneNum == 2) {
-		lane->Update();
+		lane->Update(sceneNum);
 	}
 
 	viewProjection.UpdateMatrix();
