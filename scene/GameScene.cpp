@@ -123,6 +123,7 @@ void GameScene::Draw() {
 	/// </summary>
 	if (sceneNum == 1) {
 		select->Draw();
+		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty));
 	}
 
 

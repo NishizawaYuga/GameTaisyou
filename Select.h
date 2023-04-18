@@ -44,6 +44,9 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	//曲選択中のデータ表示
+	void SelectDrawData(int maxScore,int maxRank,int isFCAP, bool clear);
+
 private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
@@ -78,6 +81,20 @@ private: // メンバ変数
 	//タイトル
 	uint32_t texturehandlTi_ = 0;
 	Sprite* spriteTi_ = nullptr;
+
+	//数字
+	uint32_t textureNum[11] = { 0,0,0,0,0,0,0,0,0,0,0 };
+	Sprite* spriteNum[9][11] = { nullptr };
+	//手前のが0かどうか
+	bool isZero[7] = { 0,0,0,0,0,0,0 };
+
+	//ランク
+	uint32_t rankTexNum[10] = { 0,0,0,0,0,0,0,0,0,0 };
+	Sprite* rankSprite[10] = { nullptr };
+
+	//CLFCAPチップ
+	uint32_t tip[3] = { 0,0,0 };
+	Sprite* tipSprite[3] = { nullptr };
 
 	Vector2 position;
 	Vector2 size;

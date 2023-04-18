@@ -50,6 +50,8 @@ struct Difficulty {
 	std::string maxRank = "D";
 	//FC、APの情報
 	int isFCAP = 0;
+	//クリアフラグ
+	bool clear = false;
 };
 
 //曲の基本情報
@@ -114,6 +116,16 @@ public:
 	//オート化
 	//trueでオートON、falseでオートOFF
 	void Auto(bool select);
+	//MusicData取得
+	MusicData GetMusic(int ID) { return musicData[ID]; }
+	//ハイスコアデータ取得
+	int GetHiScore(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].maxScore; }
+	//最高ランクデータ取得
+	int GetHiRank(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].maxRankNum; }
+	//FCAPチェック
+	int GetFCAPFlag(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].isFCAP; }
+	//Clearフラグ取得
+	bool GetClear(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].clear; }
 
 private:
 	//譜面を読む

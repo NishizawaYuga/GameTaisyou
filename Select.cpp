@@ -48,10 +48,47 @@ void Select::Initialize() {
 	textureHandleBG_[1] = TextureManager::Load("sprite/moyou001.png");
 	textureHandleBG_[2] = TextureManager::Load("sprite/moyou002.png");
 	textureHandleBG_[3] = TextureManager::Load("sprite/moyou003.png");
-	spriteBG_[0] = Sprite::Create(textureHandleBG_[0], {0,0});
+	spriteBG_[0] = Sprite::Create(textureHandleBG_[0], { 0,0 });
 	spriteBG_[1] = Sprite::Create(textureHandleBG_[1], { 0,0 });
 	spriteBG_[2] = Sprite::Create(textureHandleBG_[2], { 0,0 });
 	spriteBG_[3] = Sprite::Create(textureHandleBG_[3], { 0,0 });
+
+	float posX = 0.0f;
+	//数字
+	for (int i = 0; i < 11; i++) {
+		textureNum[i] = TextureManager::Load("font/font_dark" + std::to_string(i) + ".png");
+	}
+	for (int i = 0; i < 11; i++) {
+		for (int j = 0; j < 9; j++) {
+			spriteNum[j][i] = nullptr;
+			spriteNum[j][i] = Sprite::Create(textureNum[i], { 0.0f + posX,750 });
+			if (j == 0 || j == 1 || j == 4 || j == 5) {
+				posX += 55.0f;
+			}
+			else { posX += 85.0f; }
+		}
+		posX = 0.0f;
+	}
+
+	//ランク
+	for (int i = 0; i < 10; i++) {
+		rankTexNum[i] = TextureManager::Load("ui/rank" + std::to_string(i) + ".png");
+		rankSprite[i] = nullptr;
+		rankSprite[i] = Sprite::Create(rankTexNum[i], { 1200,700 });
+	}
+
+	//チップ
+	for (int i = 0; i < 3; i++) {
+		tip[i] = TextureManager::Load("ui/tip" + std::to_string(i) + ".png");
+		tipSprite[i] = nullptr;
+		if (i == 0) {
+			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 80.0f,900 });
+		}
+		else {
+			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 240.0f,900 });
+		}
+	}
+
 	//タイトル
 	texturehandlTi_ = TextureManager::Load("sprite/titol.png");
 	spriteTi_ = Sprite::Create(texturehandlTi_, { 0,0 });
@@ -86,7 +123,7 @@ void Select::Initialize() {
 	worldTransform_.Initialize();
 }
 
-void Select::Update(int &sceneNum,int &musicID,int &difficulty)
+void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 {
 	switch (scene)
 	{
@@ -397,7 +434,7 @@ void Select::Draw() {
 		spriteTi_->Draw();
 		break;
 	case 1:
-		if(difficultyColor == 0){ spriteBG_[0]->Draw(); }
+		if (difficultyColor == 0) { spriteBG_[0]->Draw(); }
 		else if (difficultyColor == 1) { spriteBG_[1]->Draw(); }
 		else if (difficultyColor == 2) { spriteBG_[2]->Draw(); }
 		else if (difficultyColor == 3) { spriteBG_[3]->Draw(); }
@@ -432,4 +469,61 @@ void Select::Draw() {
 	//Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
+	if (scene == 1) {
+		int getNum = maxScore;
+		int oldNum = getNum;	//ifそれぞれの桁のif用
+		//1桁ずつ表示
+		if (getNum / 1000000 > 0) {
+			spriteNum[0][getNum / 1000000]->Draw();
+			spriteNum[1][10]->Draw();
+			isZero[0] = true;
+		}
+		else { isZero[0] = false; }
+		getNum = getNum % 1000000;
+		if (isZero[0] || getNum / 100000 > 0) {
+			spriteNum[2][getNum / 100000]->Draw();
+			isZero[1] = true;
+		}
+		else { isZero[1] = false; }
+		getNum = getNum % 100000;
+		if (isZero[1] || getNum / 10000 > 0) {
+			spriteNum[3][getNum / 10000]->Draw();
+			isZero[2] = true;
+		}
+		else { isZero[2] = false; }
+		getNum = getNum % 10000;
+		if (isZero[2] || getNum / 1000 > 0) {
+			spriteNum[4][getNum / 1000]->Draw();
+			spriteNum[5][10]->Draw();
+			isZero[3] = true;
+		}
+		else { isZero[3] = false; }
+		getNum = getNum % 1000;
+		if (isZero[3] || getNum / 100 > 0) {
+			spriteNum[6][getNum / 100]->Draw();
+			isZero[4] = true;
+		}
+		else { isZero[4] = false; }
+		getNum = getNum % 100;
+		if (isZero[4] || getNum / 10 > 0) {
+			spriteNum[7][getNum / 10]->Draw();
+			isZero[5] = true;
+		}
+		else { isZero[5] = false; }
+		getNum = getNum % 10;
+		spriteNum[8][getNum / 1]->Draw();
+		isZero[6] = true;
+		//ランク表示
+		rankSprite[maxRank]->Draw();
+		//チップ表示
+		if (clear) {
+			tipSprite[0]->Draw();
+		}
+		if (isFCAP > 0) {
+			tipSprite[isFCAP]->Draw();
+		}
+	}
 }

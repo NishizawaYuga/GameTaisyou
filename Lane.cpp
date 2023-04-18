@@ -751,6 +751,7 @@ void Lane::LoadData(int ID, int difficulty,string filePass) {
 			if (i == 0) { musicData[ID].difficulty[saveNum].maxScore = atoi(tmp.c_str()); }
 			else if (i == 1){musicData[ID].difficulty[saveNum].maxRankNum = atoi(tmp.c_str());}
 			else if (i == 2) { musicData[ID].difficulty[saveNum].isFCAP = atoi(tmp.c_str()); }
+			else if (i == 3) { musicData[ID].difficulty[saveNum].clear = atoi(tmp.c_str()); }
 			i++;
 		}
 		saveNum++;
