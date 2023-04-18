@@ -117,6 +117,8 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	accuracyCounter = 0;
 	rank = "D";
 
+	clearLine = 0;
+
 	autoPlay = false;
 
 	//LoadMusic(1, difficulty);
@@ -267,6 +269,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 	rate = 0;
 	score = 0;
 	notesCounter = 0;
+	isClear = false;
 	//曲IDを別で格納する（データ保存の際に使用）
 	musicID = ID;
 	this->difficulty = difficulty;
@@ -300,6 +303,12 @@ void Lane::LoadMusic(int ID, int difficulty) {
 		line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
 		line.lineWorld[i].TransferMatrix();
 	}
+	//難易度に応じてノルマライン変更
+	clearLine += 50 + 10 * difficulty;
+	if(difficulty == 3){	//PRANKだけやりたい放題なのでノルマを別に設定
+		clearLine = 40.0f;
+	}
+
 	moveFlag = true;
 }
 
@@ -825,6 +834,14 @@ void Lane::FinishMusic(int& scene) {
 	//小節線がこれ以上生成されないようにする
 	moveFlag = false;
 	if (!autoPlay) {
+		//クリアの確認
+		if (clearLine <= averageRate) {
+			isClear = true;
+			if (!musicData[musicID].difficulty[difficulty].clear) {
+				musicData[musicID].difficulty[difficulty].clear = true;
+			}
+		}
+
 		//スコア更新の確認
 		if (musicData[musicID].difficulty[difficulty].maxScore < score) {
 			musicData[musicID].difficulty[difficulty].maxScore = score;
@@ -852,7 +869,8 @@ void Lane::FinishMusic(int& scene) {
 		for (int i = 0; i < 4; i++) {
 			ofs << musicData[musicID].difficulty[i].maxScore << ",";
 			ofs << musicData[musicID].difficulty[i].maxRankNum << ",";
-			ofs << musicData[musicID].difficulty[i].isFCAP << endl;
+			ofs << musicData[musicID].difficulty[i].isFCAP << ",";
+			ofs << musicData[musicID].difficulty[i].clear << endl;
 		}
 	}
 
@@ -865,6 +883,7 @@ void Lane::FinishMusic(int& scene) {
 	maxCombo = 0;
 	averageRate = 0;
 	audioMusic->StopWave(music[musicID]);
+	clearLine = 0;
 	LoadMusic(musicID, difficulty);
 	scene = 1;
 }

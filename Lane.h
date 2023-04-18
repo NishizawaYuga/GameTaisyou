@@ -241,6 +241,12 @@ private:
 	//MISS数
 	int miss;
 
+	//ノルマ
+	//クリアライン
+	float clearLine;
+	//リザルト画面用のクリアフラグ
+	bool isClear = false;
+
 	//スコア
 	int score;
 	//ランク決めとかに使いそうな平均レート
