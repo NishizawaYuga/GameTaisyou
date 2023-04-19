@@ -125,6 +125,8 @@ void Select::Initialize() {
 
 void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 {
+	std::string test = "‚ ";
+	char test2[] = "a";
 	switch (scene)
 	{
 	case 0:
@@ -380,12 +382,16 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 			}
 		}
 
-
-
 		debugText_->Printf("%f", position.x);
 		debugText_->SetPos(0, 15);
 		debugText_->Printf("%f", position.y);
 		debugText_->SetPos(0, 30);
+		if (test == "‚¢") {
+			debugText_->Printf("hanteitoretemasu");
+		}
+		debugText_->SetPos(0, 45);
+		debugText_->Printf("%x", test2);
+		debugText_->SetPos(0, 60);
 		break;
 
 	case 2:

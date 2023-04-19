@@ -243,7 +243,7 @@ private:
 
 	//ノルマ
 	//クリアライン
-	float clearLine;
+	float quota;
 	//リザルト画面用のクリアフラグ
 	bool isClear = false;
 

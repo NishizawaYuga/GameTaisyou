@@ -117,7 +117,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	accuracyCounter = 0;
 	rank = "D";
 
-	clearLine = 0;
+	quota = 0;
 
 	autoPlay = false;
 
@@ -201,9 +201,9 @@ void Lane::Update(int& scene) {
 	debugText_->SetPos(10, 350);
 	debugText_->Printf("SCORE : %d", score);
 	debugText_->SetPos(10, 370);
-	debugText_->Printf("RATE : %5.2f%%(%s)", averageRate, rank);
+	debugText_->Printf("RATE : %5.2f%%(%5.2f%%)", averageRate, quota);
 	debugText_->SetPos(10, 390);
-	debugText_->Printf("Press SPACE to start : %d",moveFlag);
+	debugText_->Printf("aaa : %d",moveFlag);
 	debugText_->SetPos(10, 410);
 	debugText_->Printf("Control : FGHJ");
 	debugText_->SetPos(10, 430);
@@ -304,9 +304,9 @@ void Lane::LoadMusic(int ID, int difficulty) {
 		line.lineWorld[i].TransferMatrix();
 	}
 	//難易度に応じてノルマライン変更
-	clearLine += 50 + 10 * difficulty;
+	quota = 50 + 10 * difficulty;
 	if(difficulty == 3){	//PRANKだけやりたい放題なのでノルマを別に設定
-		clearLine = 40.0f;
+		quota = 40.0f;
 	}
 
 	moveFlag = true;
@@ -835,7 +835,7 @@ void Lane::FinishMusic(int& scene) {
 	moveFlag = false;
 	if (!autoPlay) {
 		//クリアの確認
-		if (clearLine <= averageRate) {
+		if (quota <= averageRate) {
 			isClear = true;
 			if (!musicData[musicID].difficulty[difficulty].clear) {
 				musicData[musicID].difficulty[difficulty].clear = true;
@@ -883,7 +883,7 @@ void Lane::FinishMusic(int& scene) {
 	maxCombo = 0;
 	averageRate = 0;
 	audioMusic->StopWave(music[musicID]);
-	clearLine = 0;
+	quota = 0;
 	LoadMusic(musicID, difficulty);
 	scene = 1;
 }
