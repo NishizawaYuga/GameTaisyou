@@ -35,6 +35,8 @@ void GameScene::Initialize() {
 	notesModel[10] = Model::CreateFromOBJ("hold_while02", true);//HOLD（間/4分の3サイズ）
 	notesModel[11] = Model::CreateFromOBJ("hold_while03", true);//HOLD（間/1/1サイズ）
 
+	skydomeModel = Model::CreateFromOBJ("skydome", true);
+
 	//レーン初期化
 	lane = new Lane();
 	//lane->Initialize(laneModel,lineModel);
@@ -43,6 +45,10 @@ void GameScene::Initialize() {
 	//select画面初期化
 	select = new Select();
 	select->Initialize();
+
+	//skydome初期化
+	skydome = new Skydome();
+	skydome->Initialize(skydomeModel);
 
 	//シーン番号
 	//(0 : タイトル、1 : 選曲画面、2 : プレイ画面、ととりあえず仮定)
@@ -75,6 +81,7 @@ void GameScene::Update() {
 	}
 	else if (sceneNum == 2) {
 		lane->Update(sceneNum);
+		skydome->Update();
 	}
 
 	viewProjection.UpdateMatrix();
@@ -108,6 +115,7 @@ void GameScene::Draw() {
 	/// </summary>
 	if (sceneNum == 2) {
 		lane->Draw(viewProjection);
+		skydome->Draw(viewProjection);
 	}
 
 	// 3Dオブジェクト描画後処理

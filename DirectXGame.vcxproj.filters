@@ -75,6 +75,9 @@
     <ClCompile Include="Select.cpp">
       <Filter>ソース ファイル\scene</Filter>
     </ClCompile>
+    <ClCompile Include="skydome.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3d\ViewProjection.h">
@@ -172,6 +175,9 @@
     </ClInclude>
     <ClInclude Include="Select.h">
       <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="skydome.h">
+      <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

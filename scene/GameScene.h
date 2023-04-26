@@ -12,6 +12,7 @@
 
 #include "Lane.h"
 #include "Select.h"
+#include "skydome.h"
 
 /// <summary>
 /// ゲームシーン
@@ -61,6 +62,8 @@ private: // メンバ変数
 	Lane* lane = nullptr;
 	//曲選択画面
 	Select* select = nullptr;
+	//スカイドーム
+	Skydome* skydome = nullptr;
 
 	//曲IDと難易度
 	int difficulty;
@@ -74,4 +77,6 @@ private: // メンバ変数
 	Model* laneModel = nullptr;
 	Model* lineModel = nullptr;
 	Model* notesModel[12];
+	//スカイドームモデル
+	Model* skydomeModel = nullptr;
 };
