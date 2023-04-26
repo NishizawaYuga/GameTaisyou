@@ -121,9 +121,15 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	if (sceneNum != 0) {
+		select->DrawDifficulty(difficulty, lane->GetLevel(musicID, difficulty));
+	}
 	if (sceneNum == 1) {
 		select->Draw();
 		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty));
+	}
+	if (sceneNum == 2) {
+		lane->DrawSprite();
 	}
 
 

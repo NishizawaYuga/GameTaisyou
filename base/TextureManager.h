@@ -12,7 +12,7 @@
 class TextureManager {
   public:
 	// デスクリプターの数
-	static const size_t kNumDescriptors = 256;
+	static const size_t kNumDescriptors = 512;
 
 	/// <summary>
 	/// テクスチャ

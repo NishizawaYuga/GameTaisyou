@@ -47,6 +47,9 @@ public: // メンバ関数
 	//曲選択中のデータ表示
 	void SelectDrawData(int maxScore,int maxRank,int isFCAP, bool clear);
 
+	//難易度・レベル表示（プレイ中も表示するため別個で用意）
+	void DrawDifficulty(int difficulty, int level);
+
 private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
@@ -95,6 +98,14 @@ private: // メンバ変数
 	//CLFCAPチップ
 	uint32_t tip[3] = { 0,0,0 };
 	Sprite* tipSprite[3] = { nullptr };
+
+	//難易度表記
+	uint32_t diffNum[4] = { 0,0,0,0 };
+	Sprite* diff[4] = { nullptr };
+
+	//レベル
+	uint32_t levelNum[11] = { 0,0,0,0,0,0,0,0,0,0,0 };
+	Sprite* levelS[11] = { nullptr };
 
 	Vector2 position;
 	Vector2 size;

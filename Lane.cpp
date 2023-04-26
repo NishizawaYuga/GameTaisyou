@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "TextureManager.h"
 
 #include "MatSet.h"
 
@@ -90,6 +91,42 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 		line.lineWorld[i].Initialize();
 	}
 
+	//スプライト
+	uiCombo = TextureManager::Load("ui/playdata/combo.png");
+	comboSprite = Sprite::Create(uiCombo, { comboNumPosX - 60,comboNumPosY - 75 });
+	for (int i = 0; i < 10; i++) {
+		uiComboNum[i] = TextureManager::Load("font/font_dark" + std::to_string(i) + ".png");
+	}
+	for (int i = 0; i < 5; i++) {
+		uiData[i] = TextureManager::Load("ui/playdata/datafont" + std::to_string(i) + ".png");
+		uiDataSprite[i] = Sprite::Create(uiData[i], { 10.0f,150.0f + 45.0f * i });
+	}
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 10; j++) {
+			comboNumSprite[i][j] = nullptr;
+			comboNumSprite[i][j] = Sprite::Create(uiComboNum[j], { comboNumPosX,comboNumPosY });
+		}
+	}
+	for (int i = 0; i < 10; i++) {
+		uiDataNum[i] = TextureManager::Load("ui/playdata/playfont" + std::to_string(i) + ".png");
+	}
+	for (int i = 0; i < 16; i++) {
+		int j = i / 4;
+		//j = j / 4;
+		for (int k = 0; k < 10; k++) {
+			uiDataNumbers[i][k] = nullptr;
+			uiDataNumbers[i][k] = Sprite::Create(uiDataNum[k], { 210.0f + i % 4 * 35.0f,150.0f + 45.0f * j });
+		}
+	}
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 11; j++) {
+			uiScoreNum[j] = TextureManager::Load("ui/playdata/playfont_s" + std::to_string(j) + ".png");
+			uiScore[i][j] = nullptr;
+			uiScore[i][j] = Sprite::Create(uiScoreNum[j], { 10.0f + i * 45.0f,375.0f });
+		}
+	}
+
+
 	//レーン
 	lanePosition.translation_ = Vector3(0, -2.0f, -35.0f);
 	lanePosition.Initialize();
@@ -119,7 +156,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	quota = 0;
 
-	autoPlay = false;
+	autoPlay = true;
 
 	//LoadMusic(1, difficulty);
 }
@@ -136,12 +173,12 @@ void Lane::Update(int& scene) {
 			else if (!autoPlay) { autoPlay = true; }
 		}
 
-		if (input_->TriggerKey(DIK_UP)) { 
-			difficulty = 3; 
+		if (input_->TriggerKey(DIK_UP)) {
+			difficulty = 3;
 			LoadMusic(1, difficulty);
 		}
-		if (input_->TriggerKey(DIK_DOWN)) { 
-			difficulty = 2; 
+		if (input_->TriggerKey(DIK_DOWN)) {
+			difficulty = 2;
 			LoadMusic(1, difficulty);
 		}
 	}
@@ -188,7 +225,7 @@ void Lane::Update(int& scene) {
 	debugText_->Printf("MAXCombo : %d", maxCombo);
 	debugText_->SetPos(10, 230);
 	debugText_->Printf("PERFECT : %d", perfect);
-	debugText_->SetPos(10, 250);
+	debugText_->SetPos(10, 160);
 	debugText_->Printf("GREAT : %d", great);
 	debugText_->SetPos(10, 270);
 	debugText_->Printf("MISS : %d", miss);
@@ -203,7 +240,7 @@ void Lane::Update(int& scene) {
 	debugText_->SetPos(10, 370);
 	debugText_->Printf("RATE : %5.2f%%(%5.2f%%)", averageRate, quota);
 	debugText_->SetPos(10, 390);
-	debugText_->Printf("aaa : %d",moveFlag);
+	debugText_->Printf("aaa : %d", moveFlag);
 	debugText_->SetPos(10, 410);
 	debugText_->Printf("Control : FGHJ");
 	debugText_->SetPos(10, 430);
@@ -305,7 +342,7 @@ void Lane::LoadMusic(int ID, int difficulty) {
 	}
 	//難易度に応じてノルマライン変更
 	quota = 50 + 10 * difficulty;
-	if(difficulty == 3){	//PRANKだけやりたい放題なのでノルマを別に設定
+	if (difficulty == 3) {	//PRANKだけやりたい放題なのでノルマを別に設定
 		quota = 40.0f;
 	}
 
@@ -655,8 +692,8 @@ void Lane::ChartInitialize() {
 	//全ての曲のデータ読み込み
 	//譜面データがあるファイルの場所と格納したい配列の番号を指定する
 	ID000("Resources/musicData/000/testmc.txt", 0);
-	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav","Resources/musicData/001/scoredata.txt", 144, 3, 0, 100);
-	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav","Resources/musicData/001/scoredata.txt", 144, 2, 7, 100);
+	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 3, 0, 100);
+	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 2, 7, 100);
 }
 
 void Lane::ID000(string filePass, int musicID) {
@@ -670,7 +707,7 @@ void Lane::ID000(string filePass, int musicID) {
 	//譜面速度（倍率）
 	musicData[musicID].speed = 1;
 
-	LoadData(musicID, 0,filePass);
+	LoadData(musicID, 0, filePass);
 }
 
 void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, std::string scoreDataPass, int BPM, int difficultyNum, int level, int startMusicCount, int beatDenomonator, int beatMolecule, int speed) {
@@ -689,12 +726,12 @@ void Lane::IDEntry(int musicID, std::string filePass, std::string musicPass, std
 	//スコアデータパス
 	musicData[musicID].dataPass = scoreDataPass;
 
-	LoadData(musicID,difficultyNum,filePass);
+	LoadData(musicID, difficultyNum, filePass);
 
 	//music[musicID] = audioMusic->LoadWave(musicPass);
 }
 
-void Lane::LoadData(int ID, int difficulty,string filePass) {
+void Lane::LoadData(int ID, int difficulty, string filePass) {
 
 	//入力されたファイルパスからファイルオブジェクト作成
 	ifstream ifs(filePass);
@@ -751,14 +788,14 @@ void Lane::LoadData(int ID, int difficulty,string filePass) {
 
 	string str2 = "";
 
-	while (getline(ifs2,str2)) {
+	while (getline(ifs2, str2)) {
 		string tmp = "";
 		istringstream stream(str2);
 		int i = 0;
 
 		while (getline(stream, tmp, ',')) {
 			if (i == 0) { musicData[ID].difficulty[saveNum].maxScore = atoi(tmp.c_str()); }
-			else if (i == 1){musicData[ID].difficulty[saveNum].maxRankNum = atoi(tmp.c_str());}
+			else if (i == 1) { musicData[ID].difficulty[saveNum].maxRankNum = atoi(tmp.c_str()); }
 			else if (i == 2) { musicData[ID].difficulty[saveNum].isFCAP = atoi(tmp.c_str()); }
 			else if (i == 3) { musicData[ID].difficulty[saveNum].clear = atoi(tmp.c_str()); }
 			i++;
@@ -824,8 +861,8 @@ void Lane::UpdateRate(int RateScore) {
 		rank = "C";
 		rankNum = 1;
 	}
-	else { 
-		rank = "D"; 
+	else {
+		rank = "D";
 		rankNum = 0;
 	}
 }
@@ -886,4 +923,141 @@ void Lane::FinishMusic(int& scene) {
 	quota = 0;
 	LoadMusic(musicID, difficulty);
 	scene = 1;
+}
+
+//スプライト描画※長くなりそうなのでこっちに
+void Lane::DrawSprite() {
+	//上からPERFECT数、GREAT数、MISS数、MAXCOMBO数
+	uiDataSprite[0]->Draw();
+	DrawSprite4(maxCombo, uiDataNumbers, 0, true);
+	uiDataSprite[1]->Draw();
+	DrawSprite4(perfect, uiDataNumbers, 4, true);
+	uiDataSprite[2]->Draw();
+	DrawSprite4(great, uiDataNumbers, 8, true);
+	uiDataSprite[3]->Draw();
+	DrawSprite4(miss, uiDataNumbers, 12, true);
+	//スコア
+	uiDataSprite[4]->Draw();
+	int getNum = score;
+	bool isZero[7] = { 0,0,0,0,0,0,0 };
+	if (getNum / 1000000 > 0) {
+		uiScore[0][getNum / 1000000]->Draw();
+		uiScore[1][10]->Draw();
+		isZero[0] = true;
+	}
+	else { isZero[0] = false; }
+	getNum = getNum % 1000000;
+	if (isZero[0] || getNum / 100000 > 0) {
+		uiScore[2][getNum / 100000]->Draw();
+		isZero[1] = true;
+	}
+	else { isZero[1] = false; }
+	getNum = getNum % 100000;
+	if (isZero[1] || getNum / 10000 > 0) {
+		uiScore[3][getNum / 10000]->Draw();
+		isZero[2] = true;
+	}
+	else { isZero[2] = false; }
+	getNum = getNum % 10000;
+	if (isZero[2] || getNum / 1000 > 0) {
+		uiScore[4][getNum / 1000]->Draw();
+		uiScore[5][10]->Draw();
+		isZero[3] = true;
+	}
+	else { isZero[3] = false; }
+	getNum = getNum % 1000;
+	if (isZero[3] || getNum / 100 > 0) {
+		uiScore[6][getNum / 100]->Draw();
+		isZero[4] = true;
+	}
+	else { isZero[4] = false; }
+	getNum = getNum % 100;
+	if (isZero[4] || getNum / 10 > 0) {
+		uiScore[7][getNum / 10]->Draw();
+		isZero[5] = true;
+	}
+	else { isZero[5] = false; }
+	getNum = getNum % 10;
+	uiScore[8][getNum / 1]->Draw();
+	isZero[6] = true;
+
+	//コンボ
+	bool comboIsZero[4] = { false,false,false,false };
+	int getCombo = combo;
+	if(combo > 9){
+		comboSprite->Draw();
+		if (getCombo / 1000 > 0) {
+			comboIsZero[0] = true;
+			comboNumSprite[0][getCombo / 1000]->SetPosition({ comboNumPosX - 120,comboNumPosY });
+			comboNumSprite[0][getCombo / 1000]->Draw();
+		}
+		else { comboIsZero[0] = false; }
+		getCombo = getCombo % 1000;
+		if (comboIsZero[0] || getCombo / 100 > 0) {
+			if (comboIsZero[0]) {
+				comboNumSprite[1][getCombo / 100]->SetPosition({ comboNumPosX - 40,comboNumPosY });
+			}
+			else {
+				comboNumSprite[1][getCombo / 100]->SetPosition({ comboNumPosX - 80,comboNumPosY });
+			}
+			comboIsZero[1] = true;
+			comboNumSprite[1][getCombo / 100]->Draw();
+		}
+		else { comboIsZero[1] = false; }
+		getCombo = getCombo % 100;
+		if (comboIsZero[1] || getCombo / 10 > 0) {
+			if (comboIsZero[0]) {
+				comboNumSprite[2][getCombo / 10]->SetPosition({ comboNumPosX + 40,comboNumPosY });
+			}
+			else if (comboIsZero[1]) {
+				comboNumSprite[2][getCombo / 10]->SetPosition({ comboNumPosX,comboNumPosY });
+			}
+			else {
+				comboNumSprite[2][getCombo / 10]->SetPosition({ comboNumPosX - 40,comboNumPosY });
+			}
+			comboIsZero[2] = true;
+			comboNumSprite[2][getCombo / 10]->Draw();
+		}
+		getCombo = getCombo % 10;
+		if (comboIsZero[2] || getCombo / 1 > 0) {
+			if (comboIsZero[0]) {
+				comboNumSprite[3][getCombo / 1]->SetPosition({ comboNumPosX + 120,comboNumPosY });
+			}
+			else if (comboIsZero[1]) {
+				comboNumSprite[3][getCombo / 1]->SetPosition({ comboNumPosX + 80,comboNumPosY });
+			}
+			else {
+				comboNumSprite[3][getCombo / 1]->SetPosition({ comboNumPosX + 40,comboNumPosY });
+			}
+			comboIsZero[3] = true;
+			comboNumSprite[3][getCombo / 1]->Draw();
+		}
+	}
+}
+
+void Lane::DrawSprite4(int num, Sprite* sprite[16][10], int startNum, bool draw0) {
+	bool isZero[4] = { 0,0,0,0 };
+	int getNum = num;
+	if (getNum / 1000 > 0) {
+		sprite[0 + startNum][getNum / 1000]->Draw();
+		isZero[0] = true;
+	}
+	else { isZero[0] = false; }
+	getNum = getNum % 1000;
+	if (isZero[0] || getNum / 100 > 0) {
+		sprite[1 + startNum][getNum / 100]->Draw();
+		isZero[1] = true;
+	}
+	else { isZero[1] = false; }
+	getNum = getNum % 100;
+	if (isZero[1] || getNum / 10 > 0) {
+		sprite[2 + startNum][getNum / 10]->Draw();
+		isZero[2] = true;
+	}
+	else { isZero[2] = false; }
+	getNum = getNum % 10;
+	if (draw0 || getNum / 1 > 0) {
+		sprite[3 + startNum][getNum / 1]->Draw();
+		isZero[3] = true;
+	}
 }

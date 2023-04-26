@@ -6,6 +6,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Audio.h"
+#include "Sprite.h"
 
 #include <string>
 
@@ -102,11 +103,13 @@ public:
 	//初期化
 	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]);
 	//更新
-	void Update(int &scene);
+	void Update(int& scene);
 	//描画
 	void Draw(ViewProjection viewProjection);
+	//描画（スプライト）
+	void DrawSprite();
 	//読み込み
-	void LoadMusic(int ID,int difficulty);
+	void LoadMusic(int ID, int difficulty);
 	//リセット（曲終了後などに空っぽにする）
 	void ResetMusic();
 	//レーンの見た目変更
@@ -118,6 +121,8 @@ public:
 	void Auto(bool select);
 	//MusicData取得
 	MusicData GetMusic(int ID) { return musicData[ID]; }
+
+	//データ取得
 	//ハイスコアデータ取得
 	int GetHiScore(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].maxScore; }
 	//最高ランクデータ取得
@@ -126,6 +131,8 @@ public:
 	int GetFCAPFlag(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].isFCAP; }
 	//Clearフラグ取得
 	bool GetClear(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].clear; }
+	//レべル取得
+	int GetLevel(int ID, int difficulty) { return musicData[ID].level[difficulty]; }
 
 private:
 	//譜面を読む
@@ -137,7 +144,7 @@ private:
 	//列一つ分の判定
 	void ColumnHit(int layer, int columnNum, int notes, bool trigger, bool push);
 	//太いノーツの押された判定を返す
-	bool ThickColumn(bool key1=false, bool key2=false, bool key3=false, bool key4=false);
+	bool ThickColumn(bool key1 = false, bool key2 = false, bool key3 = false, bool key4 = false);
 	//レート計算
 	void UpdateRate(int RateScore);
 	//譜面
@@ -145,14 +152,16 @@ private:
 	//小節線更新
 	void LineUpdate();
 	//ファイル読み込み
-	void LoadData(int ID,int difficulty, std::string filePass);
+	void LoadData(int ID, int difficulty, std::string filePass);
 	//曲データ初期化群
 	void ID000(std::string filePass, int musicID);	//テスト音源
 	//IDと譜面データのパスと曲のパスとスコアデータのパス、BPMと難易度さえ指定すればOK、デフォルトでレベル0の曲開始0秒の4/4拍子の譜面速度倍率1
-	void IDEntry(int musicID, std::string filePass, const std::string musicPass,const std::string scoreDataPass, int BPM, int difficultyNum, int level = 0,
+	void IDEntry(int musicID, std::string filePass, const std::string musicPass, const std::string scoreDataPass, int BPM, int difficultyNum, int level = 0,
 		int startMusicCount = 0, int beatDenomonator = 4, int beatMolecule = 4, int speed = 1);	//汎用ID登録関数
 	//曲の終了関数
 	void FinishMusic(int& scene);
+	//4ケタ用DrawSprite
+	void DrawSprite4(int num, Sprite* sprite[25][10], int startNum, bool draw0);
 
 private:
 	//音楽データ
@@ -269,4 +278,23 @@ private:
 	//サウンドデータハンドル
 	uint32_t music[10] = { 0 };
 	uint32_t SE[3] = { 0,0,0 };
+
+	//プレイ画面用UI
+	//コンボ表示
+	uint32_t uiCombo = 0;
+	Sprite* comboSprite = nullptr;
+	//コンボ数表示
+	uint32_t uiComboNum[10] = {0,0,0,0,0,0,0,0,0,0};
+	Sprite* comboNumSprite[4][10] = {nullptr,nullptr, nullptr, nullptr};
+	//詳細カウント表示
+	uint32_t uiData[5] = {0,0,0,0,0};
+	Sprite* uiDataSprite[5] = { nullptr,nullptr, nullptr, nullptr,nullptr };
+	//詳細カウント数表示（MAXCOMBO,PERFECT、GREAT、MISSでそれぞれ4ケタ、スコアで,含めて9ケタ、4 × 4 + 9 = 25）
+	uint32_t uiDataNum[10] = { 0,0,0,0,0,0,0,0,0,0};
+	Sprite* uiDataNumbers[16][10] = {nullptr};
+	uint32_t uiScoreNum[11] = { 0,0,0,0,0,0,0,0,0,0,0 };
+	Sprite* uiScore[9][11] = { nullptr };
+	//COMBO数表示の共通座標
+	float comboNumPosX = 1610.0f;
+	float comboNumPosY = 380.0f;
 };

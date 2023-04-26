@@ -57,6 +57,9 @@ void Select::Initialize() {
 	//数字
 	for (int i = 0; i < 11; i++) {
 		textureNum[i] = TextureManager::Load("font/font_dark" + std::to_string(i) + ".png");
+		levelNum[i] = TextureManager::Load("ui/level/levelNum" + std::to_string(i) + ".png");
+		levelS[i] = nullptr;
+		levelS[i] = Sprite::Create(levelNum[i], { 1700,158 });
 	}
 	for (int i = 0; i < 11; i++) {
 		for (int j = 0; j < 9; j++) {
@@ -87,6 +90,13 @@ void Select::Initialize() {
 		else {
 			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 240.0f,900 });
 		}
+	}
+
+	//難易度
+	for (int i = 0; i < 4; i++) {
+		diffNum[i] = TextureManager::Load("ui/difficulty/difficulty" + std::to_string(i) + ".png");
+		diff[i] = nullptr;
+		diff[i] = Sprite::Create(diffNum[i], { 1356,0 });
 	}
 
 	//タイトル
@@ -480,7 +490,6 @@ void Select::Draw() {
 void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
 	if (scene == 1) {
 		int getNum = maxScore;
-		int oldNum = getNum;	//ifそれぞれの桁のif用
 		//1桁ずつ表示
 		if (getNum / 1000000 > 0) {
 			spriteNum[0][getNum / 1000000]->Draw();
@@ -531,5 +540,12 @@ void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
 		if (isFCAP > 0) {
 			tipSprite[isFCAP]->Draw();
 		}
+	}
+}
+
+void Select::DrawDifficulty(int difficulty, int level) {
+	if (scene != 0) {
+		diff[difficulty]->Draw();
+		levelS[level]->Draw();
 	}
 }
