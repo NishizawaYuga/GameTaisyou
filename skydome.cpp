@@ -9,7 +9,6 @@ void Skydome::Initialize(Model* model) {
 	this->model = model;
 	//ƒ[ƒ‹ƒhÀ•W
 	worldTransform_.scale_ = { 300,300,300 };
-	worldTransform_.rotation_ = { 30,0,0 };
 	worldTransform_.Initialize();
 }
 

@@ -40,7 +40,7 @@ void GameScene::Initialize() {
 	//レーン初期化
 	lane = new Lane();
 	//lane->Initialize(laneModel,lineModel);
-	lane->Initialize(laneModel, lineModel,notesModel);
+	lane->Initialize(laneModel, lineModel, notesModel);
 
 	//select画面初期化
 	select = new Select();
@@ -73,7 +73,7 @@ void GameScene::Update() {
 		//変更前のID番号と難易度番号を格納
 		oldID = musicID;
 		oldDiff = difficulty;
-		select->Update(sceneNum,musicID,difficulty);
+		select->Update(sceneNum, musicID, difficulty);
 		//どちらか一致していなかったら譜面更新
 		if (oldID != musicID || oldDiff != difficulty) {
 			lane->LoadMusic(musicID, difficulty);
@@ -129,15 +129,16 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	if (sceneNum != 0) {
-		select->DrawDifficulty(difficulty, lane->GetLevel(musicID, difficulty));
-	}
 	if (sceneNum == 1) {
 		select->Draw();
-		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty));
+		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty),
+			difficulty, lane->GetLevel(musicID, difficulty));
 	}
 	if (sceneNum == 2) {
 		lane->DrawSprite();
+	}
+	if (sceneNum != 0) {
+		select->DrawDifficulty(difficulty, lane->GetLevel(musicID, difficulty));
 	}
 
 

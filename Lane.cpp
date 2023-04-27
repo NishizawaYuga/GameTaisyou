@@ -156,7 +156,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	quota = 0;
 
-	autoPlay = true;
+	autoPlay = false;
 
 	//LoadMusic(1, difficulty);
 }
@@ -209,7 +209,7 @@ void Lane::Update(int& scene) {
 		}
 	}
 
-	debugText_->SetPos(10, 90);
+	/*debugText_->SetPos(10, 90);
 	debugText_->Printf("all + Counter : %d", perfect + great + miss + notesCounter);
 	debugText_->SetPos(10, 110);
 	debugText_->Printf("Counter : %d", notesCounter);
@@ -249,7 +249,7 @@ void Lane::Update(int& scene) {
 	}
 	else if (!autoPlay) {
 		debugText_->Printf("Press Q to auto : false");
-	}
+	}*/
 
 
 	//è¨êﬂê¸çXêV
@@ -694,6 +694,7 @@ void Lane::ChartInitialize() {
 	ID000("Resources/musicData/000/testmc.txt", 0);
 	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 3, 0, 100);
 	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 2, 7, 100);
+	IDEntry(1, "Resources/musicData/001/banbadoN.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 1, 5, 100);
 }
 
 void Lane::ID000(string filePass, int musicID) {

@@ -33,11 +33,11 @@ void Select::Initialize() {
 	//2
 	textureHandleSong2_ = TextureManager::Load("sprite/0002.png");
 	//3
-	textureHandleSong3_ = TextureManager::Load("sprite/0003.png");
+	textureHandleSong3_ = TextureManager::Load("sprite/0002.png");
 	//4
-	textureHandleSong4_ = TextureManager::Load("sprite/0004.png");
+	textureHandleSong4_ = TextureManager::Load("sprite/0002.png");
 	//5
-	textureHandleSong5_ = TextureManager::Load("sprite/0005.png");
+	textureHandleSong5_ = TextureManager::Load("sprite/0002.png");
 	//6
 	textureHandleSong6_ = TextureManager::Load("sprite/0006.png");
 	//7
@@ -64,7 +64,7 @@ void Select::Initialize() {
 	for (int i = 0; i < 11; i++) {
 		for (int j = 0; j < 9; j++) {
 			spriteNum[j][i] = nullptr;
-			spriteNum[j][i] = Sprite::Create(textureNum[i], { 0.0f + posX,750 });
+			spriteNum[j][i] = Sprite::Create(textureNum[i], { 0.0f + posX,700 });
 			if (j == 0 || j == 1 || j == 4 || j == 5) {
 				posX += 55.0f;
 			}
@@ -85,10 +85,10 @@ void Select::Initialize() {
 		tip[i] = TextureManager::Load("ui/tip" + std::to_string(i) + ".png");
 		tipSprite[i] = nullptr;
 		if (i == 0) {
-			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 80.0f,900 });
+			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 80.0f,850 });
 		}
 		else {
-			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 240.0f,900 });
+			tipSprite[i] = Sprite::Create(tip[i], { 0.0f + 240.0f,850 });
 		}
 	}
 
@@ -98,6 +98,9 @@ void Select::Initialize() {
 		diff[i] = nullptr;
 		diff[i] = Sprite::Create(diffNum[i], { 1356,0 });
 	}
+
+	controlTx = TextureManager::Load("ui/contorol.png");
+	controlSp = Sprite::Create(controlTx, { 0,0 });
 
 	//タイトル
 	texturehandlTi_ = TextureManager::Load("sprite/titol.png");
@@ -135,8 +138,6 @@ void Select::Initialize() {
 
 void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 {
-	std::string test = "あ";
-	char test2[] = "a";
 	switch (scene)
 	{
 	case 0:
@@ -392,7 +393,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 			}
 		}
 
-		debugText_->Printf("%f", position.x);
+		/*debugText_->Printf("%f", position.x);
 		debugText_->SetPos(0, 15);
 		debugText_->Printf("%f", position.y);
 		debugText_->SetPos(0, 30);
@@ -401,7 +402,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 		}
 		debugText_->SetPos(0, 45);
 		debugText_->Printf("%x", test2);
-		debugText_->SetPos(0, 60);
+		debugText_->SetPos(0, 60);*/
 		break;
 
 	case 2:
@@ -487,7 +488,7 @@ void Select::Draw() {
 #pragma endregion
 }
 
-void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
+void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, int difficulty, int level) {
 	if (scene == 1) {
 		int getNum = maxScore;
 		//1桁ずつ表示
@@ -540,7 +541,9 @@ void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
 		if (isFCAP > 0) {
 			tipSprite[isFCAP]->Draw();
 		}
+		controlSp->Draw();
 	}
+	
 }
 
 void Select::DrawDifficulty(int difficulty, int level) {
