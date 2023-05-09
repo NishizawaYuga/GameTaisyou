@@ -148,7 +148,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 		break;
 	case 1:
 		// ステージセレクト　入力処理
-		if (input_->TriggerKey(DIK_F))
+		if (input_->TriggerKey(DIK_LEFT))
 		{
 
 			// ステージの番号を300ずらす
@@ -177,7 +177,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 			}
 		}
 
-		if (input_->TriggerKey(DIK_J))
+		if (input_->TriggerKey(DIK_RIGHT))
 		{
 
 			// ステージの番号を-300ずらす
@@ -207,13 +207,13 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 			}
 		}
 		//難易度変更
-		if (input_->TriggerKey(DIK_G)) {
+		if (input_->TriggerKey(DIK_UP)) {
 			if (difficulty < 3) {
 				difficulty++;
 				difficultyColor = difficulty;
 			}
 		}
-		else if (input_->TriggerKey(DIK_H)) {
+		else if (input_->TriggerKey(DIK_DOWN)) {
 			if (difficulty > 0) {
 				difficulty--;
 				difficultyColor = difficulty;

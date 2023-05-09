@@ -158,7 +158,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	autoPlay = false;
 
-	//LoadMusic(1, difficulty);
+	LoadMusic(1, difficulty);
 }
 
 void Lane::Update(int& scene) {
@@ -695,6 +695,7 @@ void Lane::ChartInitialize() {
 	IDEntry(1, "Resources/musicData/001/banbado.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 3, 0, 100);
 	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 2, 7, 100);
 	IDEntry(1, "Resources/musicData/001/banbadoN.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 1, 5, 100);
+	IDEntry(1, "Resources/musicData/001/banbadoE.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 0, 3, 100);
 }
 
 void Lane::ID000(string filePass, int musicID) {

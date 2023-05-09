@@ -237,7 +237,7 @@ private:
 	//曲ID
 	int musicID = 0;
 	//難易度番号　0 : Easy, 1 : Normal, 2 : Master, 3 : Prank
-	int difficulty = 2;
+	int difficulty = 0;
 
 	//コンボ数
 	int combo;
