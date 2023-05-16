@@ -33,7 +33,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	}
 
 	//デフォルトヒットタイマー
-	defaultHitTimer = 180;
+	defaultHitTimer = 120;
 
 	//譜面データ初期化
 	playData.beatDenomonator = 0;
@@ -60,7 +60,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	}
 
 	//譜面速度（デフォルト）
-	speed = 0.1f;
+	speed = 0.3f;
 	size = 1.0f;
 
 	distance = speed * defaultHitTimer;//(60.0f->1秒)
@@ -1061,4 +1061,20 @@ void Lane::SetEvaluation(int spriteNum) {
 	evaPosY = 600.0f;
 	
 	evaluationSpriteNum = spriteNum;
+}
+
+void Lane::ChangeSpeed(float addSpeed) {
+	//速度を足す形式で変動
+	speed += addSpeed;
+	//速度に合わせでホールド八分/判定無しのサイズ変更
+	size += addSpeed * 5;
+	//スピードに合わせて開始判定など調整
+	if (speed < 3.0f) {
+		defaultHitTimer = 180;
+		//速度2以下はサイズ固定
+		size = 1.0f;
+	}
+	else {
+		defaultHitTimer = 120;
+	}
 }

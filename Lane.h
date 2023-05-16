@@ -119,6 +119,8 @@ public:
 	//オート化
 	//trueでオートON、falseでオートOFF
 	void Auto(bool select);
+	//譜面速度変更
+	void ChangeSpeed(float addSpeed);
 	//MusicData取得
 	MusicData GetMusic(int ID) { return musicData[ID]; }
 
