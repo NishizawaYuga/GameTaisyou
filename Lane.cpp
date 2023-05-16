@@ -32,6 +32,9 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 		notesModel[i] = noteModel[i];
 	}
 
+	//デフォルトヒットタイマー
+	defaultHitTimer = 180;
+
 	//譜面データ初期化
 	playData.beatDenomonator = 0;
 	playData.beatMolecule = 0;
@@ -44,7 +47,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 					playData.difficulty[m].layer[i].note[j].chart[k] = 0;
 					if (k < drawNotes) {
 						playData.difficulty[m].layer[i].note[j].hit[k] = false;
-						playData.difficulty[m].layer[i].note[j].hitTimer[k] = 60;
+						playData.difficulty[m].layer[i].note[j].hitTimer[k] = defaultHitTimer;
 						playData.difficulty[m].layer[i].note[j].judgement[k] = 0;
 						playData.difficulty[m].layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
 						playData.difficulty[m].layer[i].note[j].worldTransform[k].Initialize();
@@ -57,9 +60,10 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	}
 
 	//譜面速度（デフォルト）
-	speed = 0.3f;
+	speed = 0.1f;
+	size = 1.0f;
 
-	distance = speed * 60.0f;//(60.0f->1秒)
+	distance = speed * defaultHitTimer;//(60.0f->1秒)
 
 	//小節線初期化
 	line.countFlame = 0;
@@ -198,13 +202,11 @@ void Lane::Update(int& scene) {
 			LoadMusic(1, difficulty);
 		}
 	}
-	//if (input_->PushKey(DIK_SPACE)) {
-		//タイマーが0になったらスタート
 	else if (moveFlag) {
-		if (startTimer > -121) {
+		if (startTimer > -181) {
 			startTimer--;
 		}
-		if (startTimer <= 60) {
+		if (startTimer <= defaultHitTimer) {
 			LineUpdate();
 		}
 		if (startMusic) {
@@ -245,7 +247,6 @@ void Lane::Update(int& scene) {
 	//レーンの更新
 	matset.MatIdentity(lanePosition);
 	lanePosition.TransferMatrix();
-	//}
 }
 
 void Lane::Draw(ViewProjection viewProjection) {
@@ -334,7 +335,7 @@ void Lane::ResetMusic() {
 				playData.difficulty[0].layer[i].note[j].chart[k] = 0;
 				if (k < drawNotes) {
 					playData.difficulty[0].layer[i].note[j].hit[k] = false;
-					playData.difficulty[0].layer[i].note[j].hitTimer[k] = 60;
+					playData.difficulty[0].layer[i].note[j].hitTimer[k] = defaultHitTimer;
 					playData.difficulty[0].layer[i].note[j].judgement[k] = 0;
 					playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = { 0,0,0 };
 					playData.difficulty[0].layer[i].note[j].startMove[k] = false;
@@ -582,7 +583,7 @@ void Lane::LineUpdate() {
 			line.lineWorld[i].translation_.z -= speed;
 			if (line.lineWorld[i].translation_.z < -50.0f) {
 				//判定ラインを通り過ぎて画面外まで行ったらfalseにして初期位置に戻してリサイクル
-				float distance = speed * 60.0f;//(60.0f->1秒)
+				float distance = speed * defaultHitTimer;//(60.0f->1秒)
 				line.lineWorld[i].translation_ = Vector3(0, -2.0f, -45.5f + distance * playData.speed);
 				line.linePop[i] = false;
 			}
@@ -607,6 +608,7 @@ void Lane::ReadChart() {
 					if (!playData.difficulty[0].layer[i].note[j].startMove[k]) {
 						SetNote(i, j, k, playData.difficulty[0].layer[i].note[j].chart[chartNum]);
 						playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.01f - 4 * 0.01f, -45.5f + distance * playData.speed);
+						playData.difficulty[0].layer[i].note[j].worldTransform[k].scale_ = Vector3(1.0f, 1.0f, 1.0f * size);
 						break;											//空きが見つかったら即脱出
 					}
 				}
@@ -622,8 +624,9 @@ void Lane::ReadChart() {
 					//ノーツが一定ラインを通り過ぎるかヒット判定がオンでリセット
 					if (playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_.z < -50.0f || playData.difficulty[0].layer[i].note[j].hit[k]) {
 						playData.difficulty[0].layer[i].note[j].worldTransform[k].translation_ = Vector3(0.05f + j * 1.135f, -2.0f - i % 4 * 0.01f, -45.5f + distance * playData.speed);
+						playData.difficulty[0].layer[i].note[j].worldTransform[k].scale_ = Vector3(1.0f, 1.0f, 1.0f);
 						playData.difficulty[0].layer[i].note[j].hit[k] = false;
-						playData.difficulty[0].layer[i].note[j].hitTimer[k] = 60;
+						playData.difficulty[0].layer[i].note[j].hitTimer[k] = defaultHitTimer;
 						playData.difficulty[0].layer[i].note[j].type[k] = 0;
 						playData.difficulty[0].layer[i].note[j].startMove[k] = false;
 						playData.difficulty[0].layer[i].note[j].judgement[k] = 0;

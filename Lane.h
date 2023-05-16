@@ -16,19 +16,19 @@
 //ノーツ（1列分)
 struct Note {
 	//ワールドトランスフォーム
-	WorldTransform worldTransform[90];
+	WorldTransform worldTransform[180];
 	//移動速度
 	float speed;
 	//ヒット判定
-	bool hit[90] = { false };
+	bool hit[180] = { false };
 	//判定チェック
-	int judgement[90] = { 0 };
+	int judgement[180] = { 0 };
 	//判定タイマー
-	int hitTimer[90] = { 0 };
+	int hitTimer[180] = { 0 };
 	//ノーツの種類
-	int type[90] = { 0 };
+	int type[180] = { 0 };
 	//開始判定
-	bool startMove[90] = { false };
+	bool startMove[180] = { false };
 
 	//譜面
 	int chart[2500] = { 0 };
@@ -222,11 +222,15 @@ private:
 	//全体の行数
 	const int shiftMaxNum = 8;
 	//表示するノーツ
-	const int drawNotes = 90;
+	const int drawNotes = 180;
 	//判定に使用するタイマー
 	const int startMoveTimer = 120;
 	//譜面速度（本来の）
 	float speed;
+	//サイズ倍率（譜面速度に応じて変更）
+	float size;
+	//デフォルトヒットタイマー
+	int defaultHitTimer;
 	//曲開始
 	bool startMusic;
 	//ノーツカウンター
