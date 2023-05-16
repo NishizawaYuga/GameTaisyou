@@ -383,30 +383,90 @@ void Lane::Judgement() {
 		for (int k = 0; k < drawNotes; k++) {
 			//—ñ‚²‚Æ‚Éhit”»’è‚ðŽæ‚é
 			//ƒm[ƒc‚ÌŽí—Þ‚É‚æ‚Á‚Äˆ—‚ÌŽd•û‚ð•Ï‚¦‚é
-			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
-			if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
-			if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_H), input_->PushKey(DIK_H)); }
-			if (playData.difficulty[0].layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
+			if (style == 0) {
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
+				if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_H), input_->PushKey(DIK_H)); }
+				if (playData.difficulty[0].layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
+			}
+			else if (style == 1) {
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_F), input_->PushKey(DIK_F)); }
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
+				if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
+				if (playData.difficulty[0].layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_K), input_->PushKey(DIK_K)); }
+			}
+			else if (style == 2) {
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 1) { ColumnHit(i, 0, k, input_->TriggerKey(DIK_D), input_->PushKey(DIK_D)); }
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 1) { ColumnHit(i, 1, k, input_->TriggerKey(DIK_G), input_->PushKey(DIK_G)); }
+				if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 1) { ColumnHit(i, 2, k, input_->TriggerKey(DIK_J), input_->PushKey(DIK_J)); }
+				if (playData.difficulty[0].layer[i].note[3].type[k] % 4 == 1) { ColumnHit(i, 3, k, input_->TriggerKey(DIK_L), input_->PushKey(DIK_L)); }
+			}
 			//1/2ƒm[ƒc
-			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 2) {
-				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G)));
+			if (style == 0) {
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 2) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G)));
+				}
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 2) {
+					ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
+				}
+				if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 2) {
+					ColumnHit(i, 2, k, ThickColumn(input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
+				}
+				//3/4ƒm[ƒc
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 3) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
+				}
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 3) {
+					ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
+				}
+				//1/1ƒm[ƒc
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 0 && playData.difficulty[0].layer[i].note[0].type[k] != 0) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
+				}
 			}
-			if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 2) {
-				ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
+			else if (style == 1) {
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 2) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G)));
+				}
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 2) {
+					ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_J)));
+				}
+				if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 2) {
+					ColumnHit(i, 2, k, ThickColumn(input_->TriggerKey(DIK_J), input_->TriggerKey(DIK_K)), ThickColumn(input_->PushKey(DIK_J), input_->PushKey(DIK_K)));
+				}
+				//3/4ƒm[ƒc
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 3) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_J)));
+				}
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 3) {
+					ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J), input_->TriggerKey(DIK_K)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_J), input_->PushKey(DIK_K)));
+				}
+				//1/1ƒm[ƒc
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 0 && playData.difficulty[0].layer[i].note[0].type[k] != 0) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J), input_->TriggerKey(DIK_K)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_J), input_->PushKey(DIK_K)));
+				}
 			}
-			if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 2) {
-				ColumnHit(i, 2, k, ThickColumn(input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
-			}
-			//3/4ƒm[ƒc
-			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 3) {
-				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H)));
-			}
-			if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 3) {
-				ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
-			}
-			//1/1ƒm[ƒc
-			if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 0 && playData.difficulty[0].layer[i].note[0].type[k] != 0) {
-				ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_F), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_H), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_F), input_->PushKey(DIK_G), input_->PushKey(DIK_H), input_->PushKey(DIK_J)));
+			else if (style == 2) {
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 2) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_D), input_->TriggerKey(DIK_G)), ThickColumn(input_->PushKey(DIK_D), input_->PushKey(DIK_G)));
+				}
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 2) {
+					ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_J)));
+				}
+				if (playData.difficulty[0].layer[i].note[2].type[k] % 4 == 2) {
+					ColumnHit(i, 2, k, ThickColumn(input_->TriggerKey(DIK_J), input_->TriggerKey(DIK_L)), ThickColumn(input_->PushKey(DIK_J), input_->PushKey(DIK_L)));
+				}
+				//3/4ƒm[ƒc
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 3) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_D), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J)), ThickColumn(input_->PushKey(DIK_D), input_->PushKey(DIK_G), input_->PushKey(DIK_J)));
+				}
+				if (playData.difficulty[0].layer[i].note[1].type[k] % 4 == 3) {
+					ColumnHit(i, 1, k, ThickColumn(input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J), input_->TriggerKey(DIK_L)), ThickColumn(input_->PushKey(DIK_G), input_->PushKey(DIK_J), input_->PushKey(DIK_L)));
+				}
+				//1/1ƒm[ƒc
+				if (playData.difficulty[0].layer[i].note[0].type[k] % 4 == 0 && playData.difficulty[0].layer[i].note[0].type[k] != 0) {
+					ColumnHit(i, 0, k, ThickColumn(input_->TriggerKey(DIK_D), input_->TriggerKey(DIK_G), input_->TriggerKey(DIK_J), input_->TriggerKey(DIK_L)), ThickColumn(input_->PushKey(DIK_D), input_->PushKey(DIK_G), input_->PushKey(DIK_J), input_->PushKey(DIK_L)));
+				}
 			}
 		}
 	}
@@ -1077,4 +1137,8 @@ void Lane::ChangeSpeed(float addSpeed) {
 	else {
 		defaultHitTimer = 120;
 	}
+}
+
+void Lane::ChangeStyle(int num) {
+	style = num;
 }

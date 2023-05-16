@@ -121,6 +121,8 @@ public:
 	void Auto(bool select);
 	//譜面速度変更
 	void ChangeSpeed(float addSpeed);
+	//スタイル変更
+	void ChangeStyle(int num);
 	//MusicData取得
 	MusicData GetMusic(int ID) { return musicData[ID]; }
 
@@ -321,4 +323,7 @@ private:
 	int drawTimer = 0;
 	//スプライト番号
 	int evaluationSpriteNum = 0;
+
+	//スタイル番号
+	int style = 0;
 };
