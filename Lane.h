@@ -162,6 +162,8 @@ private:
 	void FinishMusic(int& scene);
 	//4ケタ用DrawSprite
 	void DrawSprite4(int num, Sprite* sprite[25][10], int startNum, bool draw0);
+	//評価Draw
+	void SetEvaluation(int spriteNum);
 
 private:
 	//音楽データ
@@ -297,4 +299,20 @@ private:
 	//COMBO数表示の共通座標
 	float comboNumPosX = 1610.0f;
 	float comboNumPosY = 380.0f;
+
+	//評価
+	//テクスチャ
+	uint32_t evaluationTex[3] = { 0,0,0 };
+	//スプライト
+	Sprite* evaluationSprite[3] = { nullptr,nullptr,nullptr };
+	//サイズ
+	float sizeX = 160.0f;
+	float sizeY = 32.0f;
+	//座標
+	float evaPosX = 960.0f;
+	float evaPosY = 400.0f;
+	//表示時間
+	int drawTimer = 0;
+	//スプライト番号
+	int evaluationSpriteNum = 0;
 };

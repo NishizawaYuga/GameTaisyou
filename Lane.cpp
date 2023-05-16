@@ -125,7 +125,10 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 			uiScore[i][j] = Sprite::Create(uiScoreNum[j], { 10.0f + i * 45.0f,375.0f });
 		}
 	}
-
+	for (int i = 0; i < 3; i++) {
+		evaluationTex[i] = TextureManager::Load("ui/evaluation/evaluation" + std::to_string(i) + ".png");
+		evaluationSprite[i] = Sprite::Create(evaluationTex[i], { evaPosX,evaPosY });
+	}
 
 	//レーン
 	lanePosition.translation_ = Vector3(0, -2.0f, -35.0f);
@@ -156,12 +159,25 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	quota = 0;
 
-	autoPlay = false;
+	autoPlay = true;
 
 	LoadMusic(1, difficulty);
 }
 
 void Lane::Update(int& scene) {
+	//常に動かしておく
+	if (sizeX < 320.0f) {
+		sizeX += 80.0f;
+		evaPosX -= 40.0f;
+	}
+	if (sizeY < 64.0f) {
+		sizeY += 16.0f;
+		evaPosY -= 8.0f;
+	}
+	if (drawTimer > 0) {
+		drawTimer--;
+	}
+
 	MatSet2 matset;
 	//デバッグ用にスペースを押してる間だけ進むように
 	if (!moveFlag) {
@@ -208,49 +224,6 @@ void Lane::Update(int& scene) {
 			}
 		}
 	}
-
-	/*debugText_->SetPos(10, 90);
-	debugText_->Printf("all + Counter : %d", perfect + great + miss + notesCounter);
-	debugText_->SetPos(10, 110);
-	debugText_->Printf("Counter : %d", notesCounter);
-	debugText_->SetPos(10, 130);
-	debugText_->Printf("BPM : %d", playData.BPM);
-	debugText_->SetPos(10, 150);
-	debugText_->Printf("Difficulty : %d", difficulty);
-	debugText_->SetPos(10, 170);
-	debugText_->Printf("Level : %d", playData.level[0]);
-	debugText_->SetPos(10, 190);
-	debugText_->Printf("Combo : %d", combo);
-	debugText_->SetPos(10, 210);
-	debugText_->Printf("MAXCombo : %d", maxCombo);
-	debugText_->SetPos(10, 230);
-	debugText_->Printf("PERFECT : %d", perfect);
-	debugText_->SetPos(10, 160);
-	debugText_->Printf("GREAT : %d", great);
-	debugText_->SetPos(10, 270);
-	debugText_->Printf("MISS : %d", miss);
-	debugText_->SetPos(10, 290);
-	debugText_->Printf("HIGHSCORE : %d", musicData[musicID].difficulty[difficulty].maxScore);
-	debugText_->SetPos(10, 310);
-	debugText_->Printf("HIGHRANK : %d", musicData[musicID].difficulty[difficulty].maxRankNum);
-	debugText_->SetPos(10, 330);
-	debugText_->Printf("FCAP : %d", musicData[musicID].difficulty[difficulty].isFCAP);
-	debugText_->SetPos(10, 350);
-	debugText_->Printf("SCORE : %d", score);
-	debugText_->SetPos(10, 370);
-	debugText_->Printf("RATE : %5.2f%%(%5.2f%%)", averageRate, quota);
-	debugText_->SetPos(10, 390);
-	debugText_->Printf("aaa : %d", moveFlag);
-	debugText_->SetPos(10, 410);
-	debugText_->Printf("Control : FGHJ");
-	debugText_->SetPos(10, 430);
-	if (autoPlay) {
-		debugText_->Printf("Press Q to auto : true");
-	}
-	else if (!autoPlay) {
-		debugText_->Printf("Press Q to auto : false");
-	}*/
-
 
 	//小節線更新
 	for (int i = 0; i < line.lineNum; i++) {
@@ -491,6 +464,7 @@ void Lane::Judgement() {
 						else if (playData.difficulty[0].layer[i].note[j].type[k] < 21) {
 							UpdateRate(0);
 							audioSE->PlayWave(SE[2]);
+							SetEvaluation(2);
 						}
 					}
 				}
@@ -509,6 +483,7 @@ void Lane::Judgement() {
 						combo++;
 						perfect++;
 						notesCounter--;
+						SetEvaluation(0);
 						//MAXコンボ確認
 						if (maxCombo < combo) {
 							maxCombo = combo;
@@ -519,6 +494,7 @@ void Lane::Judgement() {
 						combo++;
 						great++;
 						notesCounter--;
+						SetEvaluation(1);
 						//MAXコンボ確認
 						if (maxCombo < combo) {
 							maxCombo = combo;
@@ -1035,6 +1011,15 @@ void Lane::DrawSprite() {
 			comboNumSprite[3][getCombo / 1]->Draw();
 		}
 	}
+
+	//評価
+	for (int i = 0; i < 3; i++) {
+		evaluationSprite[i]->SetSize(Vector2(sizeX, sizeY));
+		evaluationSprite[i]->SetPosition({ evaPosX,evaPosY });
+	}
+	if (drawTimer > 0) {
+		evaluationSprite[evaluationSpriteNum]->Draw();
+	}
 }
 
 void Lane::DrawSprite4(int num, Sprite* sprite[16][10], int startNum, bool draw0) {
@@ -1062,4 +1047,15 @@ void Lane::DrawSprite4(int num, Sprite* sprite[16][10], int startNum, bool draw0
 		sprite[3 + startNum][getNum / 1]->Draw();
 		isZero[3] = true;
 	}
+}
+
+void Lane::SetEvaluation(int spriteNum) {
+	//リセット
+	sizeX = 160.0f;
+	sizeY = 32.0f;
+	drawTimer = 30;
+	evaPosX = 880.0f;
+	evaPosY = 600.0f;
+	
+	evaluationSpriteNum = spriteNum;
 }

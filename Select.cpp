@@ -99,6 +99,42 @@ void Select::Initialize() {
 		diff[i] = Sprite::Create(diffNum[i], { 1356,0 });
 	}
 
+	//曲名等
+	noteDesigner = TextureManager::Load("ui/musicdatafont/nd.png");
+	noteDesignerSprite = Sprite::Create(noteDesigner, { 10,260 });
+	for (int i = 0; i < 5; i++) {
+		//0とnull代入
+		musicName[i] = 0;
+		musicNameSprite[i] = nullptr;
+		artist[i] = 0;
+		artistSprite[i] = nullptr;
+		for (int j = 0; j < 4; j++) {
+			nd[i][j] = 0;
+			ndSprite[i][j] = nullptr;
+		}
+	}
+	//バンバード
+	musicName[0] = TextureManager::Load("ui/musicdatafont/banbad_name0.png");
+	artist[0] = TextureManager::Load("ui/musicdatafont/banbad_name1.png");
+	for (int i = 0; i < 4; i++) {
+		if (i < 3) {
+			nd[0][i] = TextureManager::Load("ui/musicdatafont/banbad_name2.png");
+		}
+		else {
+			nd[0][i] = TextureManager::Load("ui/musicdatafont/banbad_name3.png");
+		}
+
+	}
+	//まとめてCreate
+	for (int i = 0; i < 1; i++) {
+		musicNameSprite[i] = Sprite::Create(musicName[i], { 10,20 });
+		artistSprite[i] = Sprite::Create(artist[i], { 10,180 });
+		for (int j = 0; j < 4; j++) {
+			ndSprite[i][j] = Sprite::Create(nd[i][j], { 10 + 76,260 });
+		}
+	}
+
+	//画面下部ナビ
 	controlTx = TextureManager::Load("ui/contorol.png");
 	controlSp = Sprite::Create(controlTx, { 0,0 });
 
@@ -488,7 +524,7 @@ void Select::Draw() {
 #pragma endregion
 }
 
-void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, int difficulty, int level) {
+void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, int difficulty, int level,int ID) {
 	if (scene == 1) {
 		int getNum = maxScore;
 		//1桁ずつ表示
@@ -542,8 +578,13 @@ void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, i
 			tipSprite[isFCAP]->Draw();
 		}
 		controlSp->Draw();
+		//曲名等表示
+		musicNameSprite[ID -1]->Draw();
+		artistSprite[ID -1]->Draw();
+		noteDesignerSprite->Draw();
+		ndSprite[ID -1][difficulty]->Draw();
 	}
-	
+
 }
 
 void Select::DrawDifficulty(int difficulty, int level) {

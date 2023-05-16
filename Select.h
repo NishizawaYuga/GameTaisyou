@@ -45,7 +45,7 @@ public: // メンバ関数
 	void Draw();
 
 	//曲選択中のデータ表示
-	void SelectDrawData(int maxScore,int maxRank,int isFCAP, bool clear, int difficulty, int level);
+	void SelectDrawData(int maxScore,int maxRank,int isFCAP, bool clear, int difficulty, int level,int ID);
 
 	//難易度・レベル表示（プレイ中も表示するため別個で用意）
 	void DrawDifficulty(int difficulty, int level);
@@ -107,6 +107,20 @@ private: // メンバ変数
 	uint32_t levelNum[11] = { 0,0,0,0,0,0,0,0,0,0,0 };
 	Sprite* levelS[11] = { nullptr };
 
+	//曲名など
+	uint32_t musicName[5] = {0,0,0,0,0};
+	Sprite* musicNameSprite[5] = { nullptr };
+	uint32_t artist[5] = { 0,0,0,0,0 };
+	Sprite* artistSprite[5] = { nullptr };
+	uint32_t nd[5][4] = { 0,0,0,0,0 };
+	Sprite* ndSprite[5][4] = { nullptr };
+	//ノーツデザイナー
+	uint32_t noteDesigner = 0;
+	Sprite* noteDesignerSprite = nullptr;
+	//ID
+	int id = 0;
+
+	//画面下部ナビ
 	uint32_t controlTx = 0;
 	Sprite* controlSp = nullptr;
 

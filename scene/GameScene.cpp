@@ -132,7 +132,7 @@ void GameScene::Draw() {
 	if (sceneNum == 1) {
 		select->Draw();
 		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty),
-			difficulty, lane->GetLevel(musicID, difficulty));
+			difficulty, lane->GetLevel(musicID, difficulty),musicID);
 	}
 	if (sceneNum == 2) {
 		lane->DrawSprite();
