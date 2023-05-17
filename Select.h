@@ -13,6 +13,15 @@
 #include "WorldTransform.h"
 #include<DirectXMath.h>
 
+//一個一個引数で渡すのがめんどくさいのでまとめる
+struct OptionsData {
+	float speed;
+	int style;
+	bool autoPlay;
+	int wall;
+	int border;
+};
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -37,7 +46,7 @@ public: // メンバ関数
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	void Update(int &sceneNum,int &musicID,int &difficulty);
+	void Update(int &sceneNum,int &musicID,int &difficulty,OptionsData& options);
 
 	/// <summary>
 	/// 描画
@@ -79,8 +88,8 @@ private: // メンバ変数
 	//7
 	uint32_t textureHandleSong7_ = 0;
 	//BG
-	uint32_t textureHandleBG_[4] = { 0,0,0,0 };
-	Sprite* spriteBG_[4] = {nullptr,nullptr,nullptr,nullptr};
+	uint32_t textureHandleBG_[5] = { 0,0,0,0,0 };
+	Sprite* spriteBG_[5] = {nullptr,nullptr,nullptr,nullptr,nullptr};
 	//タイトル
 	uint32_t texturehandlTi_ = 0;
 	Sprite* spriteTi_ = nullptr;
@@ -108,17 +117,31 @@ private: // メンバ変数
 	Sprite* levelS[11] = { nullptr };
 
 	//曲名など
-	uint32_t musicName[5] = {0,0,0,0,0};
-	Sprite* musicNameSprite[5] = { nullptr };
-	uint32_t artist[5] = { 0,0,0,0,0 };
-	Sprite* artistSprite[5] = { nullptr };
-	uint32_t nd[5][4] = { 0,0,0,0,0 };
-	Sprite* ndSprite[5][4] = { nullptr };
+	uint32_t musicName[6] = {0,0,0,0,0};
+	Sprite* musicNameSprite[6] = { nullptr };
+	uint32_t artist[6] = { 0,0,0,0,0 };
+	Sprite* artistSprite[6] = { nullptr };
+	uint32_t nd[6][4] = { 0,0,0,0,0 };
+	Sprite* ndSprite[6][4] = { nullptr };
 	//ノーツデザイナー
 	uint32_t noteDesigner = 0;
 	Sprite* noteDesignerSprite = nullptr;
 	//ID
 	int id = 0;
+
+	//タブ番号
+	int tab;
+
+	//オプション
+	uint32_t options[5][11] = {0,0,0,0,0};
+	Sprite* optionsSprite[5][11] = {nullptr,nullptr, nullptr, nullptr, nullptr};
+	//オプション各種
+	int speed;	//譜面速度
+	int style;		//キー配置変更
+	int autoPlay;	//オート
+	int border;		//ボーダー
+	int wall;		//ウォール
+	int optionNum;	//番号
 
 	//画面下部ナビ
 	uint32_t controlTx = 0;
@@ -130,11 +153,7 @@ private: // メンバ変数
 	int scene = 0;
 	bool JumpFlagPlus_ = TRUE;
 	bool JumpFlagNegative_ = FALSE;
-	int JumpTimer_ = 60;
-	int JumpTimer2_ = 60;
-	int JumpTimer3_ = 60;
-	int JumpTimer4_ = 60;
-	int JumpTimer5_ = 60;
+	int jumpTimer[5] = { 60,60,60,60,60 };
 
 	//背景変更用変数
 	int difficultyColor;

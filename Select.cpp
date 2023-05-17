@@ -22,12 +22,9 @@ void Select::Initialize() {
 	debugText_ = DebugText::GetInstance();
 
 
-	{//曲の選択中の上下運動のタイマー
-		JumpTimer_ = 30;
-		JumpTimer2_ = 30;
-		JumpTimer3_ = 30;
-		JumpTimer4_ = 30;
-		JumpTimer5_ = 30;
+	//曲の選択中の上下運動のタイマー(配列使って圧縮)
+	for (int i = 0; i < 5; i++) {
+		jumpTimer[i] = 30;
 	}
 
 	//2
@@ -44,14 +41,10 @@ void Select::Initialize() {
 	textureHandleSong7_ = TextureManager::Load("sprite/0007.png");
 
 	//BG
-	textureHandleBG_[0] = TextureManager::Load("sprite/moyou000.png");
-	textureHandleBG_[1] = TextureManager::Load("sprite/moyou001.png");
-	textureHandleBG_[2] = TextureManager::Load("sprite/moyou002.png");
-	textureHandleBG_[3] = TextureManager::Load("sprite/moyou003.png");
-	spriteBG_[0] = Sprite::Create(textureHandleBG_[0], { 0,0 });
-	spriteBG_[1] = Sprite::Create(textureHandleBG_[1], { 0,0 });
-	spriteBG_[2] = Sprite::Create(textureHandleBG_[2], { 0,0 });
-	spriteBG_[3] = Sprite::Create(textureHandleBG_[3], { 0,0 });
+	for (int i = 0; i < 5; i++) {
+		textureHandleBG_[i] = TextureManager::Load("sprite/moyou00" + std::to_string(i) + ".png");
+		spriteBG_[i] = Sprite::Create(textureHandleBG_[i], { 0,0 });
+	}
 
 	float posX = 0.0f;
 	//数字
@@ -102,7 +95,7 @@ void Select::Initialize() {
 	//曲名等
 	noteDesigner = TextureManager::Load("ui/musicdatafont/nd.png");
 	noteDesignerSprite = Sprite::Create(noteDesigner, { 10,260 });
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 6; i++) {
 		//0とnull代入
 		musicName[i] = 0;
 		musicNameSprite[i] = nullptr;
@@ -113,25 +106,58 @@ void Select::Initialize() {
 			ndSprite[i][j] = nullptr;
 		}
 	}
-	//バンバード
-	musicName[0] = TextureManager::Load("ui/musicdatafont/banbad_name0.png");
-	artist[0] = TextureManager::Load("ui/musicdatafont/banbad_name1.png");
-	for (int i = 0; i < 4; i++) {
-		if (i < 3) {
-			nd[0][i] = TextureManager::Load("ui/musicdatafont/banbad_name2.png");
-		}
-		else {
-			nd[0][i] = TextureManager::Load("ui/musicdatafont/banbad_name3.png");
-		}
+	//バンバード（仮で全ての配列に読み込み）
+	for (int j = 0; j < _countof(musicName); j++) {
+		musicName[j] = TextureManager::Load("ui/musicdatafont/banbad_name0.png");
+		artist[j] = TextureManager::Load("ui/musicdatafont/banbad_name1.png");
+		for (int i = 0; i < 4; i++) {
+			if (i < 3) {
+				nd[j][i] = TextureManager::Load("ui/musicdatafont/banbad_name2.png");
+			}
+			else {
+				nd[j][i] = TextureManager::Load("ui/musicdatafont/banbad_name3.png");
+			}
 
+		}
 	}
 	//まとめてCreate
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < _countof(musicNameSprite); i++) {
 		musicNameSprite[i] = Sprite::Create(musicName[i], { 10,20 });
 		artistSprite[i] = Sprite::Create(artist[i], { 10,180 });
 		for (int j = 0; j < 4; j++) {
 			ndSprite[i][j] = Sprite::Create(nd[i][j], { 10 + 76,260 });
 		}
+	}
+
+	//オプション
+	tab = 1;
+	speed = 2;
+	style = 0;
+	autoPlay = 0;
+	border = 0;
+	wall = 0;
+	optionNum = 0;
+	for (int i = 0; i < 11; i++) {
+		options[0][i] = 0;
+		options[0][i] = TextureManager::Load("ui/options/speed/speed" + std::to_string(i) + ".png");
+		optionsSprite[0][i] = nullptr;
+		optionsSprite[0][i] = Sprite::Create(options[0][i], { 860,360 });
+		options[1][i] = 0;
+		options[1][i] = TextureManager::Load("ui/options/style/style" + std::to_string(i) + ".png");
+		optionsSprite[1][i] = nullptr;
+		optionsSprite[1][i] = Sprite::Create(options[1][i], { 1160,360 });
+		options[2][i] = 0;
+		options[2][i] = TextureManager::Load("ui/options/auto/auto" + std::to_string(i) + ".png");
+		optionsSprite[2][i] = nullptr;
+		optionsSprite[2][i] = Sprite::Create(options[2][i], { 1460,360 });
+		options[3][i] = 0;
+		options[3][i] = TextureManager::Load("ui/options/wall/wall" + std::to_string(i) + ".png");
+		optionsSprite[3][i] = nullptr;
+		optionsSprite[3][i] = Sprite::Create(options[3][i], { 260,360 });
+		options[4][i] = 0;
+		options[4][i] = TextureManager::Load("ui/options/border/border" + std::to_string(i) + ".png");
+		optionsSprite[4][i] = nullptr;
+		optionsSprite[4][i] = Sprite::Create(options[4][i], { 560,360 });
 	}
 
 	//画面下部ナビ
@@ -172,7 +198,7 @@ void Select::Initialize() {
 	worldTransform_.Initialize();
 }
 
-void Select::Update(int& sceneNum, int& musicID, int& difficulty)
+void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& options)
 {
 	switch (scene)
 	{
@@ -183,262 +209,346 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 		}
 		break;
 	case 1:
-		// ステージセレクト　入力処理
-		if (input_->TriggerKey(DIK_LEFT))
-		{
-
-			// ステージの番号を300ずらす
-			for (size_t i = 0; i < _countof(spritesong_); i++)
-			{
-				position = spritesong_[i]->GetPosition();
-				position.x += 300;
-				position.y = 360;
-				JumpTimer_ = 30;
-				JumpTimer2_ = 30;
-				JumpTimer3_ = 30;
-				JumpTimer4_ = 30;
-				JumpTimer5_ = 30;
-				// 1460が右端なのでこれより大きかったら最小値の260の位置にする
-				if (position.x > 1460)
-				{
-					position.x = 260;
-
+		//tabで切り替え
+		if (input_->PushKey(DIK_TAB)) {
+			if (input_->TriggerKey(DIK_LEFT)) {
+				tab--;
+				if (tab < 0) {
+					tab = 2;
 				}
-				musicID++;
-				if (musicID > 5) {
-					musicID = 1;
+			}
+			else if (input_->TriggerKey(DIK_RIGHT)) {
+				tab++;
+				if (tab > 2) {
+					tab = 0;
 				}
-
-				spritesong_[i]->SetPosition(position);
 			}
 		}
-
-		if (input_->TriggerKey(DIK_RIGHT))
-		{
-
-			// ステージの番号を-300ずらす
-			for (size_t i = 0; i < _countof(spritesong_); i++)
-			{
-				position = spritesong_[i]->GetPosition();
-				position.x -= 300;
-				position.y = 360;
-				JumpTimer_ = 30;
-				JumpTimer2_ = 30;
-				JumpTimer3_ = 30;
-				JumpTimer4_ = 30;
-				JumpTimer5_ = 30;
-				// 260が左端なのでこれより小さかったら最大値の1460の位置にする
-				if (position.x <= 250)
-				{
-					position.x = 1460;
-				}
-				musicID--;
-				if (musicID < 1) {
-					musicID = 5;
-				}
-
-				spritesong_[i]->SetPosition(position);
-
-
-			}
-		}
-		//難易度変更
-		if (input_->TriggerKey(DIK_UP)) {
-			if (difficulty < 3) {
-				difficulty++;
+		if (tab == 1) {
+			if (difficulty == 3) {
+				difficulty = 0;
 				difficultyColor = difficulty;
 			}
+			if (!input_->PushKey(DIK_TAB)) {
+				// ステージセレクト　入力処理
+				if (input_->TriggerKey(DIK_LEFT))
+				{
+
+					// ステージの番号を300ずらす
+					for (size_t i = 0; i < _countof(spritesong_); i++)
+					{
+						position = spritesong_[i]->GetPosition();
+						position.x += 300;
+						position.y = 360;
+						jumpTimer[i] = 30;
+						// 1460が右端なのでこれより大きかったら最小値の260の位置にする
+						if (position.x > 1460)
+						{
+							position.x = 260;
+
+						}
+
+						spritesong_[i]->SetPosition(position);
+					}
+					musicID++;
+					if (musicID > 5) {
+						musicID = 1;
+					}
+				}
+
+				if (input_->TriggerKey(DIK_RIGHT))
+				{
+
+					// ステージの番号を-300ずらす
+					for (size_t i = 0; i < _countof(spritesong_); i++)
+					{
+						position = spritesong_[i]->GetPosition();
+						position.x -= 300;
+						position.y = 360;
+						jumpTimer[i] = 30;
+						// 260が左端なのでこれより小さかったら最大値の1460の位置にする
+						if (position.x <= 250)
+						{
+							position.x = 1460;
+						}
+
+						spritesong_[i]->SetPosition(position);
+
+
+					}
+					musicID--;
+					if (musicID < 1) {
+						musicID = 5;
+					}
+				}
+				//難易度変更
+				if (input_->TriggerKey(DIK_UP)) {
+					if (difficulty < 2) {
+						difficulty++;
+						difficultyColor = difficulty;
+					}
+				}
+				else if (input_->TriggerKey(DIK_DOWN)) {
+					if (difficulty > 0) {
+						difficulty--;
+						difficultyColor = difficulty;
+					}
+				}
+				if (input_->TriggerKey(DIK_SPACE))
+				{
+					sceneNum = 2;
+				}
+			}
+			if (input_->TriggerKey(DIK_BACKSPACE))
+			{
+				scene = 0;
+			}
+
+			for (int i = 0; i < _countof(spritesong_); i++) {
+				if (spritesong_[i]->GetPosition().x == 860)
+				{
+
+					position = spritesong_[i]->GetPosition();
+
+					if (JumpFlagPlus_)
+					{
+						jumpTimer[i]--;
+						position.y += 1.0f;
+					}
+					else if (JumpFlagNegative_)
+					{
+						jumpTimer[i]--;
+						position.y -= 1.0f;
+					}
+					if (jumpTimer[i] <= 0 && JumpFlagPlus_)
+					{
+						JumpFlagPlus_ = false;
+						JumpFlagNegative_ = true;
+						jumpTimer[i] = 60;
+					}
+					else if (jumpTimer[i] <= 0 && JumpFlagNegative_)
+					{
+						JumpFlagPlus_ = true;
+						JumpFlagNegative_ = false;
+						jumpTimer[i] = 60;
+					}
+					spritesong_[i]->SetPosition(position);
+					if (input_->TriggerKey(DIK_2))
+					{
+						scene = i;
+					}
+				}
+			}
 		}
-		else if (input_->TriggerKey(DIK_DOWN)) {
-			if (difficulty > 0) {
-				difficulty--;
+		else if (tab == 0) {
+			if (difficulty != 3) {
+				difficulty = 3;
 				difficultyColor = difficulty;
 			}
-		}
+			if (!input_->PushKey(DIK_TAB)) {
+				// ステージセレクト　入力処理
+				if (input_->TriggerKey(DIK_LEFT))
+				{
+
+					// ステージの番号を300ずらす
+					for (size_t i = 0; i < _countof(spritesong_); i++)
+					{
+						position = spritesong_[i]->GetPosition();
+						position.x += 300;
+						position.y = 360;
+						jumpTimer[i] = 30;
+						// 1460が右端なのでこれより大きかったら最小値の260の位置にする
+						if (position.x > 1460)
+						{
+							position.x = 260;
+
+						}
+
+						spritesong_[i]->SetPosition(position);
+					}
+					musicID++;
+					if (musicID > 5) {
+						musicID = 1;
+					}
+				}
+
+				if (input_->TriggerKey(DIK_RIGHT))
+				{
+
+					// ステージの番号を-300ずらす
+					for (size_t i = 0; i < _countof(spritesong_); i++)
+					{
+						position = spritesong_[i]->GetPosition();
+						position.x -= 300;
+						position.y = 360;
+						jumpTimer[i] = 30;
+						// 260が左端なのでこれより小さかったら最大値の1460の位置にする
+						if (position.x <= 250)
+						{
+							position.x = 1460;
+						}
+
+						spritesong_[i]->SetPosition(position);
 
 
-		if (input_->TriggerKey(DIK_BACKSPACE))
-		{
-			scene = 0;
-		}
-
-		if (spritesong_[0]->GetPosition().x == 860)
-		{
-
-			position = spritesong_[0]->GetPosition();
-
-			if (JumpFlagPlus_)
-			{
-				JumpTimer_--;
-				position.y += 1.0f;
+					}
+					musicID--;
+					if (musicID < 1) {
+						musicID = 5;
+					}
+				}
+				if (input_->TriggerKey(DIK_SPACE))
+				{
+					sceneNum = 2;
+				}
 			}
-			else if (JumpFlagNegative_)
+			if (input_->TriggerKey(DIK_BACKSPACE))
 			{
-				JumpTimer_--;
-				position.y -= 1.0f;
-			}
-			if (JumpTimer_ <= 0 && JumpFlagPlus_)
-			{
-				JumpFlagPlus_ = false;
-				JumpFlagNegative_ = true;
-				JumpTimer_ = 60;
-			}
-			else if (JumpTimer_ <= 0 && JumpFlagNegative_)
-			{
-				JumpFlagPlus_ = true;
-				JumpFlagNegative_ = false;
-				JumpTimer_ = 60;
-			}
-			spritesong_[0]->SetPosition(position);
-
-
-			if (input_->TriggerKey(DIK_SPACE))
-			{
-				sceneNum = 2;
+				scene = 0;
 			}
 
+			for (int i = 0; i < _countof(spritesong_); i++) {
+				if (spritesong_[i]->GetPosition().x == 860)
+				{
 
-		}
-		if (spritesong_[1]->GetPosition().x == 860)
-		{
-			position = spritesong_[1]->GetPosition();
+					position = spritesong_[i]->GetPosition();
 
-			if (JumpFlagPlus_)
-			{
-				JumpTimer2_--;
-				position.y += 1.0f;
-			}
-			else if (JumpFlagNegative_)
-			{
-				JumpTimer2_--;
-				position.y -= 1.0f;
-			}
-			if (JumpTimer2_ <= 0 && JumpFlagPlus_)
-			{
-				JumpFlagPlus_ = false;
-				JumpFlagNegative_ = true;
-				JumpTimer2_ = 60;
-			}
-			else if (JumpTimer2_ <= 0 && JumpFlagNegative_)
-			{
-				JumpFlagPlus_ = true;
-				JumpFlagNegative_ = false;
-				JumpTimer2_ = 60;
-			}
-			spritesong_[1]->SetPosition(position);
-
-			if (input_->TriggerKey(DIK_2))
-			{
-				scene = 3;
-			}
-		}
-		if (spritesong_[2]->GetPosition().x == 860)
-		{
-			position = spritesong_[2]->GetPosition();
-
-			if (JumpFlagPlus_)
-			{
-				JumpTimer3_--;
-				position.y += 1.0f;
-			}
-			else if (JumpFlagNegative_)
-			{
-				JumpTimer3_--;
-				position.y -= 1.0f;
-			}
-			if (JumpTimer3_ <= 0 && JumpFlagPlus_)
-			{
-				JumpFlagPlus_ = false;
-				JumpFlagNegative_ = true;
-				JumpTimer3_ = 60;
-			}
-			else if (JumpTimer3_ <= 0 && JumpFlagNegative_)
-			{
-				JumpFlagPlus_ = true;
-				JumpFlagNegative_ = false;
-				JumpTimer3_ = 60;
-			}
-			spritesong_[2]->SetPosition(position);
-			if (input_->TriggerKey(DIK_2))
-			{
-				scene = 4;
+					if (JumpFlagPlus_)
+					{
+						jumpTimer[i]--;
+						position.y += 1.0f;
+					}
+					else if (JumpFlagNegative_)
+					{
+						jumpTimer[i]--;
+						position.y -= 1.0f;
+					}
+					if (jumpTimer[i] <= 0 && JumpFlagPlus_)
+					{
+						JumpFlagPlus_ = false;
+						JumpFlagNegative_ = true;
+						jumpTimer[i] = 60;
+					}
+					else if (jumpTimer[i] <= 0 && JumpFlagNegative_)
+					{
+						JumpFlagPlus_ = true;
+						JumpFlagNegative_ = false;
+						jumpTimer[i] = 60;
+					}
+					spritesong_[i]->SetPosition(position);
+					if (input_->TriggerKey(DIK_2))
+					{
+						scene = i;
+					}
+				}
 			}
 		}
-		if (spritesong_[3]->GetPosition().x == 860)
-		{
-			position = spritesong_[3]->GetPosition();
+		else if (tab == 2) {
+			if (!input_->PushKey(DIK_TAB)) {
+				// オプションセレクト　入力処理
+				if (input_->TriggerKey(DIK_LEFT))
+				{
+					// ステージの番号を300ずらす
+					for (size_t i = 0; i < 5; i++)
+					{
+						for (int j = 0; j < 11; j++) {
+							position = optionsSprite[i][j]->GetPosition();
+							position.x += 300;
+							position.y = 360;
+							// 1460が右端なのでこれより大きかったら最小値の260の位置にする
+							if (position.x > 1460)
+							{
+								position.x = 260;
 
-			if (JumpFlagPlus_)
-			{
-				JumpTimer4_--;
-				position.y += 1.0f;
-			}
-			else if (JumpFlagNegative_)
-			{
-				JumpTimer4_--;
-				position.y -= 1.0f;
-			}
-			if (JumpTimer4_ <= 0 && JumpFlagPlus_)
-			{
-				JumpFlagPlus_ = false;
-				JumpFlagNegative_ = true;
-				JumpTimer4_ = 60;
-			}
-			else if (JumpTimer4_ <= 0 && JumpFlagNegative_)
-			{
-				JumpFlagPlus_ = true;
-				JumpFlagNegative_ = false;
-				JumpTimer4_ = 60;
-			}
-			spritesong_[3]->SetPosition(position);
-			if (input_->TriggerKey(DIK_2))
-			{
-				scene = 5;
+							}
+
+							optionsSprite[i][j]->SetPosition(position);
+						}
+					}
+					optionNum--;
+					if (optionNum < 0) {
+						optionNum = 4;
+					}
+				}
+
+				if (input_->TriggerKey(DIK_RIGHT))
+				{
+					// ステージの番号を-300ずらす
+					for (size_t i = 0; i < 5; i++)
+					{
+						for (int j = 0; j < 11; j++) {
+							position = optionsSprite[i][j]->GetPosition();
+							position.x -= 300;
+							position.y = 360;
+							jumpTimer[i] = 30;
+							// 260が左端なのでこれより小さかったら最大値の1460の位置にする
+							if (position.x <= 250)
+							{
+								position.x = 1460;
+							}
+							optionsSprite[i][j]->SetPosition(position);
+						}
+					}
+					optionNum++;
+					if (optionNum > 4) {
+						optionNum = 0;
+					}
+				}
+				//各項目変更
+				if (input_->TriggerKey(DIK_UP)) {
+					if (optionNum == 0) {
+						if (speed < 9) {
+							speed++;
+						}
+					}
+					else if (optionNum == 1) {
+						style++;
+						if (style > 2) {
+							style = 0;
+						}
+					}
+					else if (optionNum == 2) {
+						autoPlay = 1;
+					}
+					else if (optionNum == 3) {
+						if (wall < 10) {
+							wall++;
+						}
+					}
+					else if (optionNum == 4) {
+						if (border < 5) {
+							border++;
+						}
+					}
+				}
+				else if (input_->TriggerKey(DIK_DOWN)) {
+					if (optionNum == 0) {
+						if (speed > 0) {
+							speed--;
+						}
+					}
+					else if (optionNum == 1) {
+						style--;
+						if (style < 0) {
+							style = 2;
+						}
+					}
+					else if (optionNum == 2) {
+						autoPlay = 0;
+					}
+					else if (optionNum == 3) {
+						if (wall > 0) {
+							wall--;
+						}
+					}
+					else if (optionNum == 4) {
+						if (border > 0) {
+							border--;
+						}
+					}
+				}
 			}
 		}
-		if (spritesong_[4]->GetPosition().x == 860)
-		{
-			position = spritesong_[4]->GetPosition();
-
-			if (JumpFlagPlus_)
-			{
-				JumpTimer5_--;
-				position.y += 1.0f;
-			}
-			else if (JumpFlagNegative_)
-			{
-				JumpTimer5_--;
-				position.y -= 1.0f;
-			}
-			if (JumpTimer5_ <= 0 && JumpFlagPlus_)
-			{
-				JumpFlagPlus_ = false;
-				JumpFlagNegative_ = true;
-				JumpTimer5_ = 60;
-			}
-			else if (JumpTimer5_ <= 0 && JumpFlagNegative_)
-			{
-				JumpFlagPlus_ = true;
-				JumpFlagNegative_ = false;
-				JumpTimer5_ = 60;
-			}
-			spritesong_[4]->SetPosition(position);
-			if (input_->TriggerKey(DIK_2))
-			{
-				scene = 6;
-			}
-		}
-
-		/*debugText_->Printf("%f", position.x);
-		debugText_->SetPos(0, 15);
-		debugText_->Printf("%f", position.y);
-		debugText_->SetPos(0, 30);
-		if (test == "い") {
-			debugText_->Printf("hanteitoretemasu");
-		}
-		debugText_->SetPos(0, 45);
-		debugText_->Printf("%x", test2);
-		debugText_->SetPos(0, 60);*/
 		break;
 
 	case 2:
@@ -475,6 +585,9 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty)
 		}
 		break;
 	}
+	debugText_->SetPos(10, 10);
+	debugText_->Printf("ID : %d", musicID);
+
 }
 
 void Select::Draw() {
@@ -487,14 +600,24 @@ void Select::Draw() {
 		spriteTi_->Draw();
 		break;
 	case 1:
-		if (difficultyColor == 0) { spriteBG_[0]->Draw(); }
-		else if (difficultyColor == 1) { spriteBG_[1]->Draw(); }
-		else if (difficultyColor == 2) { spriteBG_[2]->Draw(); }
-		else if (difficultyColor == 3) { spriteBG_[3]->Draw(); }
-		//spriteframe_->Draw();
-		for (size_t i = 0; i < _countof(spritesong_); i++)
-		{
-			spritesong_[i]->Draw();
+		if (tab != 2) {
+			if (difficultyColor == 0) { spriteBG_[0]->Draw(); }
+			else if (difficultyColor == 1) { spriteBG_[1]->Draw(); }
+			else if (difficultyColor == 2) { spriteBG_[2]->Draw(); }
+			else if (difficultyColor == 3) { spriteBG_[3]->Draw(); }
+			//spriteframe_->Draw();
+			for (size_t i = 0; i < _countof(spritesong_); i++)
+			{
+				spritesong_[i]->Draw();
+			}
+		}
+		else if (tab == 2) {
+			spriteBG_[4]->Draw();
+			optionsSprite[0][speed]->Draw();
+			optionsSprite[1][style]->Draw();
+			optionsSprite[2][autoPlay]->Draw();
+			optionsSprite[3][wall]->Draw();
+			optionsSprite[4][border]->Draw();
 		}
 		break;
 	case 2:
@@ -524,8 +647,8 @@ void Select::Draw() {
 #pragma endregion
 }
 
-void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, int difficulty, int level,int ID) {
-	if (scene == 1) {
+void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, int difficulty, int level, int ID) {
+	if (scene == 1 && tab != 2) {
 		int getNum = maxScore;
 		//1桁ずつ表示
 		if (getNum / 1000000 > 0) {
@@ -579,17 +702,19 @@ void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, i
 		}
 		controlSp->Draw();
 		//曲名等表示
-		musicNameSprite[ID -1]->Draw();
-		artistSprite[ID -1]->Draw();
+		musicNameSprite[ID]->Draw();
+		artistSprite[ID]->Draw();
 		noteDesignerSprite->Draw();
-		ndSprite[ID -1][difficulty]->Draw();
+		ndSprite[ID][difficulty]->Draw();
 	}
 
 }
 
 void Select::DrawDifficulty(int difficulty, int level) {
 	if (scene != 0) {
-		diff[difficulty]->Draw();
-		levelS[level]->Draw();
+		if (tab != 2) {
+			diff[difficulty]->Draw();
+			levelS[level]->Draw();
+		}
 	}
 }

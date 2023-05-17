@@ -50,6 +50,12 @@ void GameScene::Initialize() {
 	skydome = new Skydome();
 	skydome->Initialize(skydomeModel);
 
+	options.autoPlay = false;
+	options.border = 0;
+	options.speed = 0.3f;
+	options.style = 0;
+	options.wall = 0;
+
 	//シーン番号
 	//(0 : タイトル、1 : 選曲画面、2 : プレイ画面、ととりあえず仮定)
 	sceneNum = 1;
@@ -73,7 +79,7 @@ void GameScene::Update() {
 		//変更前のID番号と難易度番号を格納
 		oldID = musicID;
 		oldDiff = difficulty;
-		select->Update(sceneNum, musicID, difficulty);
+		select->Update(sceneNum, musicID, difficulty,options);
 		//どちらか一致していなかったら譜面更新
 		if (oldID != musicID || oldDiff != difficulty) {
 			lane->LoadMusic(musicID, difficulty);

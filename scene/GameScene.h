@@ -79,4 +79,7 @@ private: // メンバ変数
 	Model* notesModel[12];
 	//スカイドームモデル
 	Model* skydomeModel = nullptr;
+
+	//Options
+	OptionsData options;
 };
