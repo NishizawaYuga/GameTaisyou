@@ -522,6 +522,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 					else if (optionNum == 3) {
 						if (wall < 10) {
 							wall++;
+							options.wall++;
 						}
 					}
 					//ボーダー
@@ -553,6 +554,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 					else if (optionNum == 3) {
 						if (wall > 0) {
 							wall--;
+							options.wall--;
 						}
 					}
 					else if (optionNum == 4) {

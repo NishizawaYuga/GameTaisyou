@@ -32,6 +32,11 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 		notesModel[i] = noteModel[i];
 	}
 
+	wall = Model::CreateFromOBJ("wall", true);
+	wallPosition.translation_ = Vector3{ 0.0f,-2.0f,0.0f };
+	wallPosition.Initialize();
+	wallNum = 0.0f;
+
 	//デフォルトヒットタイマー
 	defaultHitTimer = 120;
 
@@ -137,6 +142,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	//レーン
 	lanePosition.translation_ = Vector3(0, -2.0f, -35.0f);
 	lanePosition.Initialize();
+
 
 	startTimer = resetStartTimer;
 	endTimer = resetEndTimer;
@@ -248,8 +254,14 @@ void Lane::Update(int& scene) {
 	matset.MatIdentity(lanePosition);
 	lanePosition.TransferMatrix();
 
+	//ウォール更新
+	matset.MatIdentity(wallPosition);
+	wallPosition.TransferMatrix();
+
 	debugText_->SetPos(10, 10);
-	debugText_->Printf("ID : %d", endTimer);
+	debugText_->Printf("wallNum : %f", wallNum);
+	debugText_->SetPos(10, 30);
+	debugText_->Printf("wallZpos : %f", wallPosition.translation_.z);
 }
 
 void Lane::Draw(ViewProjection viewProjection) {
@@ -274,6 +286,9 @@ void Lane::Draw(ViewProjection viewProjection) {
 
 			}
 		}
+	}
+	if (wallNum > 0.0f) {
+		wall->Draw(wallPosition, viewProjection);
 	}
 }
 
@@ -1154,4 +1169,10 @@ void Lane::ChangeSpeed(float addSpeed) {
 
 void Lane::ChangeStyle(int num) {
 	style = num;
+}
+
+void Lane::ChangeWall(float num) {
+	//最大値が-50.0f、何も見えなくなる
+	wallNum += num;
+	wallPosition.translation_.z = -1.0f * wallNum - 35.5f;
 }

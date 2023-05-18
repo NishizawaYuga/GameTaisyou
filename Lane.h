@@ -123,6 +123,8 @@ public:
 	void ChangeSpeed(float addSpeed);
 	//スタイル変更
 	void ChangeStyle(int num);
+	//ウォール設定変更
+	void ChangeWall(float num);
 	//MusicData取得
 	MusicData GetMusic(int ID) { return musicData[ID]; }
 
@@ -198,6 +200,12 @@ private:
 	const int modelNum = 12;
 	//小節線
 	Line line;
+
+	//ウォール（壁）
+	WorldTransform wallPosition;
+	Model* wall = nullptr;
+	//数値に応じての倍率
+	float wallNum;
 
 	//オートプレイフラグ
 	bool autoPlay;

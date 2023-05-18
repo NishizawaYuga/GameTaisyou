@@ -108,6 +108,12 @@ void GameScene::Update() {
 		if (oldOptions.style != options.style) {
 			lane->ChangeStyle(options.style);
 		}
+		if (oldOptions.wall < options.wall) {
+			lane->ChangeWall(1.0f);
+		}
+		else if (oldOptions.wall > options.wall) {
+			lane->ChangeWall(-1.0f);
+		}
 	}
 	else if (sceneNum == 2) {
 		lane->Update(sceneNum);
