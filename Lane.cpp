@@ -247,6 +247,9 @@ void Lane::Update(int& scene) {
 	//レーンの更新
 	matset.MatIdentity(lanePosition);
 	lanePosition.TransferMatrix();
+
+	debugText_->SetPos(10, 10);
+	debugText_->Printf("ID : %d", endTimer);
 }
 
 void Lane::Draw(ViewProjection viewProjection) {
@@ -608,12 +611,7 @@ void Lane::ColumnHit(int layer, int columnNum, int notes, bool trigger, bool pus
 }
 
 void Lane::Auto(bool select) {
-	if (select) {
-		autoPlay = true;
-	}
-	else {
-		autoPlay = false;
-	}
+	autoPlay = select;
 }
 
 void Lane::LineUpdate() {
@@ -1127,15 +1125,30 @@ void Lane::ChangeSpeed(float addSpeed) {
 	//速度を足す形式で変動
 	speed += addSpeed;
 	//速度に合わせでホールド八分/判定無しのサイズ変更
-	size += addSpeed * 5;
+	size += addSpeed * 5.0f;
 	//スピードに合わせて開始判定など調整
 	if (speed < 3.0f) {
 		defaultHitTimer = 180;
 		//速度2以下はサイズ固定
-		size = 1.0f;
+		if (size < 1.0f) {
+			size = 1.0f;
+		}
 	}
 	else {
 		defaultHitTimer = 120;
+	}
+	//再計算
+	distance = speed * defaultHitTimer;//(60.0f->1秒)
+	for (int m = 0; m < 4; m++) {
+		for (int i = 0; i < layerNum * shiftMaxNum; i++) {
+			for (int j = 0; j < columnNum; j++) {
+				for (int k = 0; k < maxNotes; k++) {
+					if (k < drawNotes) {
+						playData.difficulty[m].layer[i].note[j].hitTimer[k] = defaultHitTimer;
+					}
+				}
+			}
+		}
 	}
 }
 

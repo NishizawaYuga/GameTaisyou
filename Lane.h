@@ -16,19 +16,19 @@
 //ノーツ（1列分)
 struct Note {
 	//ワールドトランスフォーム
-	WorldTransform worldTransform[180];
+	WorldTransform worldTransform[200];
 	//移動速度
 	float speed;
 	//ヒット判定
-	bool hit[180] = { false };
+	bool hit[200] = { false };
 	//判定チェック
-	int judgement[180] = { 0 };
+	int judgement[200] = { 0 };
 	//判定タイマー
-	int hitTimer[180] = { 0 };
+	int hitTimer[200] = { 0 };
 	//ノーツの種類
-	int type[180] = { 0 };
+	int type[200] = { 0 };
 	//開始判定
-	bool startMove[180] = { false };
+	bool startMove[200] = { false };
 
 	//譜面
 	int chart[2500] = { 0 };
@@ -226,7 +226,7 @@ private:
 	//全体の行数
 	const int shiftMaxNum = 8;
 	//表示するノーツ
-	const int drawNotes = 180;
+	const int drawNotes = 200;
 	//判定に使用するタイマー
 	const int startMoveTimer = 120;
 	//譜面速度（本来の）

@@ -52,7 +52,7 @@ void GameScene::Initialize() {
 
 	options.autoPlay = false;
 	options.border = 0;
-	options.speed = 0.3f;
+	options.speed = 3;
 	options.style = 0;
 	options.wall = 0;
 
@@ -66,6 +66,13 @@ void GameScene::Initialize() {
 	oldDiff = difficulty;
 	oldID = musicID;
 
+	//オプションデータ
+	options.autoPlay = false;
+	options.border = 0;
+	options.speed = 0.3f;
+	options.style = 0;
+	options.wall = 0;
+	oldOptions = options;
 
 	viewProjection.Initialize();
 	viewProjection.target.y = -30.0f;
@@ -79,10 +86,27 @@ void GameScene::Update() {
 		//変更前のID番号と難易度番号を格納
 		oldID = musicID;
 		oldDiff = difficulty;
+		//変更前のオプション設定格納
+		oldOptions = options;
 		select->Update(sceneNum, musicID, difficulty,options);
 		//どちらか一致していなかったら譜面更新
 		if (oldID != musicID || oldDiff != difficulty) {
 			lane->LoadMusic(musicID, difficulty);
+		}
+		//何かしら一致していなかったら更新
+		if (oldOptions.autoPlay != options.autoPlay) {
+			lane->Auto(options.autoPlay);
+		}
+		if (oldOptions.speed < options.speed) {
+			lane->ChangeSpeed(0.1f);
+			lane->LoadMusic(musicID, difficulty);
+		}
+		else if (oldOptions.speed > options.speed) {
+			lane->ChangeSpeed(-0.1f);
+			lane->LoadMusic(musicID, difficulty);
+		}
+		if (oldOptions.style != options.style) {
+			lane->ChangeStyle(options.style);
 		}
 	}
 	else if (sceneNum == 2) {

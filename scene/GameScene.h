@@ -82,4 +82,6 @@ private: // メンバ変数
 
 	//Options
 	OptionsData options;
+	//更新確認用直前の入力データ保管オプション構造体
+	OptionsData oldOptions;
 };

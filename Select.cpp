@@ -496,25 +496,35 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				}
 				//各項目変更
 				if (input_->TriggerKey(DIK_UP)) {
+					//譜面速度
 					if (optionNum == 0) {
 						if (speed < 9) {
 							speed++;
+							options.speed++;
 						}
+						
 					}
+					//キー配置
 					else if (optionNum == 1) {
 						style++;
+						options.style++;
 						if (style > 2) {
 							style = 0;
+							options.style = 0;
 						}
 					}
+					//オートプレイ
 					else if (optionNum == 2) {
 						autoPlay = 1;
+						options.autoPlay = true;
 					}
+					//ウォール
 					else if (optionNum == 3) {
 						if (wall < 10) {
 							wall++;
 						}
 					}
+					//ボーダー
 					else if (optionNum == 4) {
 						if (border < 5) {
 							border++;
@@ -525,16 +535,20 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 					if (optionNum == 0) {
 						if (speed > 0) {
 							speed--;
+							options.speed--;
 						}
 					}
 					else if (optionNum == 1) {
 						style--;
+						options.style--;
 						if (style < 0) {
 							style = 2;
+							options.style = 2;
 						}
 					}
 					else if (optionNum == 2) {
 						autoPlay = 0;
+						options.autoPlay = false;
 					}
 					else if (optionNum == 3) {
 						if (wall > 0) {

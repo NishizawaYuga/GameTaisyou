@@ -15,7 +15,7 @@
 
 //ˆêŒÂˆêŒÂˆø”‚Å“n‚·‚Ì‚ª‚ß‚ñ‚Ç‚­‚³‚¢‚Ì‚Å‚Ü‚Æ‚ß‚é
 struct OptionsData {
-	float speed;
+	int speed;
 	int style;
 	bool autoPlay;
 	int wall;
