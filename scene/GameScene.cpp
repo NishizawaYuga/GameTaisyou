@@ -78,7 +78,7 @@ void GameScene::Initialize() {
 	viewProjection.target.y = -30.0f;
 	viewProjection.eye.x += 0.025;
 	viewProjection.eye.y = 2.0f;
-	viewProjection.eye.z += 1.0f;
+	viewProjection.eye.z -= 0.1f;
 }
 
 void GameScene::Update() {

@@ -32,10 +32,42 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 		notesModel[i] = noteModel[i];
 	}
 
+	//ウォールモデル
 	wall = Model::CreateFromOBJ("wall", true);
 	wallPosition.translation_ = Vector3{ 0.0f,-2.0f,0.0f };
 	wallPosition.Initialize();
 	wallNum = 0.0f;
+
+	//キーモデル
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 4; j++) {
+			keyModel[i][j] = nullptr;
+			keyModelPos[i][j].translation_ = Vector3(-2.27f + 0.28375f + j * 1.135f, -2.0f,-46.5f);
+			keyModelPos[i][j].scale_ = Vector3(0.6f, 0.6f, 0.6f);
+			keyModelPos[i][j].Initialize();
+		}
+	}
+	//モデル格納
+	//パターン1
+	keyModel[0][0] = Model::CreateFromOBJ("key_F", true);
+	keyModel[0][1] = Model::CreateFromOBJ("key_G", true);
+	keyModel[0][2] = Model::CreateFromOBJ("key_H", true);
+	keyModel[0][3] = Model::CreateFromOBJ("key_J", true);
+	//パターン2
+	keyModel[1][0] = Model::CreateFromOBJ("key_D", true);
+	keyModel[1][1] = Model::CreateFromOBJ("key_F", true);
+	keyModel[1][2] = Model::CreateFromOBJ("key_K", true);
+	keyModel[1][3] = Model::CreateFromOBJ("key_L", true);
+	//パターン3
+	keyModel[2][0] = Model::CreateFromOBJ("key_D", true);
+	keyModel[2][1] = Model::CreateFromOBJ("key_G", true);
+	keyModel[2][2] = Model::CreateFromOBJ("key_J", true);
+	keyModel[2][3] = Model::CreateFromOBJ("key_L", true);
+
+	//台座
+	pedestalPos.translation_ = Vector3{ 0,-2.0f,-47.0f };
+	pedestalPos.Initialize();
+	pedestal = Model::CreateFromOBJ("pedestal", true);
 
 	//デフォルトヒットタイマー
 	defaultHitTimer = 120;
@@ -169,7 +201,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 
 	quota = 0;
 
-	autoPlay = true;
+	autoPlay = false;
 
 	LoadMusic(1, difficulty);
 }
@@ -191,22 +223,6 @@ void Lane::Update(int& scene) {
 	MatSet2 matset;
 	//デバッグ用にスペースを押してる間だけ進むように
 	if (!moveFlag) {
-		if (input_->TriggerKey(DIK_SPACE)) {
-			moveFlag = true;
-		}
-		if (input_->TriggerKey(DIK_Q)) {
-			if (autoPlay) { autoPlay = false; }
-			else if (!autoPlay) { autoPlay = true; }
-		}
-
-		if (input_->TriggerKey(DIK_UP)) {
-			difficulty = 3;
-			LoadMusic(1, difficulty);
-		}
-		if (input_->TriggerKey(DIK_DOWN)) {
-			difficulty = 2;
-			LoadMusic(1, difficulty);
-		}
 	}
 	else if (moveFlag) {
 		if (startTimer > -181) {
@@ -230,6 +246,9 @@ void Lane::Update(int& scene) {
 			if (endTimer < 0) {
 				FinishMusic(scene);
 			}
+		}
+		else {
+			KeyPositionChange(style);
 		}
 	}
 
@@ -257,6 +276,16 @@ void Lane::Update(int& scene) {
 	//ウォール更新
 	matset.MatIdentity(wallPosition);
 	wallPosition.TransferMatrix();
+
+	//キー更新
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 4; j++) {
+			matset.MatIdentity(keyModelPos[i][j]);
+			keyModelPos[i][j].TransferMatrix();
+		}
+	}
+	matset.MatIdentity(pedestalPos);
+	pedestalPos.TransferMatrix();
 
 	debugText_->SetPos(10, 10);
 	debugText_->Printf("wallNum : %f", wallNum);
@@ -287,9 +316,15 @@ void Lane::Draw(ViewProjection viewProjection) {
 			}
 		}
 	}
+	//ウォール描画
 	if (wallNum > 0.0f) {
 		wall->Draw(wallPosition, viewProjection);
 	}
+	//キー描画
+	for (int i = 0; i < 4;i++) {
+		keyModel[style][i]->Draw(keyModelPos[style][i], viewProjection);
+	}
+	pedestal->Draw(pedestalPos,viewProjection);
 }
 
 void Lane::LoadMusic(int ID, int difficulty) {
@@ -1175,4 +1210,62 @@ void Lane::ChangeWall(float num) {
 	//最大値が-50.0f、何も見えなくなる
 	wallNum += num;
 	wallPosition.translation_.z = -1.0f * wallNum - 35.5f;
+}
+
+void Lane::KeyPositionChange(int style) {
+	//スタイルごとに処理変更
+	if (style == 0) {
+		if (input_->PushKey(DIK_F) || input_->TriggerKey(DIK_F)) {
+			keyModelPos[style][0].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][0].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_G) || input_->TriggerKey(DIK_G)) {
+			keyModelPos[style][1].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][1].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_H) || input_->TriggerKey(DIK_H)) {
+			keyModelPos[style][2].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][2].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_J) || input_->TriggerKey(DIK_J)) {
+			keyModelPos[style][3].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][3].translation_.y = -2.0f; }
+	}
+	else if (style == 1) {
+		if (input_->PushKey(DIK_D) || input_->TriggerKey(DIK_D)) {
+			keyModelPos[style][0].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][0].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_F) || input_->TriggerKey(DIK_F)) {
+			keyModelPos[style][1].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][1].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_K) || input_->TriggerKey(DIK_K)) {
+			keyModelPos[style][2].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][2].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_L) || input_->TriggerKey(DIK_L)) {
+			keyModelPos[style][3].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][3].translation_.y = -2.0f; }
+	}
+	else if (style == 2) {
+		if (input_->PushKey(DIK_D) || input_->TriggerKey(DIK_D)) {
+			keyModelPos[style][0].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][0].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_G) || input_->TriggerKey(DIK_G)) {
+			keyModelPos[style][1].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][1].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_J) || input_->TriggerKey(DIK_J)) {
+			keyModelPos[style][2].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][2].translation_.y = -2.0f; }
+		if (input_->PushKey(DIK_L) || input_->TriggerKey(DIK_L)) {
+			keyModelPos[style][3].translation_.y = -2.1f;
+		}
+		else { keyModelPos[style][3].translation_.y = -2.0f; }
+	}
 }

@@ -170,6 +170,8 @@ private:
 	void DrawSprite4(int num, Sprite* sprite[25][10], int startNum, bool draw0);
 	//評価Draw
 	void SetEvaluation(int spriteNum);
+	//キーモデル座標変更
+	void KeyPositionChange(int style);
 
 private:
 	//音楽データ
@@ -334,4 +336,11 @@ private:
 
 	//スタイル番号
 	int style = 0;
+
+	//キーモデル
+	WorldTransform keyModelPos[3][4];
+	Model* keyModel[3][4] = { nullptr };
+	//台座
+	WorldTransform pedestalPos;
+	Model* pedestal = nullptr;
 };
