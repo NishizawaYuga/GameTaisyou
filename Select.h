@@ -19,7 +19,7 @@ struct OptionsData {
 	int style;
 	bool autoPlay;
 	int wall;
-	int border;
+	bool detail;
 };
 
 /// <summary>
@@ -54,10 +54,13 @@ public: // メンバ関数
 	void Draw();
 
 	//曲選択中のデータ表示
-	void SelectDrawData(int maxScore,int maxRank,int isFCAP, bool clear, int difficulty, int level,int ID);
+	void SelectDrawData(int maxScore,int maxRank,int isFCAP, bool clear);
 
 	//難易度・レベル表示（プレイ中も表示するため別個で用意）
 	void DrawDifficulty(int difficulty, int level);
+
+	//曲名・アーティスト・ND表示（リザルト画面に別で表示させるため）
+	void DrawMusicString(int difficulty, int ID);
 
 private: // メンバ変数
 	Input* input_ = nullptr;
@@ -139,7 +142,7 @@ private: // メンバ変数
 	int speed;	//譜面速度
 	int style;		//キー配置変更
 	int autoPlay;	//オート
-	int border;		//ボーダー
+	bool detail;	//詳細表示
 	int wall;		//ウォール
 	int optionNum;	//番号
 
@@ -175,6 +178,7 @@ private: // メンバ変数
 	uint32_t textureHandleSongPl5_ = 0;
 	Sprite* spriteSongPl5_ = nullptr;
 
+	
 
 	//曲の消滅フラグ
 	/*int  Songdelete_ = 0;

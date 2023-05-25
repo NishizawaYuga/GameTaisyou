@@ -13,6 +13,7 @@
 #include "Lane.h"
 #include "Select.h"
 #include "skydome.h"
+#include "Result.h"
 
 /// <summary>
 /// ゲームシーン
@@ -84,4 +85,7 @@ private: // メンバ変数
 	OptionsData options;
 	//更新確認用直前の入力データ保管オプション構造体
 	OptionsData oldOptions;
+
+	//リザルト
+	Result* results = nullptr;
 };

@@ -9,6 +9,7 @@
 #include "Sprite.h"
 
 #include <string>
+#include "ResultData.h"
 
 //chartManagerで読み込んだ譜面をLaneに移そうとすると容量が大きすぎてエラー吐くので
 //二つのソースに分けていた処理を一つに纏めます
@@ -125,6 +126,8 @@ public:
 	void ChangeStyle(int num);
 	//ウォール設定変更
 	void ChangeWall(float num);
+	//詳細表示設定変更
+	void ChangeDetail(bool tf);
 	//MusicData取得
 	MusicData GetMusic(int ID) { return musicData[ID]; }
 
@@ -139,6 +142,8 @@ public:
 	bool GetClear(int ID, int difficulty) { return musicData[ID].difficulty[difficulty].clear; }
 	//レべル取得
 	int GetLevel(int ID, int difficulty) { return musicData[ID].level[difficulty]; }
+	//リザルトデータ取得
+	ResultData GetResult() { return resultData; }
 
 private:
 	//譜面を読む
@@ -172,6 +177,10 @@ private:
 	void SetEvaluation(int spriteNum);
 	//キーモデル座標変更
 	void KeyPositionChange(int style);
+	//リザルトデータ入力
+	void WriteResultData();
+	//FAST・LATEカウント
+	void CountFL(int num);
 
 private:
 	//音楽データ
@@ -320,9 +329,9 @@ private:
 
 	//評価
 	//テクスチャ
-	uint32_t evaluationTex[3] = { 0,0,0 };
+	uint32_t evaluationTex[3][3] = {0,0,0};
 	//スプライト
-	Sprite* evaluationSprite[3] = { nullptr,nullptr,nullptr };
+	Sprite* evaluationSprite[3][3] = {nullptr,nullptr,nullptr};
 	//サイズ
 	float sizeX = 160.0f;
 	float sizeY = 32.0f;
@@ -333,6 +342,17 @@ private:
 	int drawTimer = 0;
 	//スプライト番号
 	int evaluationSpriteNum = 0;
+	//detailフラグ
+	bool detail = false;
+	bool fast = false;
+	bool late = false;
+	//各種カウント
+	int PFast = 0;
+	int PLate = 0;
+	int GFast = 0;
+	int GLate = 0;
+	//スプライト描画変更用番号
+	int PLNum = 0;
 
 	//スタイル番号
 	int style = 0;
@@ -343,4 +363,7 @@ private:
 	//台座
 	WorldTransform pedestalPos;
 	Model* pedestal = nullptr;
+
+	//リザルトデータ
+	ResultData resultData;
 };

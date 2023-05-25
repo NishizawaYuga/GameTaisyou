@@ -46,12 +46,16 @@ void GameScene::Initialize() {
 	select = new Select();
 	select->Initialize();
 
+	//リザルト画面初期化
+	results = new Result();
+	results->Initialize();
+
 	//skydome初期化
 	skydome = new Skydome();
 	skydome->Initialize(skydomeModel);
 
 	options.autoPlay = false;
-	options.border = 0;
+	options.detail = 0;
 	options.speed = 3;
 	options.style = 0;
 	options.wall = 0;
@@ -68,7 +72,7 @@ void GameScene::Initialize() {
 
 	//オプションデータ
 	options.autoPlay = false;
-	options.border = 0;
+	options.detail = 0;
 	options.speed = 0.3f;
 	options.style = 0;
 	options.wall = 0;
@@ -114,10 +118,18 @@ void GameScene::Update() {
 		else if (oldOptions.wall > options.wall) {
 			lane->ChangeWall(-1.0f);
 		}
+		if (oldOptions.detail != options.detail) {
+			lane->ChangeDetail(options.detail);
+		}
+
 	}
 	else if (sceneNum == 2) {
 		lane->Update(sceneNum);
 		skydome->Update();
+	}
+	else if (sceneNum == 3) {
+		results->IncludeResultData(lane->GetResult());
+		results->Update(sceneNum);
 	}
 
 	viewProjection.UpdateMatrix();
@@ -167,11 +179,15 @@ void GameScene::Draw() {
 	/// </summary>
 	if (sceneNum == 1) {
 		select->Draw();
-		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty),
-			difficulty, lane->GetLevel(musicID, difficulty),musicID);
+		select->SelectDrawData(lane->GetHiScore(musicID, difficulty), lane->GetHiRank(musicID, difficulty), lane->GetFCAPFlag(musicID, difficulty), lane->GetClear(musicID, difficulty));
+		select->DrawMusicString(difficulty, musicID);
 	}
 	if (sceneNum == 2) {
 		lane->DrawSprite();
+	}
+	if (sceneNum == 3) {
+		results->Draw();
+		select->DrawMusicString(difficulty, musicID);
 	}
 	if (sceneNum != 0) {
 		select->DrawDifficulty(difficulty, lane->GetLevel(musicID, difficulty));

@@ -107,7 +107,7 @@ void Select::Initialize() {
 		}
 	}
 	//バンバード（仮で全ての配列に読み込み）
-	for (int j = 0; j < _countof(musicName); j++) {
+	for (int j = 1; j < _countof(musicName); j++) {
 		musicName[j] = TextureManager::Load("ui/musicdatafont/banbad_name0.png");
 		artist[j] = TextureManager::Load("ui/musicdatafont/banbad_name1.png");
 		for (int i = 0; i < 4; i++) {
@@ -120,8 +120,11 @@ void Select::Initialize() {
 
 		}
 	}
+	//オプション（使用しない番号0に登録
+	musicName[0] = TextureManager::Load("ui/musicdatafont/option.png");
+	musicNameSprite[0] = Sprite::Create(musicName[0], { 10,20 });
 	//まとめてCreate
-	for (int i = 0; i < _countof(musicNameSprite); i++) {
+	for (int i = 1; i < _countof(musicNameSprite); i++) {
 		musicNameSprite[i] = Sprite::Create(musicName[i], { 10,20 });
 		artistSprite[i] = Sprite::Create(artist[i], { 10,180 });
 		for (int j = 0; j < 4; j++) {
@@ -134,7 +137,7 @@ void Select::Initialize() {
 	speed = 2;
 	style = 0;
 	autoPlay = 0;
-	border = 0;
+	detail = 0;
 	wall = 0;
 	optionNum = 0;
 	for (int i = 0; i < 11; i++) {
@@ -155,7 +158,7 @@ void Select::Initialize() {
 		optionsSprite[3][i] = nullptr;
 		optionsSprite[3][i] = Sprite::Create(options[3][i], { 260,360 });
 		options[4][i] = 0;
-		options[4][i] = TextureManager::Load("ui/options/border/border" + std::to_string(i) + ".png");
+		options[4][i] = TextureManager::Load("ui/options/detail/detail" + std::to_string(i) + ".png");
 		optionsSprite[4][i] = nullptr;
 		optionsSprite[4][i] = Sprite::Create(options[4][i], { 560,360 });
 	}
@@ -196,6 +199,9 @@ void Select::Initialize() {
 		//spritesong_[6] = Sprite::Create(textureHandleSong7_, { 1760,360 });//7
 	}
 	worldTransform_.Initialize();
+
+	//リザルト
+
 }
 
 void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& options)
@@ -302,6 +308,10 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 			if (input_->TriggerKey(DIK_BACKSPACE))
 			{
 				scene = 0;
+			}
+			if (input_->TriggerKey(DIK_1))
+			{
+				sceneNum = 3;
 			}
 
 			for (int i = 0; i < _countof(spritesong_); i++) {
@@ -525,11 +535,10 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 							options.wall++;
 						}
 					}
-					//ボーダー
+					//詳細表示
 					else if (optionNum == 4) {
-						if (border < 5) {
-							border++;
-						}
+						detail = true;
+						options.detail = true;
 					}
 				}
 				else if (input_->TriggerKey(DIK_DOWN)) {
@@ -558,9 +567,8 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 						}
 					}
 					else if (optionNum == 4) {
-						if (border > 0) {
-							border--;
-						}
+						detail = false;
+						options.detail = false;
 					}
 				}
 			}
@@ -570,7 +578,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 	case 2:
 		if (input_->TriggerKey(DIK_1))
 		{
-			scene = 1;
+			sceneNum = 3;
 		}
 		break;
 	case 3:
@@ -601,8 +609,6 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 		}
 		break;
 	}
-	debugText_->SetPos(10, 10);
-	debugText_->Printf("ID : %d", musicID);
 
 }
 
@@ -633,7 +639,7 @@ void Select::Draw() {
 			optionsSprite[1][style]->Draw();
 			optionsSprite[2][autoPlay]->Draw();
 			optionsSprite[3][wall]->Draw();
-			optionsSprite[4][border]->Draw();
+			optionsSprite[4][detail]->Draw();
 		}
 		break;
 	case 2:
@@ -663,7 +669,7 @@ void Select::Draw() {
 #pragma endregion
 }
 
-void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, int difficulty, int level, int ID) {
+void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
 	if (scene == 1 && tab != 2) {
 		int getNum = maxScore;
 		//1桁ずつ表示
@@ -717,13 +723,7 @@ void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear, i
 			tipSprite[isFCAP]->Draw();
 		}
 		controlSp->Draw();
-		//曲名等表示
-		musicNameSprite[ID]->Draw();
-		artistSprite[ID]->Draw();
-		noteDesignerSprite->Draw();
-		ndSprite[ID][difficulty]->Draw();
 	}
-
 }
 
 void Select::DrawDifficulty(int difficulty, int level) {
@@ -732,5 +732,18 @@ void Select::DrawDifficulty(int difficulty, int level) {
 			diff[difficulty]->Draw();
 			levelS[level]->Draw();
 		}
+	}
+}
+
+void Select::DrawMusicString(int difficulty, int ID) {
+	//曲名等表示
+	if (tab != 2) {
+		musicNameSprite[ID]->Draw();
+		artistSprite[ID]->Draw();
+		noteDesignerSprite->Draw();
+		ndSprite[ID][difficulty]->Draw();
+	}
+	else if (tab == 2) {
+		musicNameSprite[0]->Draw();
 	}
 }

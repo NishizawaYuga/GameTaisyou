@@ -167,8 +167,16 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 		}
 	}
 	for (int i = 0; i < 3; i++) {
-		evaluationTex[i] = TextureManager::Load("ui/evaluation/evaluation" + std::to_string(i) + ".png");
-		evaluationSprite[i] = Sprite::Create(evaluationTex[i], { evaPosX,evaPosY });
+		for (int j = 0; j < 3; j++) {
+			evaluationTex[j][i] = 0;
+			evaluationSprite[j][i] == nullptr;
+		}
+		evaluationTex[0][i] = TextureManager::Load("ui/evaluation/evaluation" + std::to_string(i) + ".png");
+		evaluationTex[1][i] = TextureManager::Load("ui/evaluation/evaluation_fast" + std::to_string(i) + ".png");
+		evaluationTex[2][i] = TextureManager::Load("ui/evaluation/evaluation_late" + std::to_string(i) + ".png");
+		for (int j = 0; j < 3; j++) {
+			evaluationSprite[j][i] = Sprite::Create(evaluationTex[j][i], { evaPosX,evaPosY });
+		}
 	}
 
 	//レーン
@@ -244,6 +252,7 @@ void Lane::Update(int& scene) {
 		if (notesCounter < 1) {
 			endTimer--;
 			if (endTimer < 0) {
+				WriteResultData();
 				FinishMusic(scene);
 			}
 		}
@@ -286,11 +295,6 @@ void Lane::Update(int& scene) {
 	}
 	matset.MatIdentity(pedestalPos);
 	pedestalPos.TransferMatrix();
-
-	debugText_->SetPos(10, 10);
-	debugText_->Printf("wallNum : %f", wallNum);
-	debugText_->SetPos(10, 30);
-	debugText_->Printf("wallZpos : %f", wallPosition.translation_.z);
 }
 
 void Lane::Draw(ViewProjection viewProjection) {
@@ -531,6 +535,13 @@ void Lane::Judgement() {
 					//PERFECT判定（6フレーム)
 					if (playData.difficulty[0].layer[i].note[j].hitTimer[k] >= lateJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] <= fastJudge) {
 						playData.difficulty[0].layer[i].note[j].judgement[k] = 1;
+						//FAST/LATEカウント
+						if (playData.difficulty[0].layer[i].note[j].hitTimer[k] > 2 && playData.difficulty[0].layer[i].note[j].hitTimer[k] <= fastJudge) {
+							fast = true;
+						}
+						else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] < -2 && playData.difficulty[0].layer[i].note[j].hitTimer[k] >= lateJudge) {
+							late = true;
+						}
 						if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[0]);
 						}
@@ -541,6 +552,7 @@ void Lane::Judgement() {
 					//GREAT判定(FAST)（2フレーム）
 					else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] > fastJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] <= fastJudge + 2) {
 						playData.difficulty[0].layer[i].note[j].judgement[k] = 2;
+						fast = true;
 						if (playData.difficulty[0].layer[i].note[j].type[k] < 9) {
 							audioSE->PlayWave(SE[1]);
 						}
@@ -557,6 +569,7 @@ void Lane::Judgement() {
 					//GREAT判定(LATE)（2フレーム）
 					else if (playData.difficulty[0].layer[i].note[j].hitTimer[k] < lateJudge && playData.difficulty[0].layer[i].note[j].hitTimer[k] >= lateJudge - 2) {
 						playData.difficulty[0].layer[i].note[j].judgement[k] = 2;
+						late = true;
 						if (playData.difficulty[0].layer[i].note[j].type[k] < 17) {
 							audioSE->PlayWave(SE[1]);
 						}
@@ -597,6 +610,18 @@ void Lane::Judgement() {
 						combo++;
 						perfect++;
 						notesCounter--;
+						//FAST/LATEカウント
+						if (fast){
+							CountFL(0);
+							fast = false;
+						}
+						else if (late){
+							CountFL(1);
+							late = false;
+						}
+						else {
+							CountFL(4);
+						}
 						SetEvaluation(0);
 						//MAXコンボ確認
 						if (maxCombo < combo) {
@@ -608,6 +633,18 @@ void Lane::Judgement() {
 						combo++;
 						great++;
 						notesCounter--;
+						//FAST/LATEカウント
+						if (fast) {
+							CountFL(2);
+							fast = false;
+						}
+						else if (late) {
+							CountFL(3);
+							late = false;
+						}
+						else {
+							CountFL(4);
+						}
 						SetEvaluation(1);
 						//MAXコンボ確認
 						if (maxCombo < combo) {
@@ -1010,8 +1047,13 @@ void Lane::FinishMusic(int& scene) {
 	averageRate = 0;
 	audioMusic->StopWave(music[musicID]);
 	quota = 0;
+	PFast = 0;
+	PLate = 0;
+	GFast = 0;
+	GLate = 0;
+	PLNum = 0;
 	LoadMusic(musicID, difficulty);
-	scene = 1;
+	scene = 3;
 }
 
 //スプライト描画※長くなりそうなのでこっちに
@@ -1125,11 +1167,13 @@ void Lane::DrawSprite() {
 
 	//評価
 	for (int i = 0; i < 3; i++) {
-		evaluationSprite[i]->SetSize(Vector2(sizeX, sizeY));
-		evaluationSprite[i]->SetPosition({ evaPosX,evaPosY });
+		for (int j = 0; j < 3; j++) {
+			evaluationSprite[i][j]->SetSize(Vector2(sizeX, sizeY));
+			evaluationSprite[i][j]->SetPosition({evaPosX,evaPosY});
+		}
 	}
 	if (drawTimer > 0) {
-		evaluationSprite[evaluationSpriteNum]->Draw();
+		evaluationSprite[PLNum][evaluationSpriteNum]->Draw();
 	}
 }
 
@@ -1212,6 +1256,35 @@ void Lane::ChangeWall(float num) {
 	wallPosition.translation_.z = -1.0f * wallNum - 35.5f;
 }
 
+void Lane::ChangeDetail(bool tf){
+	detail = tf;
+}
+
+void Lane::CountFL(int num) {
+	//詳細表示設定がON以上になってばカウント
+	if (detail) {
+		if (num == 0) {
+			PFast++;
+			PLNum = 1;
+		}
+		else if (num == 1) {
+			PLate++;
+			PLNum = 1;
+		}
+		else if (num == 2) {
+			GFast++;
+			PLNum = 2;
+		}
+		else if (num == 3) {
+			GLate++;
+			PLNum = 2;
+		}
+		else {
+			PLNum = 0;
+		}
+	}
+}
+
 void Lane::KeyPositionChange(int style) {
 	//スタイルごとに処理変更
 	if (style == 0) {
@@ -1267,5 +1340,44 @@ void Lane::KeyPositionChange(int style) {
 			keyModelPos[style][3].translation_.y = -2.1f;
 		}
 		else { keyModelPos[style][3].translation_.y = -2.0f; }
+	}
+}
+
+void Lane::WriteResultData() {
+	//リセットされる前に現時点でのスコアを書き込む
+	resultData.score = score;
+	resultData.hiScore = musicData[musicID].difficulty[difficulty].maxScore;
+	resultData.rank = rankNum;
+	if (miss == 0) {
+		resultData.isFCAP = 1;
+		if (great == 0) {
+			resultData.isFCAP = 2;
+		}
+	}
+	else {
+		resultData.isFCAP = 0;
+	}
+	if (quota <= averageRate) {
+		resultData.isClear = true;
+	}
+	else {
+		resultData.isClear = false;
+	}
+	resultData.perfect = perfect;
+	resultData.great = great;
+	resultData.miss = miss;
+	resultData.maxCombo = maxCombo;
+	//表示する設定した場合は普通に代入、それ以外だと-1にして非表示にできるようにする
+	if (detail) {
+		resultData.Pfast = PFast;
+		resultData.Plate = PLate;
+		resultData.Gfast = GFast;
+		resultData.Glate = GLate;
+	}
+	else {
+		resultData.Pfast = -1;
+		resultData.Plate = -1;
+		resultData.Gfast = -1;
+		resultData.Glate = -1;
 	}
 }

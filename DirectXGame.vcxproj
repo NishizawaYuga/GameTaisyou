@@ -104,6 +104,7 @@
     <ClCompile Include="Lane.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatSet.cpp" />
+    <ClCompile Include="Result.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="Select.cpp" />
     <ClCompile Include="skydome.cpp" />
@@ -139,6 +140,8 @@
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="MatSet.h" />
+    <ClInclude Include="Result.h" />
+    <ClInclude Include="ResultData.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="Select.h" />
     <ClInclude Include="skydome.h" />
