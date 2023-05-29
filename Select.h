@@ -179,7 +179,7 @@ private: // ƒƒ“ƒo•Ï”
 	Sprite* spriteSongPl5_ = nullptr;
 
 	//Œø‰Ê‰¹
-	uint32_t SE[5] = { 0,0,0,0,0 };
+	uint32_t SEselect[7] = { 0,0,0,0,0,0,0 };
 	Audio* soundSE = nullptr;
 
 
