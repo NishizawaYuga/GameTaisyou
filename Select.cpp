@@ -300,16 +300,16 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 					}
 				}
 				//“ïˆÕ“x•ÏX
-				if (input_->TriggerKey(DIK_UP)) {
-					soundSE->PlayWave(SE[1]);
+				if (input_->TriggerKey(DIK_UP)) {					
 					if (difficulty < 2) {
+						soundSE->PlayWave(SE[1]);
 						difficulty++;
 						difficultyColor = difficulty;
 					}
 				}
 				else if (input_->TriggerKey(DIK_DOWN)) {
-					soundSE->PlayWave(SE[1]);
 					if (difficulty > 0) {
+						soundSE->PlayWave(SE[1]);
 						difficulty--;
 						difficultyColor = difficulty;
 					}
