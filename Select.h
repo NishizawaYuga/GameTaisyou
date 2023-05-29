@@ -178,7 +178,10 @@ private: // ƒƒ“ƒo•Ï”
 	uint32_t textureHandleSongPl5_ = 0;
 	Sprite* spriteSongPl5_ = nullptr;
 
-	
+	//Œø‰Ê‰¹
+	uint32_t SE[5] = { 0,0,0,0,0 };
+	Audio* soundSE = nullptr;
+
 
 	//‹È‚ÌÁ–Åƒtƒ‰ƒO
 	/*int  Songdelete_ = 0;

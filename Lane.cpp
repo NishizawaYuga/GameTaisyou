@@ -119,6 +119,7 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	//‰¹Šy
 	music[0] = audioMusic->LoadWave("musicData/000/test.wav");
 	music[1] = audioMusic->LoadWave("musicData/001/banbado.wav");
+	music[2] = audioMusic->LoadWave("musicData/002/watar_drop.wav");
 
 	//Œø‰Ê‰¹
 	SE[0] = audioSE->LoadWave("se/perfect.wav");
@@ -820,6 +821,8 @@ void Lane::ChartInitialize() {
 	IDEntry(1, "Resources/musicData/001/banbadoM.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 2, 7, 100);
 	IDEntry(1, "Resources/musicData/001/banbadoN.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 1, 5, 100);
 	IDEntry(1, "Resources/musicData/001/banbadoE.txt", "musicData/001/banbado.wav", "Resources/musicData/001/scoredata.txt", 144, 0, 3, 100);
+	//watardrop
+	IDEntry(2, "Resources/musicData/002/watardrop.txt", "musicData/002/watar_drop.wav", "Resources/musicData/002/scoredata.txt", 185, 2, 8, 75);
 }
 
 void Lane::ID000(string filePass, int musicID) {

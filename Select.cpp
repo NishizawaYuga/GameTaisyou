@@ -200,7 +200,14 @@ void Select::Initialize() {
 	}
 	worldTransform_.Initialize();
 
-	//リザルト
+	//効果音
+	soundSE = Audio::GetInstance();
+	soundSE->Initialize();
+	SE[0] = soundSE->LoadWave("se/music_select.wav");
+	SE[1] = soundSE->LoadWave("se/level_change.wav");
+	SE[2] = soundSE->LoadWave("se/music_target.wav");
+	SE[3] = soundSE->LoadWave("se/target_tab.wav");
+	SE[4] = soundSE->LoadWave("se/option_select.wav");
 
 }
 
@@ -216,14 +223,19 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 		break;
 	case 1:
 		//tabで切り替え
+		if (input_->TriggerKey(DIK_TAB)) {
+			soundSE->PlayWave(SE[3]);
+		}
 		if (input_->PushKey(DIK_TAB)) {
 			if (input_->TriggerKey(DIK_LEFT)) {
+				soundSE->PlayWave(SE[0]);
 				tab--;
 				if (tab < 0) {
 					tab = 2;
 				}
 			}
 			else if (input_->TriggerKey(DIK_RIGHT)) {
+				soundSE->PlayWave(SE[0]);
 				tab++;
 				if (tab > 2) {
 					tab = 0;
@@ -239,7 +251,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				// ステージセレクト　入力処理
 				if (input_->TriggerKey(DIK_LEFT))
 				{
-
+					soundSE->PlayWave(SE[0]);
 					// ステージの番号を300ずらす
 					for (size_t i = 0; i < _countof(spritesong_); i++)
 					{
@@ -264,7 +276,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 
 				if (input_->TriggerKey(DIK_RIGHT))
 				{
-
+					soundSE->PlayWave(SE[0]);
 					// ステージの番号を-300ずらす
 					for (size_t i = 0; i < _countof(spritesong_); i++)
 					{
@@ -289,12 +301,14 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				}
 				//難易度変更
 				if (input_->TriggerKey(DIK_UP)) {
+					soundSE->PlayWave(SE[1]);
 					if (difficulty < 2) {
 						difficulty++;
 						difficultyColor = difficulty;
 					}
 				}
 				else if (input_->TriggerKey(DIK_DOWN)) {
+					soundSE->PlayWave(SE[1]);
 					if (difficulty > 0) {
 						difficulty--;
 						difficultyColor = difficulty;
@@ -307,11 +321,8 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 			}
 			if (input_->TriggerKey(DIK_BACKSPACE))
 			{
+				soundSE->PlayWave(SE[2]);
 				scene = 0;
-			}
-			if (input_->TriggerKey(DIK_1))
-			{
-				sceneNum = 3;
 			}
 
 			for (int i = 0; i < _countof(spritesong_); i++) {
@@ -359,7 +370,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				// ステージセレクト　入力処理
 				if (input_->TriggerKey(DIK_LEFT))
 				{
-
+					soundSE->PlayWave(SE[0]);
 					// ステージの番号を300ずらす
 					for (size_t i = 0; i < _countof(spritesong_); i++)
 					{
@@ -384,7 +395,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 
 				if (input_->TriggerKey(DIK_RIGHT))
 				{
-
+					soundSE->PlayWave(SE[0]);
 					// ステージの番号を-300ずらす
 					for (size_t i = 0; i < _countof(spritesong_); i++)
 					{
@@ -409,11 +420,13 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				}
 				if (input_->TriggerKey(DIK_SPACE))
 				{
+					soundSE->PlayWave(SE[2]);
 					sceneNum = 2;
 				}
 			}
 			if (input_->TriggerKey(DIK_BACKSPACE))
 			{
+				soundSE->PlayWave(SE[3]);
 				scene = 0;
 			}
 
@@ -458,6 +471,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				// オプションセレクト　入力処理
 				if (input_->TriggerKey(DIK_LEFT))
 				{
+					soundSE->PlayWave(SE[0]);
 					// ステージの番号を300ずらす
 					for (size_t i = 0; i < 5; i++)
 					{
@@ -483,6 +497,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 
 				if (input_->TriggerKey(DIK_RIGHT))
 				{
+					soundSE->PlayWave(SE[0]);
 					// ステージの番号を-300ずらす
 					for (size_t i = 0; i < 5; i++)
 					{
@@ -506,6 +521,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 				}
 				//各項目変更
 				if (input_->TriggerKey(DIK_UP)) {
+					soundSE->PlayWave(SE[4]);
 					//譜面速度
 					if (optionNum == 0) {
 						if (speed < 9) {
@@ -542,6 +558,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 					}
 				}
 				else if (input_->TriggerKey(DIK_DOWN)) {
+					soundSE->PlayWave(SE[4]);
 					if (optionNum == 0) {
 						if (speed > 0) {
 							speed--;
