@@ -102,7 +102,7 @@ struct Line {
 class Lane {
 public:
 	//‰Šú‰»
-	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]);
+	void Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12], uint32_t SE[], uint32_t BGM[]);
 	//XV
 	void Update(int& scene);
 	//•`‰æ

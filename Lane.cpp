@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) {
+void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12], uint32_t SE[], uint32_t BGM[]) {
 	//nullチェックってやつ
 	assert(laneModel);
 	assert(lineModel);
@@ -117,14 +117,14 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12]) 
 	audioMusic->Initialize();
 
 	//音楽
-	music[0] = audioMusic->LoadWave("musicData/000/test.wav");
-	music[1] = audioMusic->LoadWave("musicData/001/banbado.wav");
-	music[2] = audioMusic->LoadWave("musicData/002/watar_drop.wav");
+	music[0] = BGM[0];
+	music[1] = BGM[1];
+	music[2] = BGM[2];
 
 	//効果音
-	SE[0] = audioSE->LoadWave("se/perfect.wav");
-	SE[1] = audioSE->LoadWave("se/great.wav");
-	SE[2] = audioSE->LoadWave("se/miss.wav");
+	this->SE[0] = SE[0];
+	this->SE[1] = SE[1];
+	this->SE[2] = SE[2];
 
 	//小節線
 	for (int i = 0; i < line.lineNum; i++) {

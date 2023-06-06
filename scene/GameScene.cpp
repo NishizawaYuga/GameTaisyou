@@ -37,14 +37,34 @@ void GameScene::Initialize() {
 
 	skydomeModel = Model::CreateFromOBJ("skydome", true);
 
+	//サウンド
+	SE[0] = audio_->LoadWave("se/perfect.wav");
+	SE[1] = audio_->LoadWave("se/great.wav");
+	SE[2] = audio_->LoadWave("se/miss.wav");
+	SE[3] = audio_->LoadWave("se/music_select.wav");
+	SE[4] = audio_->LoadWave("se/level_change.wav");
+	SE[5] = audio_->LoadWave("se/music_target.wav");
+	SE[6] = audio_->LoadWave("se/target_tab.wav");
+	SE[7] = audio_->LoadWave("se/option_select.wav");
+	SE[8] = audio_->LoadWave("se/start_game.wav");
+	SE[9] = audio_->LoadWave("se/backwindow.wav");
+
+	music[0] = audio_->LoadWave("musicData/000/test.wav");
+	music[1] = audio_->LoadWave("musicData/001/banbado.wav");
+	music[2] = audio_->LoadWave("musicData/002/watar_drop.wav");
+
+	BGM[0] = audio_->LoadWave("bgm/title.wav");
+	BGM[1] = audio_->LoadWave("bgm/select.wav");
+	BGM[2] = audio_->LoadWave("bgm/result.wav");
+
 	//レーン初期化
 	lane = new Lane();
 	//lane->Initialize(laneModel,lineModel);
-	lane->Initialize(laneModel, lineModel, notesModel);
+	lane->Initialize(laneModel, lineModel, notesModel,SE,music);
 
 	//select画面初期化
 	select = new Select();
-	select->Initialize();
+	select->Initialize(SE,BGM);
 
 	//リザルト画面初期化
 	results = new Result();
@@ -100,6 +120,8 @@ void GameScene::Update() {
 		//何かしら一致していなかったら更新
 		if (oldOptions.autoPlay != options.autoPlay) {
 			lane->Auto(options.autoPlay);
+			audio_->StopWave(BGM[0]);
+			audio_->StopWave(BGM[1]);
 		}
 		if (oldOptions.speed < options.speed) {
 			lane->ChangeSpeed(0.1f);

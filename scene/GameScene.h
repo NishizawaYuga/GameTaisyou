@@ -88,4 +88,9 @@ private: // メンバ変数
 
 	//リザルト
 	Result* results = nullptr;
+
+	//効果音とBGM
+	uint32_t SE[10] = { 0,0,0,0,0,0,0,0,0,0 };
+	uint32_t BGM[5] = { 0,0,0,0,0 };
+	uint32_t music[5] = { 0,0,0,0,0 };
 };

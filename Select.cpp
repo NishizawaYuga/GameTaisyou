@@ -1,6 +1,7 @@
 #include "Select.h"
 #include "TextureManager.h"
 #include <cassert>
+#include "easing.h"
 
 Select::Select() {}
 
@@ -15,7 +16,7 @@ Select::~Select()
 
 }
 
-void Select::Initialize() {
+void Select::Initialize(uint32_t SE[], uint32_t BGM[]) {
 
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -163,13 +164,53 @@ void Select::Initialize() {
 		optionsSprite[4][i] = Sprite::Create(options[4][i], { 560,360 });
 	}
 
-	//画面下部ナビ
-	controlTx = TextureManager::Load("ui/contorol.png");
-	controlSp = Sprite::Create(controlTx, { 0,0 });
+	//オプション説明
+	for (int i = 0; i < 5; i++) {
+		explanationTx[i] = TextureManager::Load("ui/options/explanation/explanation" + std::to_string(i) + ".png");
+		explanationSp[i] = Sprite::Create(explanationTx[i], { 1920 - 596,0 });
+	}
+	figureTex = TextureManager::Load("ui/options/explanation/figure.png");
+	figureSp = Sprite::Create(figureTex, { 1920 - 596,360 });
+
+	//オプション図
+	for (int i = 0; i < 7; i++) {
+		figImage[i] = TextureManager::Load("ui/options/explanation/figure_image" + std::to_string(i) + ".png");
+		figImageSp[i] = Sprite::Create(figImage[i], { 1920 - 596,360 });
+	}
+	figNote = TextureManager::Load("ui/options/explanation/figure_note.png");
+	figNoteSp = Sprite::Create(figNote, { 1920 - 596,360 });
+
+	//タブスプライト
+	tabTex[0] = TextureManager::Load("ui/tab/tab.png");
+	tabTex[1] = TextureManager::Load("ui/tab/tab_cursor.png");
+	tabSp[0] = Sprite::Create(tabTex[0], { 1920 / 2 - 356,200 });
+	tabSp[1] = Sprite::Create(tabTex[1], { 1920 / 2 - 128,192 });
+	tabPosX = tabSp[1]->GetPosition().x;
+
+	//ナビ
+	for (int i = 0; i < 2; i++) {
+		nabiTitleTex[i] = TextureManager::Load("ui/nabi/nabi" + std::to_string(i) + ".png");
+		nabiTitleSp[i] = Sprite::Create(nabiTitleTex[i], { 960 - 640,960 });
+	}
+	nabiTitleSp[1]->SetPosition({ 960 - 500,140 });
+	nabiTitleSp[1]->SetSize({ 1000,62 });
+
+	//選曲ナビ
+	for(int i = 0; i < 8; i++) {
+		nabi_selectTex[i] = TextureManager::Load("ui/nabi/nabi_select" + std::to_string(i) + ".png");
+		nabi_selectSp[i] = Sprite::Create(nabi_selectTex[i], { 0,0 });
+	}
+	//SPACE
+	nabi_selectSp[6]->SetPosition({ 960 - 96,900 });
+
 
 	//タイトル
-	texturehandlTi_ = TextureManager::Load("sprite/titol.png");
+	texturehandlTi_ = TextureManager::Load("background/result_clear.png");
 	spriteTi_ = Sprite::Create(texturehandlTi_, { 0,0 });
+	//ロゴ
+	logoTex = TextureManager::Load("background/logo.png");
+	logoSp = Sprite::Create(logoTex, { 960 - 500,30 });
+	logoSp->SetSize({1000,1000});
 	//シーン切り替え用リソース
 	//1
 	textureHandleSongPl1_ = TextureManager::Load("sprite/play0001.png");
@@ -203,14 +244,20 @@ void Select::Initialize() {
 	//効果音
 	soundSE = Audio::GetInstance();
 	soundSE->Initialize();
-	SEselect[0] = soundSE->LoadWave("se/music_select.wav");
-	SEselect[1] = soundSE->LoadWave("se/level_change.wav");
-	SEselect[2] = soundSE->LoadWave("se/music_target.wav");
-	SEselect[3] = soundSE->LoadWave("se/target_tab.wav");
-	SEselect[4] = soundSE->LoadWave("se/option_select.wav");
-	SEselect[5] = soundSE->LoadWave("se/start_game.wav");
-	SEselect[6] = soundSE->LoadWave("se/backwindow.wav");
+	SEselect[0] = SE[3];
+	SEselect[1] = SE[4];
+	SEselect[2] = SE[5];
+	SEselect[3] = SE[6];
+	SEselect[4] = SE[7];
+	SEselect[5] = SE[8];
+	SEselect[6] = SE[9];
 
+	for (int i = 0; i < 3; i++) {
+		bgm[i] = Audio::GetInstance();
+		bgm[i]->Initialize();
+	}
+	this->BGM[0] = BGM[0];
+	this->BGM[1] = BGM[1];
 }
 
 void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& options)
@@ -218,13 +265,47 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 	switch (scene)
 	{
 	case 0:
+		if (!playFlag[0]) {
+			//bgm[0]->PlayWave(BGM[0], true);
+			playFlag[0] = true;
+		}
+
 		if (input_->TriggerKey(DIK_SPACE))
 		{
 			soundSE->PlayWave(SEselect[5]);
+			//bgm[0]->StopWave(BGM[0]);
 			scene = 1;
+			playFlag[0] = false;
 		}
 		break;
 	case 1:
+		if (!playFlag[1]) {
+			//bgm[1]->PlayWave(BGM[1], true);
+			playFlag[1] = true;
+		}
+		if (maxTime > nowTime) {
+			nowTime++;
+		}
+		else {
+			nowTime = 0;
+			if (sizeChange) {
+				sizeChange = false;
+			}
+			else if (!sizeChange) {
+				sizeChange = true;
+			}
+		}
+		if (!sizeChange) {
+			tabSizeX = EASE::InOutQuad(0.2, tabSizeX, maxTime, nowTime);
+			tabSizeY = EASE::InOutQuad(0.2, tabSizeY, maxTime, nowTime);
+		}
+		else if (sizeChange) {
+			tabSizeX = EASE::InOutQuad(-0.2, tabSizeX, maxTime, nowTime);
+			tabSizeY = EASE::InOutQuad(-0.2, tabSizeY, maxTime, nowTime);
+		}
+		tabSp[1]->SetSize({ tabSizeX,tabSizeY });
+
+
 		//tabで切り替え
 		if (input_->TriggerKey(DIK_TAB)) {
 			soundSE->PlayWave(SEselect[3]);
@@ -233,17 +314,22 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 			if (input_->TriggerKey(DIK_LEFT)) {
 				soundSE->PlayWave(SEselect[0]);
 				tab--;
+				tabPosX -= 236.0f;
 				if (tab < 0) {
 					tab = 2;
+					tabPosX = tabPosX + 236.0f * 3;
 				}
 			}
 			else if (input_->TriggerKey(DIK_RIGHT)) {
 				soundSE->PlayWave(SEselect[0]);
 				tab++;
+				tabPosX += 236.0f;
 				if (tab > 2) {
 					tab = 0;
+					tabPosX = tabPosX - 236.0f * 3;
 				}
 			}
+			tabSp[1]->SetPosition({ tabPosX - (tabSizeX / 2) + 128,192 - (tabSizeY / 2) + 48 });
 		}
 		if (tab == 1) {
 			if (difficulty == 3) {
@@ -252,58 +338,58 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 			}
 			if (!input_->PushKey(DIK_TAB)) {
 				// ステージセレクト　入力処理
-				if (input_->TriggerKey(DIK_LEFT))
-				{
-					soundSE->PlayWave(SEselect[0]);
-					// ステージの番号を300ずらす
-					for (size_t i = 0; i < _countof(spritesong_); i++)
-					{
-						position = spritesong_[i]->GetPosition();
-						position.x += 300;
-						position.y = 360;
-						jumpTimer[i] = 30;
-						// 1460が右端なのでこれより大きかったら最小値の260の位置にする
-						if (position.x > 1460)
-						{
-							position.x = 260;
+				//if (input_->TriggerKey(DIK_LEFT))
+				//{
+				//	soundSE->PlayWave(SEselect[0]);
+				//	// ステージの番号を300ずらす
+				//	for (size_t i = 0; i < _countof(spritesong_); i++)
+				//	{
+				//		position = spritesong_[i]->GetPosition();
+				//		position.x += 300;
+				//		position.y = 360;
+				//		jumpTimer[i] = 30;
+				//		// 1460が右端なのでこれより大きかったら最小値の260の位置にする
+				//		if (position.x > 1460)
+				//		{
+				//			position.x = 260;
 
-						}
+				//		}
 
-						spritesong_[i]->SetPosition(position);
-					}
-					musicID++;
-					if (musicID > 5) {
-						musicID = 1;
-					}
-				}
+				//		spritesong_[i]->SetPosition(position);
+				//	}
+				//	musicID++;
+				//	if (musicID > 5) {
+				//		musicID = 1;
+				//	}
+				//}
 
-				if (input_->TriggerKey(DIK_RIGHT))
-				{
-					soundSE->PlayWave(SEselect[0]);
-					// ステージの番号を-300ずらす
-					for (size_t i = 0; i < _countof(spritesong_); i++)
-					{
-						position = spritesong_[i]->GetPosition();
-						position.x -= 300;
-						position.y = 360;
-						jumpTimer[i] = 30;
-						// 260が左端なのでこれより小さかったら最大値の1460の位置にする
-						if (position.x <= 250)
-						{
-							position.x = 1460;
-						}
+				//if (input_->TriggerKey(DIK_RIGHT))
+				//{
+				//	soundSE->PlayWave(SEselect[0]);
+				//	// ステージの番号を-300ずらす
+				//	for (size_t i = 0; i < _countof(spritesong_); i++)
+				//	{
+				//		position = spritesong_[i]->GetPosition();
+				//		position.x -= 300;
+				//		position.y = 360;
+				//		jumpTimer[i] = 30;
+				//		// 260が左端なのでこれより小さかったら最大値の1460の位置にする
+				//		if (position.x <= 250)
+				//		{
+				//			position.x = 1460;
+				//		}
 
-						spritesong_[i]->SetPosition(position);
+				//		spritesong_[i]->SetPosition(position);
 
 
-					}
-					musicID--;
-					if (musicID < 1) {
-						musicID = 5;
-					}
-				}
+				//	}
+				//	musicID--;
+				//	if (musicID < 1) {
+				//		musicID = 5;
+				//	}
+				//}
 				//難易度変更
-				if (input_->TriggerKey(DIK_UP)) {					
+				if (input_->TriggerKey(DIK_UP)) {
 					if (difficulty < 2) {
 						soundSE->PlayWave(SEselect[1]);
 						difficulty++;
@@ -357,10 +443,6 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 						jumpTimer[i] = 60;
 					}
 					spritesong_[i]->SetPosition(position);
-					if (input_->TriggerKey(DIK_2))
-					{
-						scene = i;
-					}
 				}
 			}
 		}
@@ -371,66 +453,70 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 			}
 			if (!input_->PushKey(DIK_TAB)) {
 				// ステージセレクト　入力処理
-				if (input_->TriggerKey(DIK_LEFT))
-				{
-					soundSE->PlayWave(SEselect[0]);
-					// ステージの番号を300ずらす
-					for (size_t i = 0; i < _countof(spritesong_); i++)
-					{
-						position = spritesong_[i]->GetPosition();
-						position.x += 300;
-						position.y = 360;
-						jumpTimer[i] = 30;
-						// 1460が右端なのでこれより大きかったら最小値の260の位置にする
-						if (position.x > 1460)
-						{
-							position.x = 260;
+				//if (input_->TriggerKey(DIK_LEFT))
+				//{
+				//	soundSE->PlayWave(SEselect[0]);
+				//	// ステージの番号を300ずらす
+				//	for (size_t i = 0; i < _countof(spritesong_); i++)
+				//	{
+				//		position = spritesong_[i]->GetPosition();
+				//		position.x += 300;
+				//		position.y = 360;
+				//		jumpTimer[i] = 30;
+				//		// 1460が右端なのでこれより大きかったら最小値の260の位置にする
+				//		if (position.x > 1460)
+				//		{
+				//			position.x = 260;
 
-						}
+				//		}
 
-						spritesong_[i]->SetPosition(position);
-					}
-					musicID++;
-					if (musicID > 5) {
-						musicID = 1;
-					}
-				}
+				//		spritesong_[i]->SetPosition(position);
+				//	}
+				//	musicID++;
+				//	if (musicID > 5) {
+				//		musicID = 1;
+				//	}
+				//}
 
-				if (input_->TriggerKey(DIK_RIGHT))
-				{
-					soundSE->PlayWave(SEselect[0]);
-					// ステージの番号を-300ずらす
-					for (size_t i = 0; i < _countof(spritesong_); i++)
-					{
-						position = spritesong_[i]->GetPosition();
-						position.x -= 300;
-						position.y = 360;
-						jumpTimer[i] = 30;
-						// 260が左端なのでこれより小さかったら最大値の1460の位置にする
-						if (position.x <= 250)
-						{
-							position.x = 1460;
-						}
+				//if (input_->TriggerKey(DIK_RIGHT))
+				//{
+				//	soundSE->PlayWave(SEselect[0]);
+				//	// ステージの番号を-300ずらす
+				//	for (size_t i = 0; i < _countof(spritesong_); i++)
+				//	{
+				//		position = spritesong_[i]->GetPosition();
+				//		position.x -= 300;
+				//		position.y = 360;
+				//		jumpTimer[i] = 30;
+				//		// 260が左端なのでこれより小さかったら最大値の1460の位置にする
+				//		if (position.x <= 250)
+				//		{
+				//			position.x = 1460;
+				//		}
 
-						spritesong_[i]->SetPosition(position);
+				//		spritesong_[i]->SetPosition(position);
 
 
-					}
-					musicID--;
-					if (musicID < 1) {
-						musicID = 5;
-					}
-				}
+				//	}
+				//	musicID--;
+				//	if (musicID < 1) {
+				//		musicID = 5;
+				//	}
+				//}
 				if (input_->TriggerKey(DIK_SPACE))
 				{
 					soundSE->PlayWave(SEselect[2]);
 					sceneNum = 2;
+					//bgm[1]->StopWave(BGM[1]);
+					playFlag[1] = false;
 				}
 			}
 			if (input_->TriggerKey(DIK_BACKSPACE))
 			{
 				soundSE->PlayWave(SEselect[6]);
 				scene = 0;
+				//bgm[1]->StopWave(BGM[1]);
+				playFlag[1] = false;
 			}
 
 			for (int i = 0; i < _countof(spritesong_); i++) {
@@ -462,14 +548,17 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 						jumpTimer[i] = 60;
 					}
 					spritesong_[i]->SetPosition(position);
-					if (input_->TriggerKey(DIK_2))
-					{
-						scene = i;
-					}
 				}
 			}
 		}
 		else if (tab == 2) {
+			//オプション一部項目更新
+			figNoteSp->SetPosition({ 1920 - 596,figNoteSp->GetPosition().y + speed + 1 * 20 });
+			if (figNoteSp->GetPosition().y > 1100) {
+				figNoteSp->SetPosition({ 1920 - 596,300 });
+			}
+			figImageSp[4]->SetPosition({ 1920 - 596,360.0f - 720.0f + 72.0f * wall });
+
 			if (!input_->PushKey(DIK_TAB)) {
 				// オプションセレクト　入力処理
 				if (input_->TriggerKey(DIK_LEFT))
@@ -531,7 +620,7 @@ void Select::Update(int& sceneNum, int& musicID, int& difficulty, OptionsData& o
 							speed++;
 							options.speed++;
 						}
-						
+
 					}
 					//キー配置
 					else if (optionNum == 1) {
@@ -640,6 +729,8 @@ void Select::Draw() {
 	{
 	case 0:
 		spriteTi_->Draw();
+		logoSp->Draw();
+		nabiTitleSp[0]->Draw();
 		break;
 	case 1:
 		if (tab != 2) {
@@ -648,10 +739,11 @@ void Select::Draw() {
 			else if (difficultyColor == 2) { spriteBG_[2]->Draw(); }
 			else if (difficultyColor == 3) { spriteBG_[3]->Draw(); }
 			//spriteframe_->Draw();
-			for (size_t i = 0; i < _countof(spritesong_); i++)
+			/*for (size_t i = 0; i < _countof(spritesong_); i++)
 			{
 				spritesong_[i]->Draw();
-			}
+			}*/
+			spritesong_[0]->Draw();
 		}
 		else if (tab == 2) {
 			spriteBG_[4]->Draw();
@@ -660,6 +752,35 @@ void Select::Draw() {
 			optionsSprite[2][autoPlay]->Draw();
 			optionsSprite[3][wall]->Draw();
 			optionsSprite[4][detail]->Draw();
+			figureSp->Draw();
+			if (optionNum == 0) {
+				figNoteSp->Draw();
+			}
+			else if (optionNum == 1) {
+				figImageSp[style]->Draw();
+			}
+			else if (optionNum == 2) {
+				if (autoPlay) {
+					figImageSp[3]->Draw();
+				}
+			}
+			else if (optionNum == 3) {
+				figImageSp[4]->Draw();
+			}
+			else if (optionNum == 4) {
+				if (detail) {
+					figImageSp[6]->Draw();
+				}
+				else {
+					figImageSp[5]->Draw();
+				}
+			}
+			explanationSp[optionNum]->Draw();
+		}
+		tabSp[0]->Draw();
+		nabiTitleSp[1]->Draw();
+		if (input_->PushKey(DIK_TAB)) {
+			tabSp[1]->Draw();
 		}
 		break;
 	case 2:
@@ -742,7 +863,6 @@ void Select::SelectDrawData(int maxScore, int maxRank, int isFCAP, bool clear) {
 		if (isFCAP > 0) {
 			tipSprite[isFCAP]->Draw();
 		}
-		controlSp->Draw();
 	}
 }
 
@@ -757,13 +877,15 @@ void Select::DrawDifficulty(int difficulty, int level) {
 
 void Select::DrawMusicString(int difficulty, int ID) {
 	//曲名等表示
-	if (tab != 2) {
-		musicNameSprite[ID]->Draw();
-		artistSprite[ID]->Draw();
-		noteDesignerSprite->Draw();
-		ndSprite[ID][difficulty]->Draw();
-	}
-	else if (tab == 2) {
-		musicNameSprite[0]->Draw();
+	if (scene != 0) {
+		if (tab != 2) {
+			musicNameSprite[ID]->Draw();
+			artistSprite[ID]->Draw();
+			noteDesignerSprite->Draw();
+			ndSprite[ID][difficulty]->Draw();
+		}
+		else if (tab == 2) {
+			musicNameSprite[0]->Draw();
+		}
 	}
 }

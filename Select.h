@@ -41,7 +41,7 @@ public: // メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize();
+	void Initialize(uint32_t SE[],uint32_t BGM[]);
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -96,6 +96,8 @@ private: // メンバ変数
 	//タイトル
 	uint32_t texturehandlTi_ = 0;
 	Sprite* spriteTi_ = nullptr;
+	uint32_t logoTex = 0;
+	Sprite* logoSp = nullptr;
 
 	//数字
 	uint32_t textureNum[11] = { 0,0,0,0,0,0,0,0,0,0,0 };
@@ -134,6 +136,15 @@ private: // メンバ変数
 
 	//タブ番号
 	int tab;
+	//タブ
+	uint32_t tabTex[2] = { 0,0 };
+	Sprite* tabSp[2] = { nullptr,nullptr };
+	float tabPosX;
+	float tabSizeX = 256.0f;
+	float tabSizeY = 96.0f;
+	bool sizeChange = false;
+	int nowTime = 0;
+	int maxTime = 60;
 
 	//オプション
 	uint32_t options[5][11] = {0,0,0,0,0};
@@ -145,6 +156,16 @@ private: // メンバ変数
 	bool detail;	//詳細表示
 	int wall;		//ウォール
 	int optionNum;	//番号
+
+	//説明
+	uint32_t explanationTx[5] = { 0,0,0,0,0 };
+	Sprite* explanationSp[5] = { nullptr,nullptr ,nullptr ,nullptr ,nullptr };
+	uint32_t figureTex = 0;
+	Sprite* figureSp = nullptr;
+	uint32_t figImage[7] = { 0,0,0,0,0,0,0 };
+	Sprite* figImageSp[7] = { nullptr,nullptr ,nullptr ,nullptr ,nullptr ,nullptr ,nullptr };
+	uint32_t figNote = 0;
+	Sprite* figNoteSp = nullptr;
 
 	//画面下部ナビ
 	uint32_t controlTx = 0;
@@ -182,6 +203,16 @@ private: // メンバ変数
 	uint32_t SEselect[7] = { 0,0,0,0,0,0,0 };
 	Audio* soundSE = nullptr;
 
+	//音楽
+	uint32_t BGM[3] = { 0,0,0 };
+	Audio* bgm[3] = { nullptr,nullptr,nullptr };
+	bool playFlag[3] = { false,false,false };
+
+	//ナビ
+	uint32_t nabiTitleTex[2] = { 0,0 };
+	Sprite* nabiTitleSp[2] = { nullptr,nullptr };
+	uint32_t nabi_selectTex[8] = { 0,0,0,0,0,0,0,0 };
+	Sprite* nabi_selectSp[8]= {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
 
 	//曲の消滅フラグ
 	/*int  Songdelete_ = 0;
