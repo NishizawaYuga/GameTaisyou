@@ -211,6 +211,9 @@ private:
 	const int modelNum = 12;
 	//小節線
 	Line line;
+	//ライト
+	WorldTransform lightUpPos[4];
+	Model* lightUp[4] = { nullptr };
 
 	//ウォール（壁）
 	WorldTransform wallPosition;

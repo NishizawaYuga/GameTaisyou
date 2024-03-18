@@ -1,6 +1,7 @@
 ﻿#include "TextureManager.h"
 #include <DirectXTex.h>
 #include <cassert>
+#include <cstdint>
 
 using namespace DirectX;
 
@@ -201,6 +202,7 @@ template<size_t kNumberOfBits> TextureManager::Bitset<kNumberOfBits>::Bitset() {
 template<size_t kNumberOfBits> size_t TextureManager::Bitset<kNumberOfBits>::FindFirst() const {
 	for (size_t wordIndex = 0; wordIndex < kCountOfWord; ++wordIndex) {
 		int firstZero = std::countr_one(words_[wordIndex]);
+		int firstZero = std::_Checked_x86_x64_countr_zero(words_[wordIndex]);
 		if (firstZero != kBitsPerWord) {
 			return wordIndex * kBitsPerWord + firstZero;
 		}

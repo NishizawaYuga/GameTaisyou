@@ -69,6 +69,14 @@ void Lane::Initialize(Model* laneModel, Model* lineModel, Model* noteModel[12], 
 	pedestalPos.Initialize();
 	pedestal = Model::CreateFromOBJ("pedestal", true);
 
+	//ライト
+	for (int i = 0; i < 4; i++) {
+		lightUp[i] = nullptr;
+		lightUp[i] = Model::CreateFromOBJ("lightUp", true);
+		lightUpPos[i].translation_ = Vector3(0.05f + i * 1.135f, -2.0f,-35.0f);
+		lightUpPos[i].Initialize();
+	}
+
 	//デフォルトヒットタイマー
 	defaultHitTimer = 120;
 
@@ -321,6 +329,28 @@ void Lane::Draw(ViewProjection viewProjection) {
 			}
 		}
 	}
+	//ライト
+	if (moveFlag) {
+		if (style == 0) {
+			if (input_->PushKey(DIK_F)) { lightUp[0]->Draw(lightUpPos[0], viewProjection); }
+			if (input_->PushKey(DIK_G)) { lightUp[1]->Draw(lightUpPos[1], viewProjection); }
+			if (input_->PushKey(DIK_H)) { lightUp[2]->Draw(lightUpPos[2], viewProjection); }
+			if (input_->PushKey(DIK_J)) { lightUp[3]->Draw(lightUpPos[3], viewProjection); }
+		}
+		else if (style == 1) {
+			if (input_->PushKey(DIK_D)) { lightUp[0]->Draw(lightUpPos[0], viewProjection); }
+			if (input_->PushKey(DIK_F)) { lightUp[1]->Draw(lightUpPos[1], viewProjection); }
+			if (input_->PushKey(DIK_K)) { lightUp[2]->Draw(lightUpPos[2], viewProjection); }
+			if (input_->PushKey(DIK_L)) { lightUp[3]->Draw(lightUpPos[3], viewProjection); }
+		}
+		else if (style == 0) {
+			if (input_->PushKey(DIK_D)) { lightUp[0]->Draw(lightUpPos[0], viewProjection); }
+			if (input_->PushKey(DIK_G)) { lightUp[1]->Draw(lightUpPos[1], viewProjection); }
+			if (input_->PushKey(DIK_J)) { lightUp[2]->Draw(lightUpPos[2], viewProjection); }
+			if (input_->PushKey(DIK_L)) { lightUp[3]->Draw(lightUpPos[3], viewProjection); }
+		}
+	}
+
 	//ウォール描画
 	if (wallNum > 0.0f) {
 		wall->Draw(wallPosition, viewProjection);
